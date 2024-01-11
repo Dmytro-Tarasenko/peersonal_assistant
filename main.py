@@ -5,6 +5,7 @@ Personal_assistant is a personal manager for everyday tasks:
     keeping personal notes
 """
 from textual.app import App, ComposeResult
+from textual.binding import Binding
 from textual.widgets import (Header,
                              Footer,
                              TabbedContent,
@@ -23,6 +24,7 @@ class PersonalAssistant(App):
         ("c", "show_tab('contacts')", "Contacts"),
         ("n", "show_tab('notes')", "Notes"),
         ("s", "show_tab('settings')", "Settings"),
+        Binding("ctrl+q", "quit", "Save all and quit", show=True, priority=True)
     ]
 
     def compose(self) -> ComposeResult:
