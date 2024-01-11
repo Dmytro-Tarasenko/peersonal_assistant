@@ -40,10 +40,6 @@ class PersonalAssistant(App):
             with TabPane("Settings", id="settings"):
                 yield settings.paSettings
 
-    def toggle_dark(self) -> None:
-        """Switch to dark mode and back"""
-        self.dark = not self.dark
-
     def action_show_tab(self, tab_id: str) -> None:
         """
         Switching tabs by id
