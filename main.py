@@ -24,7 +24,7 @@ class PersonalAssistant(App):
         ("c", "show_tab('contacts')", "Contacts"),
         ("n", "show_tab('notes')", "Notes"),
         ("s", "show_tab('settings')", "Settings"),
-        Binding("ctrl+q", "quit", "Save all and quit", show=True, priority=True)
+        Binding("ctrl+c", "quit", "Save all and quit", show=True, priority=True)
     ]
 
     def compose(self) -> ComposeResult:
