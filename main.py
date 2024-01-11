@@ -11,7 +11,7 @@ from textual.widgets import (Header,
                              TabbedContent,
                              TabPane)
 
-from tui import dashboard, contacts, notes, settings
+from tui import dashboard, contacts, notes, settings, sorter
 
 
 class PersonalAssistant(App):
@@ -23,6 +23,7 @@ class PersonalAssistant(App):
         ("d", "show_tab('dashbrd')", "Dashboard"),
         ("c", "show_tab('contacts')", "Contacts"),
         ("n", "show_tab('notes')", "Notes"),
+        ("f", "show_tab('sort')", "File sorter"),
         ("s", "show_tab('settings')", "Settings"),
         Binding("ctrl+q", "quit", "Save all and quit", show=True, priority=True)
     ]
@@ -41,6 +42,8 @@ class PersonalAssistant(App):
                 yield notes.paNotes
             with TabPane("Settings", id="settings"):
                 yield settings.paSettings
+            with TabPane("File Sorter", id="sort"):
+                yield sorter.paSorter
 
     def action_show_tab(self, tab_id: str) -> None:
         """
