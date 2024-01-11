@@ -48,6 +48,14 @@ class PersonalAssistant(App):
         """
         self.get_child_by_type(TabbedContent).active = tab_id
 
+    def action_quit(self) -> None:
+        """Performes quit action"""
+        with open("addressbook.dat", "a") as ab_file:
+            ab_file.write("AddressBook is saved\n")
+        with open("notebook.dat", "a") as nb_file:
+            nb_file.write("AddressBook is saved\n")
+        self.exit()
+
 
 if __name__ == "__main__":
     # Load/Create AddressBook
