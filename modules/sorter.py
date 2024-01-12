@@ -153,7 +153,7 @@ def list_unknown_extensions(folder, output_file):
                 file_path = os.path.join(root, file_name)
                 if categorize_file(file_path) == 'unknown':
                     unknown_extensions.add(os.path.splitext(file_name)[-1][1:])
-        unknown_extensions_str = ', '.join(sorted(unknown_extensions.title()))
+        unknown_extensions_str = ', '.join(sorted(unknown_extensions))
         output_file_handle.write(unknown_extensions_str)
 
 def display_file_contents(file_path):
