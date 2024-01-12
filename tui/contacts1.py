@@ -23,10 +23,10 @@ class Phone(Field):
 
 
 class Address(Field):
-    def __init__(self, capitalize=None, zip=None, city=None,
+    def __init__(self, capitalize=None, zip_code=None, city=None,
                   street=None, house=None, apartment=None):
         self.capitalize = capitalize
-        self.zip = zip
+        self.zip_code = zip_code
         self.city = city
         self.street = street
         self.house = house
