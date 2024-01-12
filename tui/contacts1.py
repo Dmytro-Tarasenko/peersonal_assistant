@@ -152,12 +152,24 @@ class Record:
         """
         self.phones.append(Phone(value))
 
-    def add_address(self, value: str):
+    def add_address(self,
+                    capitalize: str = None,
+                    zip_code: str = None,
+                    city: str = None,
+                    street: str = None,
+                    house: str = None,
+                    apartment: str = None):
         """
         Adds an address to a record.
-        :param value: Address to add.
+        :param capitalize: Area name.
+        :param zip_code: Zip code.
+        :param city: Name of the city.
+        :param street: Street name.
+        :param house: House number.
+        :param apartment: Apartment number.
         """
-        self.address.append(Address(value))
+        self.address.append(Address(capitalize, zip_code, city,
+                                    street, house, apartment))
 
     def add_email(self, value: str):
         """
