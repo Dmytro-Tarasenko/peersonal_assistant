@@ -25,9 +25,11 @@ class PersonalAssistant(App):
         ("n", "show_tab('notes')", "Notes"),
         ("f", "show_tab('sort')", "File sorter"),
         ("s", "show_tab('settings')", "Settings"),
-        Binding("ctrl+q", "quit", "Save all and quit",
+        Binding("ctrl+c", "quit", "Save all and quit",
                 show=True, priority=True)
     ]
+
+    CSS_PATH = ["tcss/main.tcss", "tcss/dashboard.tcss", "tcss/sorter.tcss"]
 
     def compose(self) -> ComposeResult:
         """Create childs for the application"""
@@ -36,7 +38,7 @@ class PersonalAssistant(App):
 
         with TabbedContent():
             with TabPane("Dashboard", id="dashbrd"):
-                yield dashboard.paDashBoard
+                yield dashboard.DashBoard()
             with TabPane("Contacts", id="contacts"):
                 yield contacts.paContacts
             with TabPane("Notes", id="notes"):
@@ -44,7 +46,7 @@ class PersonalAssistant(App):
             with TabPane("Settings", id="settings"):
                 yield settings.paSettings
             with TabPane("File Sorter", id="sort"):
-                yield sorter.paSorter
+                yield sorter.Sorter()
 
     def action_show_tab(self, tab_id: str) -> None:
         """
