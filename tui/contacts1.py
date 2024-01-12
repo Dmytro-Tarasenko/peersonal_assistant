@@ -132,17 +132,20 @@ class Record:
     """
     Class for writing in the address book.
     """
-    def __init__(self, name: str, birthday: str = None):
+    def __init__(self, name: str, address: Address = None,
+                 email: str = None, birthday: str = None):
         """
-        Initializes a record with name and birthday.
+        Initializes a record.
         :param name: Name to record.
+        :param address: Address to record.
+        :param email: Email to record.
         :param birthday: Birthday to record in string format 'DD-MM-YYYY'.
-        This field is optional.
+        Address, Email and Birthday fields is optional.
         """
         self.name = Name(name)
         self.birthday = Birthday(birthday) if birthday else None
-        self.address = []
-        self.email = []
+        self.address = Address(address) if address else None
+        self.email = Email(email) if email else None
         self.phones = []
 
     def add_phone(self, value: str):
@@ -152,31 +155,19 @@ class Record:
         """
         self.phones.append(Phone(value))
 
-    def add_address(self,
-                    capitalize: str = None,
-                    zip_code: str = None,
-                    city: str = None,
-                    street: str = None,
-                    house: str = None,
-                    apartment: str = None):
+    def add_address(self, value: Address):
         """
         Adds an address to a record.
-        :param capitalize: Area name.
-        :param zip_code: Zip code.
-        :param city: Name of the city.
-        :param street: Street name.
-        :param house: House number.
-        :param apartment: Apartment number.
+        :param value: Address to add.
         """
-        self.address.append(Address(capitalize, zip_code, city,
-                                    street, house, apartment))
+        self.address = value
 
     def add_email(self, value: str):
         """
         Adds an email to a record.
         :param value: Email to add.
         """
-        self.email.append(Email(value))
+        self.email = Email(value)
 
     def add_birthday(self, value: str):
         """
