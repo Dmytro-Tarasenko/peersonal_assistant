@@ -1,0 +1,8 @@
+.tree_button{
+    margin: 1;
+    height: 3;
+}
+
+#file_sorter_tree{
+    height: 4fr;
+}

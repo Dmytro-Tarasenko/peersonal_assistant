@@ -1,0 +1,23 @@
+#db_bday{
+    width: 2fr;
+}
+
+#db_bd_today{
+    height: 1fr;
+}
+
+#db_bd_upcoming{
+    height: 2fr;
+}
+
+#db_stats{
+    width: 1fr;
+}
+
+.db_stats_row{
+    height: 1fr;
+}
+
+.db_stat_filename{
+    overflow: auto;
+}
