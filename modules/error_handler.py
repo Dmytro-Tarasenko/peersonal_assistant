@@ -1,47 +1,87 @@
-from errors import BaseError, AddressError, AddressBookError, ErrorHandlerError, SorterError, NoteError, NoteBookError
+from textual.app import App, ComposeResult
+from textual.widgets import Input, Label, Button, Header, Footer
+from textual import on
+from errors import NameValidator, PhoneNumberValidator, EmailValidator,BirthdayValidator
 
 
-def error_handler(func):
-    """Декоратор обробки помилок і генерації повідомлень про них користувачеві"""
+class AllInfoValidatorApp(App):
+    """
+        Складає графічний інтерфейс додатка, який містить поля введення для імені, телефону, дня народження
+        та електронної адреси.
 
-    def wrapper(*args, **kwargs):
-        try:
-            result = func(*args, **kwargs)
-            return result
-        except AddressError as address_error:
-            print(f'Помилка в класі AddressBook: {address_error}')
-        except NoteError as note_error:
-            print(f'Помилка в класі NoteError: {note_error}')
-        except NoteBookError as nb_error:
-            print(f'Помилка в класі NoteDookError: {nb_error}')
-        except AddressBookError as ab_error:
-            print(f'Помилка в класі AddressBookError: {ab_error}')
-        except SorterError as sorter_error:
-            print(f'Помилка в модулі sorter: {sorter_error}')
-        except ErrorHandlerError as err_h_error:
-            print(f'Помилка в модулі error_handler: {err_h_error}')
-        except BaseError as base_error:
-            print(f'Помилка в класі BaseError: {base_error}')
-        except Exception as unknown_error:
-            print(f'Невідома помилка: {unknown_error}')
-        return None
-    return wrapper
+        Повертає:
+        - ComposeResult: Результат компонування інтерфейсу.
+        """
+    def compose(self) -> ComposeResult:
+        yield Footer()
+        yield Header()
+        yield Label('Enter user name (only alphabetic characters|first letter must be capital)')
+        yield Input(
+            placeholder="Enter user name...",
+            validators=[NameValidator()],
+            id="name_input",
+        )
+        yield Label("Enter a user phone number (10 digits):")
+        yield Input(
+            placeholder="Enter phone number...",
+            validators=[PhoneNumberValidator()],
+            id="phone_input",
+        )
+        yield Label("Enter user birthday (in format DD-MM-YYYY)")
+        yield Input(
+            placeholder="Enter user birthday...",
+            validators=[BirthdayValidator()],
+            id="birthday_input",
+        )
+        yield Label("Enter email address (Exa.mple123@email.com)")
+        yield Input(
+            placeholder="Enter user email...",
+            validators=[EmailValidator()],
+            id="email_input",
+            restrict=None
+        )
+        yield Button('Submit info')
 
 
-"""Приклад використання:
-class AddressBook:
-    @error_handler
-    def add_phone(self, phone_number)
-        #Логіка додавання номер телефону
-        if not self.is_valid(phone_number)
-            raise InvalidPhoneError('Ви ввели невалідний номер телефону. Введіть десять цифр без зайвих знаків')
-    
-    def is_valid(self, phone_number)
-        #Логіка перевірки номер телефона на валідність
-        return True"""
+    @on(Button.Pressed)
+    def accept_info(self):
+        input_widgets = self.query(Input)
 
-"""В такому випадку, якщо станеться помилка, вивід буде: 
-Помилка в классі AddressBook: Ви ввели невалідний номер телефону. Введіть десять цифр без зайвих знаків
+        name_widget = None
+        phone_widget = None
+        birthday_widget = None
+        email_input = None
 
-InvalidPhoneError (який наслідується від классу AddresBook) у файлі errors.py пока що не прописан, 
-але все вирішуємо поступово, і згодом всі помилки, які в теорії можуть з'явитись будуть додані"""
+        validation_errors = []
+
+        for widget in input_widgets:
+            validation_result = widget.validate(widget.value)
+
+            if not validation_result.is_valid:
+                error_message = validation_result.failure_descriptions[0]
+                self.mount(Label(error_message))
+            else:
+                if widget.id == "name_input":
+                    name_widget = widget.value
+                elif widget.id == "phone_input":
+                    phone_widget = widget.value
+                elif widget.id == "birthday_input":
+                    birthday_widget = widget.value
+                elif widget.id == "email_input":
+                    email_input = widget.value
+
+
+            if validation_errors:
+                for error_message in validation_errors:
+                    self.mount(Label(error_message))
+
+            if name_widget and phone_widget and birthday_widget and email_input:
+                self.mount(Label(f"Name: {name_widget}, Phone: {phone_widget}, "
+                                 f"Birthday: {birthday_widget}, Email: {email_input}"))
+                for widget in input_widgets:
+                    widget.value = ''
+
+
+if __name__ == "__main__":
+    app = AllInfoValidatorApp()
+    app.run()

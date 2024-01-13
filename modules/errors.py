@@ -1,36 +1,79 @@
-class BaseError(Exception):
-    """Базовий клас для помилок у модулі error_handler.py"""
-
-    def __init__(self, message="Помилка в модулі error_handler"):
-        self.message = message
-        super().__init__(self.message)
+from textual.validation import Validator, ValidationResult
+from datetime import datetime
+import re
 
 
-class AddressBookError(BaseError):
-    """Помилка, пов'язана з класом AddressBook"""
-    pass
+class NameValidator(Validator):
+    """
+            Перевіряє коректність введеного імені.
+
+            Параметри:
+            - value (str): Введене значення для перевірки.
+
+            Повертає:
+            - ValidationResult: Результат перевірки.
+            """
+    def validate(self, value: str) -> ValidationResult:
+        if value.isalpha() and value[0].isupper() and len(value) > 1:
+            return self.success()
+        else:
+            return self.failure("Invalid name. Please enter a valid name starting with an uppercase letter"
+                                " and containing only alphabetical characters.")
 
 
-class NoteBookError(BaseError):
-    """Помилка, пов'язана з класом NoteBook"""
-    pass
+class PhoneNumberValidator(Validator):
+    """
+            Перевіряє коректність введеного номера телефону.
+
+            Параметри:
+            - value (str): Введене значення для перевірки.
+
+            Повертає:
+            - ValidationResult: Результат перевірки.
+            """
+    def validate(self, value: str) -> ValidationResult:
+        if value.isdigit() and len(value) == 10:
+            return self.success()
+        else:
+            return self.failure("Invalid phone number. Please enter 10 digits.")
 
 
-class NoteError(BaseError):
-    """Помилка, пов'язана з класом Note"""
-    pass
+class BirthdayValidator(Validator):
+    """
+           Перевіряє коректність введеної дати народження.
+
+           Параметри:
+           - value (str): Введене значення для перевірки.
+
+           Повертає:
+           - ValidationResult: Результат перевірки.
+           """
+    def validate(self, value: str) -> ValidationResult:
+        if len(value) == 10:
+            try:
+                datetime.strptime(value, '%d-%m-%Y')
+                return self.success()
+            except ValueError:
+                return self.failure('Invalid birthday format. Please use DD-MM-YYYY.')
+        else:
+            return self.failure('Invalid birthday format. Please use DD-MM-YYYY.')
 
 
-class AddressError(BaseError):
-    """Помилка, пов'язана з класом Address"""
-    pass
+class EmailValidator(Validator):
+    """
+            Перевіряє коректність введеної електронної адреси.
+
+            Параметри:
+            - value (str): Введене значення для перевірки.
+
+            Повертає:
+            - ValidationResult: Результат перевірки.
+            """
+    def validate(self, value: str) -> ValidationResult:
+        pattern = r"^[a-zA-Z0-9.]+@[a-zA-Z0-9]+\.[a-zA-Z]{2,}$"
+        if re.match(pattern, value):
+            return self.success()
+        else:
+            return self.failure("Invalid email address. Use Exa.mple123@email.com format")
 
 
-class SorterError(BaseError):
-    """Помилка, пов'язана з модулем sorter"""
-    pass
-
-
-class ErrorHandlerError(BaseError):
-    """Помилка, пов'яазана з модулем error_handler"""
-    pass
