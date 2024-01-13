@@ -2,6 +2,7 @@
 Contacts widget
 """
 from rich.console import RenderableType
+from rich.table import Table
 from textual.app import ComposeResult
 from textual.containers import Horizontal, Vertical
 from textual.reactive import reactive
@@ -9,8 +10,7 @@ from textual.widget import Widget
 from textual.widgets import (Markdown,
                              Static,
                              Button,
-                             ContentSwitcher,
-                             Pretty)
+                             ContentSwitcher, DataTable, Label, Input)
 
 
 class ContactDetails(Widget):
@@ -25,14 +25,82 @@ class ContactDetails(Widget):
         self.styles.border_title_align = "left"
         self.border_title = "Contact details"
 
-    def compose(self):
-        str_ = """
-        | Name | e-maile | Phones |
-        |------|---------|--------|
-        |Peter|som@gde.to|123123<br>123213213<br>888|
-        
-        """
-        return Markdown(str_)
+    def render(self) -> RenderableType:
+        table = Table(title="Contact details")
+        table.add_column("Name",
+                         no_wrap=False,
+                         width=20,
+                         justify="left")
+        table.add_column("Birthday",
+                         no_wrap=False,
+                         width=20,
+                         justify="center")
+        table.add_column("Phones",
+                         no_wrap=False,
+                         width=20,
+                         justify="left")
+        table.add_column("E-mail",
+                         no_wrap=True,
+                         overflow="ellipsis",
+                         width=20,
+                         justify="left")
+        table.add_column("Address",
+                         no_wrap=False,
+                         width=25,
+                         justify="left")
+        table.add_row("Vasyl Semen\n Petrovych 12345", "12-12-1234",
+                      "123456\n234567\n567890", "some@gde.to", "Address")
+        return table
+
+
+class ContatsList(Widget):
+    def on_mount(self) -> None:
+        table = self.query_one(DataTable)
+        table.zebra_stripes = True
+        table.cell_padding = 2
+        table.cursor_type = "row"
+        table.add_columns("#", "Name", "Age")
+        table.add_row("1", "Engelgardt asdasd", "43")
+        table.add_row("2", "Shevchenko", "12")
+        table.add_row("3", "Engelgardt", "123")
+
+    def compose(self) -> ComposeResult:
+        yield Vertical(
+            Label("Contacts list:"),
+            DataTable(classes="data_table", id="contacts_list")
+        )
+
+
+class ButtonPressed:
+    pass
+
+
+class ContactsViewControl(Widget):
+    """Widget contains control element for contact filtering\\searchin"""
+    def compose(self) -> ComposeResult:
+        with Vertical(id="cv_controls"):
+            yield Label("Enter at least 3 characters",
+                        classes="cv_input")
+            yield Input(placeholder="Name\\part to lookup",
+                        classes="cv_input")
+            yield Label("Enter at least 3 digits",
+                        classes="cv_input")
+            yield Input(placeholder="Phone\\part  to lookup",
+                        classes="cv_input")
+            yield Label("Enter at least 3 characters",
+                        classes="cv_input")
+            yield Input(placeholder="E-mail\\part to lookup",
+                        classes="cv_input")
+            yield Label("Enter at least 3 symbols",
+                        classes="cv_input")
+            yield Input(placeholder="Address\\part to lookup",
+                        classes="cv_input")
+            yield Button("Lookup", variant="primary")
+
+    def on_button_pressed(self, event: ButtonPressed):
+        """Placeholder gor future"""
+        pass
+
 
 
 class ContactsView(Static):
@@ -41,9 +109,9 @@ class ContactsView(Static):
         yield Horizontal(
             Vertical(
                 ContactDetails(classes="cv_details"),
-                Markdown("Table", classes="cv_details"),
+                ContatsList(classes="cv_details"),
                 id="cntct_viewer_details"),
-            Markdown("Filter\\Find", id="cntct_viewer_ctrl")
+            ContactsViewControl(id="cntct_viewer_ctrl")
         )
 
 

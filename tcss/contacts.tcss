@@ -5,12 +5,17 @@
 
 ContentSwitcher#cs_contacts {
     background: $panel;
-    border: round $primary;
     height: 1fr;
+}
+
+#cv_details_view{
+    border: $warning;
+    overflow-x: auto;
 }
 
 #cntct_viewer_details{
     width: 5fr;
+    overflow-x: auto;
 }
 
 #cntct_viewer_ctrl{
@@ -19,4 +24,9 @@ ContentSwitcher#cs_contacts {
 
 .cv_details{
     height: 1fr;
+    overflow-x: auto;
+}
+
+Label.cv_input{
+    margin: 1 0 0 0;
 }
