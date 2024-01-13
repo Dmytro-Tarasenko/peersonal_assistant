@@ -57,7 +57,7 @@ class Address(Field):
     A class for an address in an address book.
     """
     def __init__(self,
-                 capitalize: str = None,
+                 country: str = None,
                  zip_code:  int = None,
                  city: str = None,
                  street: str = None,
@@ -65,14 +65,14 @@ class Address(Field):
                  apartment: str = None):
         """
         Initializes an address with details.
-        :param capitalize: Area name.
+        :param country: Area name.
         :param zip_code: Zip code.
         :param city: Name of the city.
         :param street: Street name.
         :param house: House number.
         :param apartment: Apartment number.
         """
-        self.capitalize = capitalize
+        self.country = country
         self.zip_code = zip_code
         self.city = city
         self.street = street
@@ -125,14 +125,14 @@ class Address(Field):
         """
         Returns the string representation of the address.
         """
-        capitalize = f"Capitalize: {self.capitalize}"
+        country = f"Country: {self.country}"
         zip_code = f"Zip: {self.zip_code}"
         city = f"City: {self.city}"
         street = f"Street: {self.street}"
         house = f"House: {self.house}"
         apartment = f"Apartment: {self.apartment}"
         return (
-            f"|{capitalize} | "
+            f"|{country} | "
             f"{zip_code} | "
             f"{city} | "
             f"{street} | "
@@ -173,7 +173,7 @@ class Record:
         self.phones.append(Phone(value))
 
     def add_edit_address(self,
-                         capitalize: str = None,
+                         country: str = None,
                          zip_code: int = None,
                          city: str = None,
                          street: str = None,
@@ -183,8 +183,8 @@ class Record:
         Adds or edit an address in a record.
         """
         if self.address:
-            if capitalize:
-                self.address.capitalize = capitalize
+            if country:
+                self.address.country = country
             if zip_code:
                 self.address.zip_code = zip_code
             if city:
@@ -196,7 +196,7 @@ class Record:
             if apartment:
                 self.address.apartment = apartment
         else:
-            self.address = Address(capitalize, zip_code, city,
+            self.address = Address(country, zip_code, city,
                                    street, house, apartment)
 
     def add_edit_email(self, value: str):
@@ -246,8 +246,8 @@ class Record:
             if phone.value == old_phone:
                 phone.value = new_phone
                 break
-        else:
-            raise ValueError("phone_not_found")
+            else:
+                raise ValueError("phone_not_found")
 
     def remove_phone(self, value: str) -> None:
         """
@@ -260,8 +260,8 @@ class Record:
             if phone.value == value:
                 self.phones.remove(phone)
                 break
-        else:
-            raise ValueError("phone_not_found")
+            else:
+                raise ValueError("phone_not_found")
 
     def del_address(self) -> None:
         """
