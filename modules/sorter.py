@@ -250,7 +250,7 @@ def list_unknown_extensions(folder: str, output_file: str) -> None:
         output_file_handle.write(unknown_extensions_str)
 
 
-def main(folder_path: str) -> None:
+def sorted_folder(folder_path: str) -> None:
     """
     Sort and categorize files in the specified folder.
 
@@ -275,8 +275,10 @@ def main(folder_path: str) -> None:
     list_unknown_extensions(destination_folder, output_file)
     remove_empty_folders(folder_path)
     remove_empty_folders(destination_folder)
+    
+    return output_file
 
 # Method of use:
-# from sorted_folder import main as sort
+# from sorter import sorted_folder as sort
 
 # sort("C:\\Users\\333\\Desktop\\test_garbage_folder_etalon")
