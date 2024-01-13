@@ -87,7 +87,7 @@ class UpcomingMates(Widget):
         table.cell_padding = 2
         table.cursor_type = "row"
         table.add_columns("#", "Name", "Birthday", "Age")
-        table.add_row("1", "Engelgardt asdasd", "12-01-1980", "43")
+        table.add_row("1", "Engelgardt asdasd asdasdasdasdasdasdasdasd", "12-01-1980", "43")
         table.add_row("2", "Shevchenko", "16-01-1969", "55")
         table.add_row("3", "Engelgardt", "17-01-1926", "98")
 

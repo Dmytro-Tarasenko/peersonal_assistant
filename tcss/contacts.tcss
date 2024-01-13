@@ -1,0 +1,22 @@
+#contacts_workspaces {
+    height: 3;
+    margin: 0 1;
+}
+
+ContentSwitcher#cs_contacts {
+    background: $panel;
+    border: round $primary;
+    height: 1fr;
+}
+
+#cntct_viewer_details{
+    width: 5fr;
+}
+
+#cntct_viewer_ctrl{
+    width: 2fr;
+}
+
+.cv_details{
+    height: 1fr;
+}

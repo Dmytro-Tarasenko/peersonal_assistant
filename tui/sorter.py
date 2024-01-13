@@ -55,10 +55,10 @@ class Sorter(Static):
                                              node: TreeNode[DirEntry]) -> None:
         """Sets the selected in DirTreeSelected"""
         selected: DirTreeSelected = self.query_one("#dir_selected")
-        #dir_tree: DirectoryTree = self.query_one("#file_sorter_tree")
-        # selected.selected = path
-        selected.selected = node.data
+        dir_tree: DirectoryTree = self.query_one("#file_sorter_tree")
+        dir_tree.path = selected.selected = node.path
         selected.refresh()
+        dir_tree.refresh()
 
     def on_button_pressed(self, event: Button.Pressed) -> None:
         """Event Handler for Buttons"""
