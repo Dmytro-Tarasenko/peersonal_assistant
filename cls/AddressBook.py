@@ -5,7 +5,13 @@ import datetime
 
 class Address:
     """Class representing an address."""
-    def __init__(self, country: str, zip_code: int, city: str, street: str, house: str, apartment: str):
+    def __init__(self,
+             country: str,
+             zip_code: int,
+             city: str,
+             street: str,
+             house: str,
+             apartment: str):
         """Initialize an Address object.
 
         Args:
@@ -23,13 +29,18 @@ class Address:
         self.house = house
         self.apartment = apartment
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         """Return a string representation of the Address object."""
         return f"{self.country}|{self.zip_code}|{self.city}|{self.street}|{self.house}|{self.apartment}"
 
 
 class AddressBook(UserDict):
     """Class representing an address book."""
+    
+    def __iter__(self) -> iter:
+        """Return an iterator over the records in the address book."""
+        return iter(self.data.values())
+    
     def add_record(self, record: 'Record') -> None:
         """Add a new record to the address book.
 
@@ -58,20 +69,20 @@ class AddressBook(UserDict):
         if record.search_str in self.data:
             del self.data[record.search_str]
 
-    def upcoming_birthdays(self, days: int = 7) -> List['Record']:
-        """Return a list of contacts with birthdays upcoming in the specified number of days.
-
-        Args:
-            days (int): The number of days to look ahead.
+    def upcoming_birthdays(self) -> List['Record']:
+        """Return a list of contacts with birthdays upcoming from tomorrow to 7 days ahead.
 
         Returns:
             List[Record]: List of records with upcoming birthdays.
         """
         today = datetime.date.today()
-        upcoming_date = today + datetime.timedelta(days=days)
-        upcoming_contacts = [record for record in self.values() if record.birthday == upcoming_date]
+        tomorrow = today + datetime.timedelta(days=1)
+        upcoming_date = tomorrow + datetime.timedelta(days=6)
+        
+        upcoming_contacts = [
+            record for record in self.values() 
+            if tomorrow <= record.birthday <= upcoming_date
+        ]
+        
         return upcoming_contacts
 
-
-if __name__ == "__main__":
-    address_book = AddressBook()
