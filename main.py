@@ -29,7 +29,10 @@ class PersonalAssistant(App):
                 show=True, priority=True)
     ]
 
-    CSS_PATH = ["tcss/main.tcss", "tcss/dashboard.tcss", "tcss/sorter.tcss"]
+    CSS_PATH = ["tcss/main.tcss",
+                "tcss/dashboard.tcss",
+                "tcss/sorter.tcss",
+                "tcss/contacts.tcss"]
 
     def compose(self) -> ComposeResult:
         """Create childs for the application"""
@@ -40,7 +43,7 @@ class PersonalAssistant(App):
             with TabPane("Dashboard", id="dashbrd"):
                 yield dashboard.DashBoard()
             with TabPane("Contacts", id="contacts"):
-                yield contacts.paContacts
+                yield contacts.Contacts()
             with TabPane("Notes", id="notes"):
                 yield notes.paNotes
             with TabPane("Settings", id="settings"):
