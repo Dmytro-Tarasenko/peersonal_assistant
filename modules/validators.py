@@ -75,5 +75,3 @@ class EmailValidator(Validator):
             return self.success()
         else:
             return self.failure("Invalid email address. Use Exa.mple123@email.com format")
-
-
