@@ -1,10 +1,12 @@
 from textual.app import App, ComposeResult
 from textual.widgets import Input, Label, Button, Header, Footer
 from textual import on
-from errors import NameValidator, PhoneNumberValidator, EmailValidator,BirthdayValidator
+from errors import NameValidator, PhoneNumberValidator, EmailValidator, BirthdayValidator
 
 
 class AllInfoValidatorApp(App):
+    def action_bell(self):
+        self.bell()
     """
         Складає графічний інтерфейс додатка, який містить поля введення для імені, телефону, дня народження
         та електронної адреси.
@@ -59,7 +61,8 @@ class AllInfoValidatorApp(App):
 
             if not validation_result.is_valid:
                 error_message = validation_result.failure_descriptions[0]
-                self.mount(Label(error_message))
+                self.notify(message=error_message, title='Error', severity='error', timeout=7)
+                self.action_bell()
             else:
                 if widget.id == "name_input":
                     name_widget = widget.value
@@ -70,16 +73,18 @@ class AllInfoValidatorApp(App):
                 elif widget.id == "email_input":
                     email_input = widget.value
 
-
+        def notification():
             if validation_errors:
                 for error_message in validation_errors:
-                    self.mount(Label(error_message))
+                    self.notify(message=error_message, title='Error', severity='error', timeout=7)
+                    self.action_bell()
 
             if name_widget and phone_widget and birthday_widget and email_input:
-                self.mount(Label(f"Name: {name_widget}, Phone: {phone_widget}, "
-                                 f"Birthday: {birthday_widget}, Email: {email_input}"))
+                self.notify(message="User`s information added to address book", title='Success',
+                            severity='information', timeout=7)
                 for widget in input_widgets:
                     widget.value = ''
+        return notification()
 
 
 if __name__ == "__main__":
