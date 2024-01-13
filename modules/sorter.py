@@ -1,13 +1,24 @@
 import os
 import shutil
 import zipfile
+from typing import List
 
-def normalize(input_str, is_unknown=False):
-    """Нормалізує рядок, транслітеруючи кирилицю та зберігаючи лише букви та цифри"""
+
+def normalize(input_str: str, is_unknown: bool = False) -> str:
+    """
+    Normalize a string by transliterating Cyrillic characters
+        and using only letters and digits.
+
+    :param input_str: Input string
+    :param is_unknown: Indicates whether the string should
+        be treated as an unknown file
+    :return: Normalized string
+    """
     translit_mapping = {
-        'а': 'a', 'б': 'b', 'в': 'v', 'г': 'g', 'д': 'd', 'е': 'e', 'є': 'ie', 'ж': 'zh', 'з': 'z',
-        'и': 'i', 'і': 'i', 'ї': 'i', 'й': 'i', 'к': 'k', 'л': 'l', 'м': 'm', 'н': 'n', 'о': 'o',
-        'п': 'p', 'р': 'r', 'с': 's', 'т': 't', 'у': 'u', 'ф': 'f', 'х': 'kh', 'ц': 'ts', 'ч': 'ch',
+        'а': 'a', 'б': 'b', 'в': 'v', 'г': 'g', 'д': 'd', 'е': 'e', 'є': 'ie',
+        'ж': 'zh', 'з': 'z', 'и': 'i', 'і': 'i', 'ї': 'i', 'й': 'i', 'к': 'k',
+        'л': 'l', 'м': 'm', 'н': 'n', 'о': 'o', 'п': 'p', 'р': 'r', 'с': 's',
+        'т': 't', 'у': 'u', 'ф': 'f', 'х': 'kh', 'ц': 'ts', 'ч': 'ch',
         'ш': 'sh', 'щ': 'shch', 'ь': '', 'ю': 'iu', 'я': 'ia'
     }
 
@@ -37,8 +48,14 @@ def normalize(input_str, is_unknown=False):
 
     return result
 
-def categorize_file(file_path):
-    """Визначає категорію файлу на основі його розширення"""
+
+def categorize_file(file_path: str) -> str:
+    """
+    Categorize a file based on its extension.
+
+    :param file_path: Path to the file
+    :return: File category (images, video, documents, audio, archives, unknown)
+    """
     extension = file_path.split('.')[-1].upper()
     if extension in ('JPEG', 'PNG', 'JPG', 'SVG'):
         return 'images'
@@ -53,33 +70,62 @@ def categorize_file(file_path):
     else:
         return 'unknown'
 
-def extract_archive(archive_path, extract_to):
-    """Розпаковує архів та транслітерує назви файлів у ньому"""
+
+def extract_archive(archive_path: str, extract_to: str) -> None:
+    """
+    Extract an archive and transliterate the names of the files in it.
+
+    :param archive_path: Path to the archive
+    :param extract_to: Folder for extraction
+    """
     if zipfile.is_zipfile(archive_path):
-        archive_folder_name = os.path.splitext(os.path.basename(archive_path))[0]
-        archive_folder = os.path.join(extract_to, 'archives', archive_folder_name)
+        archive_folder_name = os.path.splitext(
+            os.path.basename(archive_path))[0]
+        archive_folder = os.path.join(
+            extract_to, 'archives', archive_folder_name)
         os.makedirs(archive_folder, exist_ok=True)
 
         with zipfile.ZipFile(archive_path, 'r') as zip_ref:
             for file_info in zip_ref.infolist():
-                file_name_without_extension, file_extension = os.path.splitext(file_info.filename)
+                file_name_without_extension, file_extension = os.path.splitext(
+                    file_info.filename)
                 if file_name_without_extension:
-                    normalized_name = normalize(file_name_without_extension, is_unknown=True)
-                    extracted_file_path = os.path.join(archive_folder, f"{normalized_name}{file_extension}")
+                    normalized_name = normalize(
+                        file_name_without_extension, is_unknown=True)
+                    extracted_file_path = os.path.join(
+                        archive_folder, f"{normalized_name}{file_extension}")
                     zip_ref.extract(file_info, archive_folder)
-                    os.rename(os.path.join(archive_folder, file_info.filename), extracted_file_path)
+                    os.rename(
+                        os.path.join(
+                            archive_folder,
+                            file_info.filename),
+                        extracted_file_path)
                     print(f"Extracted file: {extracted_file_path}")
 
-def remove_old_archives(folder):
-    """Видаляє старі архіви з папки"""
+
+def remove_old_archives(folder: str) -> None:
+    """
+    Remove old archives from a folder.
+
+    :param folder: Path to the folder
+    """
     for root, dirs, files in os.walk(folder):
         for file in files:
             file_path = os.path.join(root, file)
             if categorize_file(file_path) == 'archives':
                 os.remove(file_path)
 
-def process_folder(folder_path, destination_folder, empty_folders):
-    """Обробляє вміст папки, переміщає файли та рекурсивно викликає саму """
+
+def process_folder(folder_path: str, destination_folder: str,
+                   empty_folders: List[str]) -> None:
+    """
+    Process the contents of a folder, move files,
+        and recursively call itself for subfolders.
+
+    :param folder_path: Path to the folder
+    :param destination_folder: Folder for moving files
+    :param empty_folders: List of empty folders
+    """
     print(f"Processing folder: {folder_path}")
 
     items = os.listdir(folder_path)
@@ -89,12 +135,15 @@ def process_folder(folder_path, destination_folder, empty_folders):
 
         if os.path.isfile(item_path):
             destination = categorize_file(item_path)
-            normalized_name = normalize(os.path.basename(item_path), destination == 'unknown')
+            normalized_name = normalize(
+                os.path.basename(item_path),
+                destination == 'unknown')
 
             if destination == 'archives':
                 extract_archive(item_path, destination_folder)
             else:
-                new_file_path = os.path.join(destination_folder, destination, normalized_name)
+                new_file_path = os.path.join(
+                    destination_folder, destination, normalized_name)
                 os.makedirs(os.path.dirname(new_file_path), exist_ok=True)
                 shutil.move(item_path, new_file_path)
 
@@ -104,16 +153,34 @@ def process_folder(folder_path, destination_folder, empty_folders):
     if not os.listdir(folder_path):
         empty_folders.append(folder_path)
 
-def create_category_folders(root_folder, destination_folder):
-    """Створює папки для категорій файлів"""
-    categories = ['images', 'video', 'documents', 'audio', 'archives', 'unknown']
+
+def create_category_folders(root_folder: str, destination_folder: str) -> None:
+    """
+    Create folders for file categories.
+
+    :param root_folder: Root folder where categories are located
+    :param destination_folder: Folder for categories
+    """
+    categories = [
+        'images',
+        'video',
+        'documents',
+        'audio',
+        'archives',
+        'unknown']
     for category in categories:
-        if category not in ['archives', 'video', 'audio', 'documents', 'images']:
+        if category not in ['archives', 'video',
+                            'audio', 'documents', 'images']:
             category_path = os.path.join(destination_folder, category)
             os.makedirs(category_path, exist_ok=True)
 
-def remove_empty_folders(folder):
-    """Видаляє порожні папки"""
+
+def remove_empty_folders(folder: str) -> None:
+    """
+    Remove empty folders.
+
+    :param folder: Path to the folder
+    """
     for root, dirs, files in os.walk(folder, topdown=False):
         for dir in dirs:
             dir_path = os.path.join(root, dir)
@@ -124,9 +191,21 @@ def remove_empty_folders(folder):
                 except OSError as e:
                     print(f"Failed to remove empty folder {dir_path}: {e}")
 
-def list_files_by_category(folder, output_file):
-    """Створює список файлів за категоріями та записує його у текстовий файл"""
-    categories = ['images', 'video', 'documents', 'audio', 'archives', 'unknown']
+
+def list_files_by_category(folder: str, output_file: str) -> None:
+    """
+    Create a list of files by category and write it to a text file.
+
+    :param folder: Path to the folder with categories
+    :param output_file: Path to the output file
+    """
+    categories = [
+        'images',
+        'video',
+        'documents',
+        'audio',
+        'archives',
+        'unknown']
     with open(output_file, 'w', encoding='utf-8') as output_file_handle:
         for category in categories:
             output_file_handle.write(f"\nFiles in category {category}:\n")
@@ -136,15 +215,29 @@ def list_files_by_category(folder, output_file):
                     file_path = os.path.join(root, file_name)
                     output_file_handle.write(f"{file_path}\n")
 
-def list_known_extensions(folder, output_file, known_extensions):
-    """Додає відомі розширення до текстового файлу"""
+
+def list_known_extensions(folder: str, output_file: str,
+                          known_extensions: set) -> None:
+    """
+    List known extensions and write them to a text file.
+
+    :param folder: Path to the folder with known extensions
+    :param output_file: Path to the output file
+    :param known_extensions: List of known extensions
+    """
     with open(output_file, 'a', encoding='utf-8') as output_file_handle:
         output_file_handle.write("\nKnown extensions:\n")
         known_extensions_str = ', '.join(sorted(known_extensions))
         output_file_handle.write(known_extensions_str)
 
-def list_unknown_extensions(folder, output_file):
-    """Додає невідомі розширення до текстового файлу"""
+
+def list_unknown_extensions(folder: str, output_file: str) -> None:
+    """
+    List unknown extensions and write them to a text file.
+
+    :param folder: Path to the folder with unknown extensions
+    :param output_file: Path to the output file
+    """
     with open(output_file, 'a', encoding='utf-8') as output_file_handle:
         output_file_handle.write("\nUnknown extensions:\n")
         unknown_extensions = set()
@@ -156,35 +249,34 @@ def list_unknown_extensions(folder, output_file):
         unknown_extensions_str = ', '.join(sorted(unknown_extensions))
         output_file_handle.write(unknown_extensions_str)
 
-def display_file_contents(file_path):
-    """Виводить вміст вказаного текстового файлу на екран."""
-    with open(file_path, 'r', encoding='utf-8') as file:
-        contents = file.read()
-        print(contents)
 
-def main(folder_path):
-    """Головна функція, яка обробляє вказану папку та виводить результат у текстовий файл"""
+def main(folder_path: str) -> None:
+    """
+    Sort and categorize files in the specified folder.
+
+    :param folder_path: Path to the folder to be sorted
+    """
     destination_folder = folder_path
     output_file = os.path.join(folder_path, 'results.txt')
 
     create_category_folders(folder_path, destination_folder)
-    empty_folders = [] 
+    empty_folders = []
     process_folder(folder_path, destination_folder, empty_folders)
     remove_old_archives(folder_path)
     list_files_by_category(destination_folder, output_file)
-    
-    known_extensions = {'JPEG', 'PNG', 'JPG', 'SVG', 'AVI', 'MP4', 'MOV', 'MKV', 
-                        'DOC', 'DOCX', 'TXT', 'PDF', 'XLSX', 'PPTX', 'MP3', 
-                        'OGG', 'WAV', 'AMR', 'ZIP', 'GZ', 'TAR'}
+
+    known_extensions = {
+        'JPEG', 'PNG', 'JPG', 'SVG', 'AVI', 'MP4', 'MOV',
+        'MKV', 'DOC', 'DOCX', 'TXT', 'PDF', 'XLSX', 'PPTX',
+        'MP3', 'OGG', 'WAV', 'AMR', 'ZIP', 'GZ', 'TAR'
+        }
 
     list_known_extensions(destination_folder, output_file, known_extensions)
     list_unknown_extensions(destination_folder, output_file)
     remove_empty_folders(folder_path)
     remove_empty_folders(destination_folder)
-    display_file_contents(output_file)
 
+# Method of use:
+# from sorted_folder import main as sort
 
-#Спосіб використання:
-# import sorter
-
-# sorter.main("C:\\Users\\333\\Desktop\\test_garbage_folder_etalon")
+# sort("C:\\Users\\333\\Desktop\\test_garbage_folder_etalon")
