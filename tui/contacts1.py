@@ -1,4 +1,3 @@
-from collections import UserDict
 from datetime import datetime
 
 
@@ -13,7 +12,7 @@ class Field:
         """
         self.value = value
 
-    def __str__(self) -> str:
+    def __repr__(self) -> str:
         """
         Returns the string representation of the field value.
         """
@@ -38,7 +37,7 @@ class Birthday(Field):
         """
         self.value = datetime.strptime(value, '%d-%m-%Y')
 
-    def __str__(self) -> str:
+    def __repr__(self) -> str:
         """
         Returns a string representation of the birthday
         in the format 'DD-MM-YYYY'.
@@ -59,7 +58,7 @@ class Address(Field):
     """
     def __init__(self,
                  capitalize: str = None,
-                 zip_code: str = None,
+                 zip_code:  int = None,
                  city: str = None,
                  street: str = None,
                  house: str = None,
@@ -80,28 +79,49 @@ class Address(Field):
         self.house = house
         self.apartment = apartment
 
-# чи треба методи додавання полів в class Address(Field):
-# як я зробив це нижче? якщо треба , то дороблю док стринги.
-
     def _add_capitalize(self, value: str):
+        """
+        Adds or changes the field name in the address.
+        :param value: The name of the area to add or modify.
+        """
         self.capitalize = value
 
-    def _add_zip_code(self, value: str):
+    def _add_zip_code(self, value: int):
+        """
+        Adds or changes the postal code in the address.
+        :param value: The zip code to add or change.
+        """
         self.zip_code = value
 
     def _add_city(self, value: str):
+        """
+        Adds or changes the name of the city in the address.
+        :param value: The name of the city to add or change.
+        """
         self.city = value
 
     def _add_street(self, value: str):
+        """
+        Adds or changes the street name in the address.
+        :param value: Street name to add or change.
+        """
         self.street = value
 
     def _add_house(self, value: str):
+        """
+        Adds or changes the house number in the address.
+        :param value: House number to add or change.
+        """
         self.house = value
 
     def _add_apartment(self, value: str):
+        """
+        Adds or changes the apartment number in the address.
+        :param value: Apartment number to add or change.
+        """
         self.apartment = value
 
-    def __str__(self) -> str:
+    def __repr__(self) -> str:
         """
         Returns the string representation of the address.
         """
@@ -112,12 +132,12 @@ class Address(Field):
         house = f"House: {self.house}"
         apartment = f"Apartment: {self.apartment}"
         return (
-            f"{capitalize}, "
-            f"{zip_code}, "
-            f"{city}, "
-            f"{street}, "
-            f"{house}, "
-            f"{apartment}"
+            f"|{capitalize} | "
+            f"{zip_code} | "
+            f"{city} | "
+            f"{street} | "
+            f"{house} | "
+            f"{apartment} "
         )
 
 
@@ -132,19 +152,16 @@ class Record:
     """
     Class for writing in the address book.
     """
-    def __init__(self, name: str, address: Address = None,
-                 email: str = None, birthday: str = None):
+    def __init__(self, name: str, birthday: str = None, email: str = None):
         """
         Initializes a record.
         :param name: Name to record.
-        :param address: Address to record.
-        :param email: Email to record.
         :param birthday: Birthday to record in string format 'DD-MM-YYYY'.
-        Address, Email and Birthday fields is optional.
+        This field is optional.
         """
         self.name = Name(name)
         self.birthday = Birthday(birthday) if birthday else None
-        self.address = Address(address) if address else None
+        self.address = None
         self.email = Email(email) if email else None
         self.phones = []
 
@@ -155,103 +172,107 @@ class Record:
         """
         self.phones.append(Phone(value))
 
-    def add_address(self, value: Address):
+    def add_edit_address(self,
+                         capitalize: str = None,
+                         zip_code: int = None,
+                         city: str = None,
+                         street: str = None,
+                         house: str = None,
+                         apartment: str = None):
         """
-        Adds an address to a record.
-        :param value: Address to add.
+        Adds or edit an address in a record.
         """
-        self.address = value
+        if self.address:
+            if capitalize:
+                self.address.capitalize = capitalize
+            if zip_code:
+                self.address.zip_code = zip_code
+            if city:
+                self.address.city = city
+            if street:
+                self.address.street = street
+            if house:
+                self.address.house = house
+            if apartment:
+                self.address.apartment = apartment
+        else:
+            self.address = Address(capitalize, zip_code, city,
+                                   street, house, apartment)
 
-    def add_email(self, value: str):
+    def add_edit_email(self, value: str):
         """
-        Adds an email to a record.
+        Adds or updates email in a record.
         :param value: Email to add.
         """
-        self.email = Email(value)
+        if self.address:
+            self.email = value
+        else:
+            self.email = Email(value)
 
-    def add_birthday(self, value: str):
+    def add_edit_birthday(self, value: str):
         """
         Adds or changes a birthday in a record.
         :param value: The birthday to add or change
         in the string format 'DD-MM-YYYY'.
         """
-        self.birthday = Birthday(value)
-
-# ЩО ТРЕБА ЗМІНИТИ, ДОРОБИТИ, ВИДАЛИТИ ТА ІНШІ ЗАУВАЖЕННЯ ПО КОДУ ВИЩЕ?
-# ДАЛІ З КОДОМ НИЖЧЕ БУДУ ПРАЦЮВАТИ:
-
-    def edit_phone(self, old_phone, new_phone):
-        for p in self.phones:
-            if p.value == old_phone:
-                p.value = new_phone
-                break
-        else:
-            raise ValueError(f"Phone number {old_phone} not found")
-
-    def remove_phone(self, phone):
-        for p in self.phones:
-            if p.value == phone:
-                self.phones.remove(p)
-                break
-        else:
-            raise ValueError(f"Phone number {phone} not found")
-
-    def find_phone(self, value):
-        for phone in self.phones:
-            if value == phone.value:
-                return phone
-
-    def __str__(self):
-        contact_name = f"Contact name: {self.name.value}"
-        addreses = f"Address: {self.address}"
-        email = f"email: {self.email}"
-        phones = f"phones: {'| '.join(p.value for p in self.phones)}"
-        bday = f"Birthday: {self.birthday}"
-        return f"{contact_name}, {phones}, {addreses}, {email}, {bday}"
-
-    def days_to_birthday(self):
         if self.birthday:
-            now = datetime.now()
-            next_birthday = datetime(now.year, self.birthday.date.month,
-                                     self.birthday.date.day)
-            if now > next_birthday:
-                next_birthday = datetime(now.year + 1,
-                                         self.birthday.date.month,
-                                         self.birthday.date.day)
-            return (next_birthday - now).days
+            self.birthday = value
         else:
-            raise ValueError("Birthday not set")
+            self.birthday = Birthday(value)
 
-    @property
-    def search_str(self) -> str:
-        name_str = f"$NAME${self.name.value}"
-        address_str = f"$ADDRESS${', '.join(str(a) for a in self.address)}"
-        email_str = f"$EMAIL${self.email}"
-        phones_str = f"$PHONES${'| '.join(str(p) for p in self.phones)}"
-        bday_str = f"$BDAY${self.birthday.value if self.birthday else ''}"
+    def __repr__(self) -> str:
+        """
+        Returns the string representation of the record.
+        """
+        phones = (' | '.join(str(phone) for phone in self.phones)
+                  if self.phones else 'None')
         return (
-            f"{name_str}::"
-            f"{address_str}::"
-            f"{email_str}::"
-            f"{phones_str}::"
-            f"{bday_str}"
+            f"|Contact name: {self.name}| "
+            f"phones: {phones}| "
+            f"Address: {self.address}| "
+            f"email: {self.email}| "
+            f"Birthday: {self.birthday}|"
         )
 
-
-class AddressBook(UserDict):
-    def add_record(self, record):
-        if record.name.value not in self.data:
-            self.data[record.name.value] = record
+    def edit_phone(self, old_phone: str, new_phone: str) -> None:
+        """
+        Changes the old phone number to the new one.
+        Parameters:
+        old_phone (str): Old phone number to change.
+        new_phone (str): New phone number to replace the old one.
+        Returns: None
+        """
+        for phone in self.phones:
+            if phone.value == old_phone:
+                phone.value = new_phone
+                break
         else:
-            raise ValueError(f"Record: {record.name.value} already exists.")
+            raise ValueError("phone_not_found")
 
-    def find(self, name):
-        return self.data.get(name, None)
+    def remove_phone(self, value: str) -> None:
+        """
+        Removes a phone number from the phone list.
+        Parameters:
+        value (str): The phone number to delete.
+        Returns: None
+        """
+        for phone in self.phones:
+            if phone.value == value:
+                self.phones.remove(phone)
+                break
+        else:
+            raise ValueError("phone_not_found")
 
-    def delete(self, name):
-        if name in self.data:
-            del self.data[name]
+    def del_address(self) -> None:
+        """
+        Deletes the address from the record.
+        Returns: None
+        """
+        self.address = None
 
-    def __str__(self):
-        records = "|".join(str(record) for record in self.data.values())
-        return f"AddressBook({records})"
+    def del_email(self) -> None:
+        """
+        Deletes an email from a record.
+        Returns: None
+        """
+        self.email = None
