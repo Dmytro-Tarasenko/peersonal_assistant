@@ -1,10 +1,28 @@
 """
 File Sorter widget
 """
+from rich.console import RenderableType
 from textual.app import ComposeResult
 from textual.containers import Vertical, Horizontal
+from textual.reactive import reactive
+from textual.widget import Widget
 from textual.widgets import Static, DirectoryTree, Button
 from pathlib import Path
+
+from textual.widgets._directory_tree import DirEntry
+from textual.widgets._tree import TreeNode
+
+
+class DirTreeSelected(Static):
+    """Static widget for displaying selected directory"""
+    selected = reactive(str(Path.cwd()))
+
+    def on_mount(self):
+        dir_tree: DirectoryTree = self.parent.query_one("#file_sorter_tree")
+        self.selected = dir_tree.path
+
+    def render(self) -> str:
+        return f"Selected: {self.selected}"
 
 
 class Sorter(Static):
@@ -19,18 +37,28 @@ class Sorter(Static):
         id_ = drive.replace(":", "_drive")
         buttons.append(Button(label, variant="default", classes="tree_button", id=id_))
     if len(buttons) == 0:
-        buttons = [Button("/", variant="default", classes="tree_button", id="root_drive")]
+        buttons = [Button("/", variant="primary", classes="tree_button", id="root_drive")]
 
     def compose(self) -> ComposeResult:
         yield Vertical(
             Horizontal(
                 *self.buttons,
-                Button("^Up^", variant="default", classes="tree_button", id="up_tree"),
+                Button("^Up^", variant="primary", classes="tree_button", id="up_tree"),
                 id="sorter_tree_buttons"
             ),
             self.dir_tree,
+            DirTreeSelected(id="dir_selected"),
             Button("OK", variant="default")
         )
+
+    def on_directory_tree_directory_selected(self,
+                                             node: TreeNode[DirEntry]) -> None:
+        """Sets the selected in DirTreeSelected"""
+        selected: DirTreeSelected = self.query_one("#dir_selected")
+        #dir_tree: DirectoryTree = self.query_one("#file_sorter_tree")
+        # selected.selected = path
+        selected.selected = node.data
+        selected.refresh()
 
     def on_button_pressed(self, event: Button.Pressed) -> None:
         """Event Handler for Buttons"""
@@ -45,6 +73,8 @@ class Sorter(Static):
                 return
             else:
                 new_path = Path(self.cur_dir)
+        else:
+            return
         self.cur_dir = new_path
         drive_tree = self.query_one(DirectoryTree)
         drive_tree.path = self.cur_dir
