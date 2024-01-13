@@ -61,8 +61,8 @@ class AllInfoValidatorApp(App):
 
             if not validation_result.is_valid:
                 error_message = validation_result.failure_descriptions[0]
-                self.notify(message=error_message, title='Error', severity='error', timeout=7)
-                self.action_bell()
+                self.notify(message=error_message, title='Error', severity='error', timeout=7) #Вивід повідомлення
+                self.action_bell() #Спрацьовує дзвіночок при помилці
             else:
                 if widget.id == "name_input":
                     name_widget = widget.value
@@ -76,12 +76,12 @@ class AllInfoValidatorApp(App):
         def notification():
             if validation_errors:
                 for error_message in validation_errors:
-                    self.notify(message=error_message, title='Error', severity='error', timeout=7)
-                    self.action_bell()
+                    self.notify(message=error_message, title='Error', severity='error', timeout=7) #Вивід повідомлення
+                    self.action_bell() #Спрацьовує дзвіночок при помилці
 
             if name_widget and phone_widget and birthday_widget and email_input:
                 self.notify(message="User`s information added to address book", title='Success',
-                            severity='information', timeout=7)
+                            severity='information', timeout=7) #Вивід повідомлення
                 for widget in input_widgets:
                     widget.value = ''
         return notification()
