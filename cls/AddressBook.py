@@ -1,7 +1,7 @@
 from collections import UserDict
 from typing import List
 from datetime import datetime
-
+import pickle
 
 class Field:
     """
@@ -129,12 +129,12 @@ class Record:
         self.phones.append(Phone(value))
 
     def add_edit_address(self,
-                         country: str,
-                         zip_code: int,
-                         city: str,
-                         street: str,
-                         house: str,
-                         apartment: str):
+                         country: str = None,
+                         zip_code: int = None,
+                         city: str = None,
+                         street: str = None,
+                         house: str = None,
+                         apartment: str = None):
         """
         Adds or edit an address in a record.
         """
@@ -320,3 +320,91 @@ class AddressBook(UserDict):
             if tomorrow <= record.birthday <= upcoming_date
         ]
         return upcoming_contacts
+
+
+address_book = AddressBook()
+rec_1 = Record('Bill', '25-12-1990')
+# print(rec_1)
+rec_1.add_edit_address('Ukrane', '45125', 'Kyiv', 'Voli', '51', '150')
+# print(rec_1)
+rec_1.add_phone('1234567899')
+# print(rec_1)
+rec_1.add_edit_address(street='Svobody')
+# print(rec_1)
+rec_1.add_phone('7894561230')
+# print(rec_1)
+rec_1.add_edit_email('noe@gmd.pkj')
+# print(rec_1)
+rec_1.remove_phone('7894561230')
+# print(rec_1)
+rec_1.edit_phone('1234567899', '9994567890')
+# print(rec_1)
+# rec_1.del_address()
+# print(rec_1)
+rec_2 = Record('Noy', '05-02-1980', 'noy@gmail.poj')
+# print(rec_2)
+rec_2.add_phone('5196547535')
+rec_2.add_edit_address('Ukrane', 78956, 'Dnepr', 'Molody', '78', '25')
+rec_2.add_edit_birthday('10-10-1990')
+# print(rec_2)
+rec_2.add_edit_address(zip_code=78912)
+# print(rec_2)
+address_book.add_record(rec_1)
+# print(dictions)
+address_book.add_record(rec_2)
+# print(dictions)
+rec_3 = Record('Nam', '20-12-2000', 'name@gmail.com')
+rec_3.add_phone('4444567855')
+rec_3.add_edit_address('Ukraine', 95147, 'Dnepr', 'Soborna', '2', '50')
+address_book.add_record(rec_3)
+rec_2 = Record('Noy', '05-02-1980', 'noy@gmail.com')
+rec_2.add_edit_address('Ukraine', 12345, 'Lviv', 'Voli', '205', '15')
+rec_2.add_phone('1234561237895')
+rec_2.add_phone('9595858575752')
+
+address_book.add_record(rec_2)
+address_book.add_record(rec_1)
+rec_4 = Record('Kat', '15-01-1950', 'kat@kat.joy')
+address_book.add_record(rec_4)
+rec_new = Record('Pill', '25-12-1990')
+address_book.add_record(rec_new)
+record1 = Record("Іван", '06-07-1998', "ivan.petrov@example.com")
+record2 = Record("Петро", '23-04-2005', "petro.ivanov@example.com")
+address_book.add_record(record1)
+address_book.add_record(record2)
+record1.add_edit_birthday('23-04-2005')
+
+rec_5 = Record('Dan', '25-12-2000', 'ghj@nji.gh')
+rec_5.add_edit_address(country='Ukraine', zip_code=12345, city='Odesa', street='Voly', house= '10', apartment='5')
+rec_5.add_phone('4555552123')
+address_book.add_record(rec_5)
+
+rec_7 = Record('Ivan', '24-02-2020', 'okj@noi.gh')
+rec_7.add_edit_address(country='Ukraine', zip_code=78945, city='Fastov', street='Drugby', house= '140', apartment='54')
+rec_7.add_phone('45558743642')
+address_book.add_record(rec_7)
+
+rec_6 = Record('Jolly', '05-12-1950', 'j@ji.gh')
+rec_6.add_edit_address(country='USA', zip_code=58524, city='Orlean', street='New', house= '200', apartment='500')
+rec_6.add_phone('23232323568945')
+address_book.add_record(rec_6)
+
+rec_8 = Record('Mary', '25-12-1984', 'g@ni.gh')
+rec_8.add_edit_address(country='Poland', zip_code=45615, city='Lublin', street='Kurva', house= '6', apartment='45')
+rec_8.add_phone('44444445115')
+address_book.add_record(rec_8)
+
+rec_9 = Record('Oly', '25-12-2000', 'ghj@nji.gh')
+rec_9.add_edit_address(country='Ukraine', zip_code=85345, city='Odyn', street='Vody', house= '17', apartment='9')
+rec_9.add_phone('66212352123')
+address_book.add_record(rec_9)
+
+rec_10 = Record('Dan', '25-12-2000', 'ghj@nji.gh')
+rec_10.add_edit_address(country='Moldova', zip_code=58345, city='Kisiniv', street='Ukrainy', house= '62', apartment='1')
+rec_10.add_phone('2589631475')
+address_book.add_record(rec_10)
+address_book.print_address_book()
+
+
+with open('addressbook.bin', 'wb') as f:
+    pickle.dump(address_book, f)
