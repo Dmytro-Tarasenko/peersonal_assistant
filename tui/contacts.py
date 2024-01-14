@@ -4,7 +4,7 @@ Contacts widget
 from rich.console import RenderableType
 from rich.table import Table
 from textual.app import ComposeResult
-from textual.containers import Horizontal, Vertical
+from textual.containers import Horizontal, Vertical, Grid
 from textual.reactive import reactive
 from textual.widget import Widget
 from textual.widgets import (Markdown,
@@ -22,47 +22,43 @@ class ContactDetails(Widget):
     email = reactive("email")
     phones = reactive("phones")
     address = reactive("address")
-
-    current_record: Record = Record(name="Taras Shevchenko",
-                                    birthday="09-03-1814",
-                                    email=None,
-                                    address=Address(country="Ukraine",
-                                                    zip_code=None,
-                                                    city="s. Moryntsi",
-                                                    street=None,
-                                                    house=None),
-                                    phones=[Phone(123), Phone(23423), Phone(4323)])
+    current_record = reactive(None)
 
     def on_mount(self) -> None:
         self.styles.border_title_align = "left"
         self.border_title = "Contact details"
+        cv_main: ContactsView = self.query_one("#contact_view_main")
+        self.current_record = cv_main.current_record
 
-    def render(self) -> RenderableType:
-        table = Table(title="Contact details")
-        table.add_column("Name",
-                         no_wrap=False,
-                         width=20,
-                         justify="left")
-        table.add_column("Birthday",
-                         no_wrap=False,
-                         width=20,
-                         justify="center")
-        table.add_column("Phones",
-                         no_wrap=False,
-                         width=20,
-                         justify="left")
-        table.add_column("E-mail",
-                         no_wrap=True,
-                         overflow="ellipsis",
-                         width=20,
-                         justify="left")
-        table.add_column("Address",
-                         no_wrap=False,
-                         width=25,
-                         justify="left")
-        table.add_row("Vasyl Semen\n Petrovych 12345", "12-12-1234",
-                      "123456\n234567\n567890", "some@gde.to", "Address")
-        return table
+    def compose(self) -> ComposeResult:
+        yield Grid(
+            Horizontal(
+                Label("Name: "),
+                Label(self.name),
+                classes="grid_box"
+            ),
+            Horizontal(
+                Label("Phones: "),
+                Label(self.phones),
+                classes="grid_box"
+            ),
+            Horizontal(
+                Label("Birthday: "),
+                Label(self.bday),
+                classes="grid_box"
+            ),
+            Horizontal(
+                Label("Email: "),
+                Label(self.email),
+                classes="grid_box"
+            ),
+            Horizontal(
+                Label("Address: "),
+                Label(self.address),
+                classes="grid_box"
+            ),
+            id="cd_grid"
+        )
 
 
 class ContatsList(Widget):
@@ -114,9 +110,27 @@ class ContactsViewControl(Widget):
         pass
 
 
-
 class ContactsView(Static):
     """Widget to display contacts list and details for selected """
+    current_record: Record = Record(name="Taras Shevchenko",
+                                    birthday="09-03-1814",
+                                    email=None,
+                                    address=Address(country="Ukraine",
+                                                    zip_code=12345,
+                                                    city="s. Moryntsi",
+                                                    street="Vyshneva",
+                                                    house="12",
+                                                    apartment="1"),
+                                    phones=[Phone(123),
+                                            Phone(23423),
+                                            Phone(4323)]
+                                    )
+    addressbook = AddressBook()
+    addressbook.add_record(current_record)
+
+    def on_mount(self) -> None:
+        self.id = "contact_view_main"
+
     def compose(self) -> ComposeResult:
         yield Horizontal(
             Vertical(
