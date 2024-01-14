@@ -27,7 +27,7 @@ class ContactDetails(Widget):
     def on_mount(self) -> None:
         self.styles.border_title_align = "left"
         self.border_title = "Contact details"
-        cv_main: ContactsView = self.query_one("#contact_view_main")
+        cv_main: ContactsView = self.app.query_one("ContactsView")
         self.current_record = cv_main.current_record
 
     def compose(self) -> ComposeResult:
@@ -127,9 +127,6 @@ class ContactsView(Static):
                                     )
     addressbook = AddressBook()
     addressbook.add_record(current_record)
-
-    def on_mount(self) -> None:
-        self.id = "contact_view_main"
 
     def compose(self) -> ComposeResult:
         yield Horizontal(
