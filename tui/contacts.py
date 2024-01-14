@@ -27,12 +27,12 @@ class ContactDetails(Widget):
     def on_mount(self) -> None:
         self.styles.border_title_align = "left"
         self.border_title = "Contact details"
+        self.styles.border = ("round", "#FFD900")
 
     def get_record_info(self) -> None:
         """Sets attributes according ro Record fields"""
         cv_main: ContactsView = self.app.query_one("Contacts")
         self.current_record: Record = cv_main.current_record
-        self.notify(f"{self.current_record.name}", timeout=5, severity="information")
         self.name = str(self.current_record.name)
         self.bday = str(self.current_record.birthday)
         self.email = str(self.current_record.email)
