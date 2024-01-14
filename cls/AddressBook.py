@@ -1,6 +1,7 @@
 from collections import UserDict
 from typing import List
 from datetime import datetime
+import pickle
 
 
 class Field:
@@ -129,12 +130,12 @@ class Record:
         self.phones.append(Phone(value))
 
     def add_edit_address(self,
-                         country: str,
-                         zip_code: int,
-                         city: str,
-                         street: str,
-                         house: str,
-                         apartment: str):
+                         country: str = None,
+                         zip_code: int = None,
+                         city: str = None,
+                         street: str = None,
+                         house: str = None,
+                         apartment: str = None):
         """
         Adds or edit an address in a record.
         """
