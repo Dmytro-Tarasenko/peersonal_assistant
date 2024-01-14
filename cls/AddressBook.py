@@ -105,29 +105,29 @@ class Record:
     Class for writing in the address book.
     """
     def __init__(self,
-                 name: str,
-                 birthday: str = None,
-                 email: str = None,
+                 name: str = "",
+                 birthday: str = "",
+                 email: str = "",
                  address: Address = None,
-                 phones: List[Phone] = None):
+                 phones: List[str] = ""):
         """
         Initializes a record.
         :param name: Name to record.
         :param birthday: Birthday to record in string format 'DD-MM-YYYY'.
         This field is optional.
         """
-        self.name = Name(name)
-        self.birthday = Birthday(birthday) if birthday else None
-        self.address = None
-        self.email = Email(email) if email else None
-        self.phones = []
+        self.name = name
+        self.birthday = birthday
+        self.address = address
+        self.email = email
+        self.phones = phones
 
     def add_phone(self, value: str):
         """
         Adds a phone number to a record.
         :param value: The phone number to add.
         """
-        self.phones.append(Phone(value))
+        self.phones.append(value)
 
     def add_edit_address(self,
                          country: str = None,
@@ -236,7 +236,7 @@ class Record:
 
     @property
     def search_str(self) -> str:
-        name_str = f"$NAME${self.name.value}"
+        name_str = f"$NAME${self.name}"
         address_str = f"$ADDRESS${self.address}"
         email_str = f"$EMAIL${self.email}"
         phones_str = f"$PHONES${'| '.join(str(p) for p in self.phones)}"
