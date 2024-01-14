@@ -7,7 +7,7 @@ class Field:
     """
     Base class for address book fields.
     """
-    def __init__(self, value: str):
+    def __init__(self, value: str | int):
         """
         Initializes a field with a value.
         :param value: Field value.
@@ -54,95 +54,6 @@ class Phone(Field):
     pass
 
 
-class Address(Field):
-    """
-    A class for an address in an address book.
-    """
-    def __init__(self,
-                 country: str = None,
-                 zip_code:  int = None,
-                 city: str = None,
-                 street: str = None,
-                 house: str = None,
-                 apartment: str = None):
-        """
-        Initializes an address with details.
-        :param country: Area name.
-        :param zip_code: Zip code.
-        :param city: Name of the city.
-        :param street: Street name.
-        :param house: House number.
-        :param apartment: Apartment number.
-        """
-        self.country = country
-        self.zip_code = zip_code
-        self.city = city
-        self.street = street
-        self.house = house
-        self.apartment = apartment
-
-    def _add_capitalize(self, value: str):
-        """
-        Adds or changes the field name in the address.
-        :param value: The name of the area to add or modify.
-        """
-        self.capitalize = value
-
-    def _add_zip_code(self, value: int):
-        """
-        Adds or changes the postal code in the address.
-        :param value: The zip code to add or change.
-        """
-        self.zip_code = value
-
-    def _add_city(self, value: str):
-        """
-        Adds or changes the name of the city in the address.
-        :param value: The name of the city to add or change.
-        """
-        self.city = value
-
-    def _add_street(self, value: str):
-        """
-        Adds or changes the street name in the address.
-        :param value: Street name to add or change.
-        """
-        self.street = value
-
-    def _add_house(self, value: str):
-        """
-        Adds or changes the house number in the address.
-        :param value: House number to add or change.
-        """
-        self.house = value
-
-    def _add_apartment(self, value: str):
-        """
-        Adds or changes the apartment number in the address.
-        :param value: Apartment number to add or change.
-        """
-        self.apartment = value
-
-    def __repr__(self) -> str:
-        """
-        Returns the string representation of the address.
-        """
-        country = f"Country: {self.country}"
-        zip_code = f"Zip: {self.zip_code}"
-        city = f"City: {self.city}"
-        street = f"Street: {self.street}"
-        house = f"House: {self.house}"
-        apartment = f"Apartment: {self.apartment}"
-        return (
-            f"|{country} | "
-            f"{zip_code} | "
-            f"{city} | "
-            f"{street} | "
-            f"{house} | "
-            f"{apartment} "
-        )
-
-
 class Email(Field):
     """
     A class for email in the address book.
@@ -150,11 +61,47 @@ class Email(Field):
     pass
 
 
+class Address:
+    """Class representing an address."""
+    def __init__(self,
+                 country: str,
+                 zip_code: int,
+                 city: str,
+                 street: str,
+                 house: str,
+                 apartment: str):
+        """Initialize an Address object.
+
+        Args:
+            country (str): The country.
+            zip_code (int): The postal code.
+            city (str): The city.
+            street (str): The street.
+            house (str): The house number.
+            apartment (str): The apartment number.
+        """
+        self.country = country.capitalize()
+        self.zip_code = zip_code
+        self.city = city.capitalize()
+        self.street = street.capitalize()
+        self.house = house
+        self.apartment = apartment
+
+    def __repr__(self) -> str:
+        """Return a string representation of the Address object."""
+        return f"{self.country}|{self.zip_code}|{self.city}|{self.street}|{self.house}|{self.apartment}"
+
+
 class Record:
     """
     Class for writing in the address book.
     """
-    def __init__(self, name: str, birthday: str = None, email: str = None):
+    def __init__(self,
+                 name: str,
+                 birthday: str = None,
+                 email: str = None,
+                 address: Address = None,
+                 phones: List[Phone] = None):
         """
         Initializes a record.
         :param name: Name to record.
@@ -163,9 +110,9 @@ class Record:
         """
         self.name = Name(name)
         self.birthday = Birthday(birthday) if birthday else None
-        self.address = None
+        self.address = address
         self.email = Email(email) if email else None
-        self.phones = []
+        self.phones = phones
 
     def add_phone(self, value: str):
         """
@@ -278,37 +225,6 @@ class Record:
         Returns: None
         """
         self.email = None
-
-
-class Address:
-    """Class representing an address."""
-    def __init__(self,
-                 country: str,
-                 zip_code: int,
-                 city: str,
-                 street: str,
-                 house: str,
-                 apartment: str):
-        """Initialize an Address object.
-
-        Args:
-            country (str): The country.
-            zip_code (int): The postal code.
-            city (str): The city.
-            street (str): The street.
-            house (str): The house number.
-            apartment (str): The apartment number.
-        """
-        self.country = country.capitalize()
-        self.zip_code = zip_code
-        self.city = city.capitalize()
-        self.street = street.capitalize()
-        self.house = house
-        self.apartment = apartment
-
-    def __repr__(self) -> str:
-        """Return a string representation of the Address object."""
-        return f"{self.country}|{self.zip_code}|{self.city}|{self.street}|{self.house}|{self.apartment}"
 
 
 class AddressBook(UserDict):

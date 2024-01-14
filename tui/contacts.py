@@ -11,6 +11,8 @@ from textual.widgets import (Markdown,
                              Static,
                              Button,
                              ContentSwitcher, DataTable, Label, Input)
+from cls.AddressBook import Address, AddressBook, Email, Record, Phone
+from datetime import date
 
 
 class ContactDetails(Widget):
@@ -20,6 +22,16 @@ class ContactDetails(Widget):
     email = reactive("email")
     phones = reactive("phones")
     address = reactive("address")
+
+    current_record: Record = Record(name="Taras Shevchenko",
+                                    birthday="09-03-1814",
+                                    email=None,
+                                    address=Address(country="Ukraine",
+                                                    zip_code=None,
+                                                    city="s. Moryntsi",
+                                                    street=None,
+                                                    house=None),
+                                    phones=[Phone(123), Phone(23423), Phone(4323)])
 
     def on_mount(self) -> None:
         self.styles.border_title_align = "left"
