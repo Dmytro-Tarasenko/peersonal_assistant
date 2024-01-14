@@ -109,7 +109,7 @@ class Record:
                  birthday: str = "",
                  email: str = "",
                  address: Address = None,
-                 phones: List[str] = ""):
+                 phones: List[str] = []):
         """
         Initializes a record.
         :param name: Name to record.
@@ -200,8 +200,9 @@ class Record:
         Returns: None
         """
         for phone in self.phones:
-            if phone.value == old_phone:
-                phone.value = new_phone
+            if phone == old_phone:
+                phone_id = self.phones.index(phone)
+                self.phones[phone_id] = new_phone
                 break
         else:
             raise ValueError("phone_not_found")
@@ -214,7 +215,7 @@ class Record:
         Returns: None
         """
         for phone in self.phones:
-            if phone.value == value:
+            if phone == value:
                 self.phones.remove(phone)
                 break
         else:

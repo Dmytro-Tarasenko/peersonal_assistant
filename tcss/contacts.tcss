@@ -8,7 +8,7 @@ ContentSwitcher#cs_contacts {
     height: 1fr;
 }
 
-#cv_details_view{
+.cv_details_view{
     border: $warning;
     overflow-x: auto;
 }
