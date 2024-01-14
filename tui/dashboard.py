@@ -38,8 +38,10 @@ class AddressBookStats(Widget):
     Widget to display statistic of AddressBook and NoteBook
     """
     def compose(self) -> ComposeResult:
+        app = self.app
+        abook_len = len(app.address_book.data)
         yield Label("AddressBook is loaded", classes="db_stats_title")
-        yield Label("contains 45 items", classes="db_stats_nums")
+        yield Label(f"contains {abook_len} items", classes="db_stats_nums")
 
 
 class NoteBookStats(Widget):

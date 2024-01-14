@@ -12,7 +12,6 @@ from textual.widgets import (Markdown,
                              Button,
                              ContentSwitcher, DataTable, Label, Input)
 from cls.AddressBook import Address, AddressBook, Email, Record, Phone
-from datetime import date
 
 
 class ContactDetails(Widget):
@@ -72,21 +71,35 @@ class ContactDetails(Widget):
 
 
 class ContatsList(Widget):
+    """Widget to display list of contacts"""
     def on_mount(self) -> None:
+        self.styles.border_title_align = "left"
+        self.border_title = "Contacts list"
+        self.styles.border = ("round", "#FFD900")
         table = self.query_one(DataTable)
         table.zebra_stripes = True
         table.cell_padding = 2
         table.cursor_type = "row"
-        table.add_columns("#", "Name", "Age")
-        table.add_row("1", "Engelgardt asdasd", "43")
-        table.add_row("2", "Shevchenko", "12")
-        table.add_row("3", "Engelgardt", "123")
+        table.add_column("#", width=3)
+        table.add_column("Name", width=10)
+        table.add_column("Birhday", width=10)
+        table.add_column("Address", width=20)
+        table.add_column("e-mail", width=18)
+        table.add_column("Phones", width=20)
+        line_num = 1
+        for row in self.app.address_book.data.values():
+            table.add_row(str(line_num),
+                          row.name,
+                          row.birthday,
+                          row.address,
+                          row.email,
+                          row.phones,
+                          height=1)
+            line_num += 1
 
     def compose(self) -> ComposeResult:
-        yield Vertical(
-            Label("Contacts list:"),
-            DataTable(classes="data_table", id="contacts_list")
-        )
+        yield DataTable(classes="data_table", id="contacts_list")
+
 
 
 class ButtonPressed:
@@ -155,12 +168,10 @@ class Contacts(Static):
                                                     street="Vyshneva",
                                                     house="12",
                                                     apartment="1"),
-                                    phones=[Phone(123),
-                                            Phone(23423),
-                                            Phone(4323)]
+                                    phones=["123",
+                                            "23423",
+                                            "44323"]
                                     )
-    addressbook = AddressBook()
-    addressbook.add_record(current_record)
 
     def compose(self) -> ComposeResult:
         """Composing main elements"""
