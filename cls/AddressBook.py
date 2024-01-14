@@ -103,7 +103,12 @@ class Record:
     """
     Class for writing in the address book.
     """
-    def __init__(self, name: str, birthday: str = None, email: str = None):
+    def __init__(self,
+                 name: str,
+                 birthday: str = None,
+                 email: str = None,
+                 address: Address = None,
+                 phones: List[Phone] = None):
         """
         Initializes a record.
         :param name: Name to record.
@@ -321,5 +326,3 @@ class AddressBook(UserDict):
             if tomorrow <= record.birthday <= upcoming_date
         ]
         return upcoming_contacts
-
-
