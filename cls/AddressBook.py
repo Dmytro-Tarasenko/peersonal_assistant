@@ -57,12 +57,12 @@ class Phone(Field):
 class Address(Field):
     """Class representing an address."""
     def __init__(self,
-                 country: str = None,
+                 country: str = "",
                  zip_code: int = None,
-                 city: str = None,
-                 street: str = None,
-                 house: str = None,
-                 apartment: str = None):
+                 city: str = "",
+                 street: str = "",
+                 house: str = "",
+                 apartment: str = ""):
 
         """Initialize an Address object.
         Args:
@@ -129,12 +129,12 @@ class Record:
         self.phones.append(Phone(value))
 
     def add_edit_address(self,
-                         country: str = None,
-                         zip_code: int = None,
-                         city: str = None,
-                         street: str = None,
-                         house: str = None,
-                         apartment: str = None):
+                         country: str,
+                         zip_code: int,
+                         city: str,
+                         street: str,
+                         house: str,
+                         apartment: str):
         """
         Adds or edit an address in a record.
         """
@@ -152,14 +152,8 @@ class Record:
             if apartment:
                 self.address.apartment = apartment
         else:
-            self.address = Address(
-                country if country else '',
-                zip_code if zip_code else 0,
-                city if city else '',
-                street if street else '',
-                house if house else '',
-                apartment if apartment else ''
-            )
+            self.address = Address(country, zip_code, city,
+                                   street, house, apartment)
 
     def add_edit_email(self, value: str):
         """
