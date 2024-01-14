@@ -1,7 +1,6 @@
 from collections import UserDict
 from typing import List
 from datetime import datetime
-import pickle
 
 
 class Field:
