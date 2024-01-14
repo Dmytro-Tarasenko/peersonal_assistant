@@ -82,17 +82,18 @@ class Sorter(Static):
         Parameters:
             event (Button.Pressed): contains info for pressed Button
         """
+        up_button = self.query_one("#up_tree")
         if event.button.id.endswith("_drive"):
             new_path = event.button.id.split("_")[0]
             new_path = Path("/") if new_path == "root" else Path(new_path+":")
         elif event.button.id == "up_tree":
             self.cur_dir = self.cur_dir.parent
             if self.cur_dir == self.cur_dir.parent:
-                up_button = self.query_one("#up_tree")
                 up_button.disabled = True
                 return
             else:
                 new_path = Path(self.cur_dir)
+                up_button.disabled = True
         else:
             return
         self.cur_dir = new_path
