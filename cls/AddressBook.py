@@ -298,3 +298,21 @@ class AddressBook(UserDict):
         ]
 
         return upcoming_contacts
+
+    def find_record(self, search_param: str) -> 'Record':
+        """Find a record in the address book based on search parameters.
+
+        Args:
+            search_param (str): Search parameter (e.g., name, birthday).
+
+        Returns:
+            Record: The found record.
+        """
+        for record in self.values():
+            if (
+                record.name.value.lower() == search_param.lower() or
+                (record.birthday is not None and record.birthday.value.strftime('%d-%m-%Y') == search_param)
+            ):
+                return record
+
+        raise ValueError("Record not found.")
