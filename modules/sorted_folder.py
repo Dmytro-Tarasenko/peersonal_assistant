@@ -249,8 +249,50 @@ def list_unknown_extensions(folder: str, output_file: str) -> None:
         unknown_extensions_str = ', '.join(sorted(unknown_extensions))
         output_file_handle.write(unknown_extensions_str)
 
+def process_folder(folder_path: str, destination_folder: str, empty_folders: List[str]) -> None:
+    """
+    Process the contents of a folder, move files,
+        and recursively call itself for subfolders.
 
-def sorted_folder(folder_path: str) -> None:
+    :param folder_path: Path to the folder
+    :param destination_folder: Folder for moving files
+    :param empty_folders: List of empty folders
+    """
+    print(f"Processing folder: {folder_path}")
+
+    items = os.listdir(folder_path)
+
+    for item in items:
+        item_path = os.path.join(folder_path, item)
+
+        try:
+            if os.path.isfile(item_path):
+                destination = categorize_file(item_path)
+                normalized_name = normalize(
+                    os.path.basename(item_path),
+                    destination == 'unknown')
+
+                if destination == 'archives':
+                    extract_archive(item_path, destination_folder)
+                else:
+                    new_file_path = os.path.join(
+                        destination_folder, destination, normalized_name)
+                    os.makedirs(os.path.dirname(new_file_path), exist_ok=True)
+                    shutil.move(item_path, new_file_path)
+
+            elif os.path.isdir(item_path):
+                process_folder(item_path, destination_folder, empty_folders)
+
+        except PermissionError as e:
+            print(f"Ignoring Permission error: {e}")
+        except Exception as e:
+            print(f"An error occurred: {e}")
+
+    if not os.listdir(folder_path):
+        empty_folders.append(folder_path)
+
+
+def sorted_folder(folder_path: str) -> str:
     """
     Sort and categorize files in the specified folder.
 
@@ -277,8 +319,3 @@ def sorted_folder(folder_path: str) -> None:
     remove_empty_folders(destination_folder)
     
     return output_file
-
-# Method of use:
-# from sorter import sorted_folder as sort
-
-# sort("C:\\Users\\333\\Desktop\\test_garbage_folder_etalon")
