@@ -58,7 +58,7 @@ class Sorter(Static):
             ),
             self.dir_tree,
             DirTreeSelected(id="dir_selected"),
-            Button("OK", variant="default")
+            Button("Sort selected", variant="default", id="sort_folder")
         )
 
     def on_directory_tree_directory_selected(self,
@@ -82,21 +82,17 @@ class Sorter(Static):
         Parameters:
             event (Button.Pressed): contains info for pressed Button
         """
-        up_button = self.query_one("#up_tree")
+        # up_button: Button = self.query_one("#up_tree")
+        drive_tree = self.query_one(DirectoryTree)
+        selected: DirTreeSelected = self.query_one("#dir_selected")
+
         if event.button.id.endswith("_drive"):
             new_path = event.button.id.split("_")[0]
-            new_path = Path("/") if new_path == "root" else Path(new_path+":")
+            self.cur_dir = Path("/") if new_path == "root" else Path(new_path+":")
         elif event.button.id == "up_tree":
             self.cur_dir = self.cur_dir.parent
-            if self.cur_dir == self.cur_dir.parent:
-                up_button.disabled = True
-                return
-            else:
-                new_path = Path(self.cur_dir)
-                up_button.disabled = True
         else:
             return
-        self.cur_dir = new_path
-        drive_tree = self.query_one(DirectoryTree)
-        drive_tree.path = self.cur_dir
+        drive_tree.path = selected.selected = self.cur_dir
         drive_tree.refresh()
+        selected.refresh()

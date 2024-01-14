@@ -27,14 +27,24 @@ class ContactDetails(Widget):
     def on_mount(self) -> None:
         self.styles.border_title_align = "left"
         self.border_title = "Contact details"
-        cv_main: ContactsView = self.app.query_one("ContactsView")
-        self.current_record = cv_main.current_record
+
+    def get_record_info(self) -> None:
+        """Sets attributes according ro Record fields"""
+        cv_main: ContactsView = self.app.query_one("Contacts")
+        self.current_record: Record = cv_main.current_record
+        self.notify(f"{self.current_record.name}", timeout=5, severity="information")
+        self.name = str(self.current_record.name)
+        self.bday = str(self.current_record.birthday)
+        self.email = str(self.current_record.email)
+        self.phones = str(self.current_record.phones)
+        self.address = str(self.current_record.address)
 
     def compose(self) -> ComposeResult:
+        self.get_record_info()
         yield Grid(
             Horizontal(
                 Label("Name: "),
-                Label(self.name),
+                Label(str(self.name)),
                 classes="grid_box"
             ),
             Horizontal(
@@ -112,22 +122,6 @@ class ContactsViewControl(Widget):
 
 class ContactsView(Static):
     """Widget to display contacts list and details for selected """
-    current_record: Record = Record(name="Taras Shevchenko",
-                                    birthday="09-03-1814",
-                                    email=None,
-                                    address=Address(country="Ukraine",
-                                                    zip_code=12345,
-                                                    city="s. Moryntsi",
-                                                    street="Vyshneva",
-                                                    house="12",
-                                                    apartment="1"),
-                                    phones=[Phone(123),
-                                            Phone(23423),
-                                            Phone(4323)]
-                                    )
-    addressbook = AddressBook()
-    addressbook.add_record(current_record)
-
     def compose(self) -> ComposeResult:
         yield Horizontal(
             Vertical(
@@ -152,6 +146,21 @@ class ContactsEdit(Static):
 
 class Contacts(Static):
     """Container widger for Contacts tab"""
+    current_record: Record = Record(name="Taras Shevchenko",
+                                    birthday="09-03-1814",
+                                    email=None,
+                                    address=Address(country="Ukraine",
+                                                    zip_code=12345,
+                                                    city="s. Moryntsi",
+                                                    street="Vyshneva",
+                                                    house="12",
+                                                    apartment="1"),
+                                    phones=[Phone(123),
+                                            Phone(23423),
+                                            Phone(4323)]
+                                    )
+    addressbook = AddressBook()
+    addressbook.add_record(current_record)
 
     def compose(self) -> ComposeResult:
         """Composing main elements"""
