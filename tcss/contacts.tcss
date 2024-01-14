@@ -30,3 +30,12 @@ ContentSwitcher#cs_contacts {
 Label.cv_input{
     margin: 1 0 0 0;
 }
+
+#cd_grid{
+    grid-size: 2;
+    grid-columns: 1fr 1fr;
+}
+
+.grid_box{
+    height: 100%;
+}
