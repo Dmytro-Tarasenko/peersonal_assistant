@@ -7,7 +7,7 @@ class Field:
     """
     Base class for address book fields.
     """
-    def __init__(self, value: str | int):
+    def __init__(self, value: str):
         """
         Initializes a field with a value.
         :param value: Field value.
@@ -54,24 +54,17 @@ class Phone(Field):
     pass
 
 
-class Email(Field):
-    """
-    A class for email in the address book.
-    """
-    pass
-
-
-class Address:
+class Address(Field):
     """Class representing an address."""
     def __init__(self,
-                 country: str,
-                 zip_code: int,
-                 city: str,
-                 street: str,
-                 house: str,
-                 apartment: str):
-        """Initialize an Address object.
+                 country: str = None,
+                 zip_code: int = None,
+                 city: str = None,
+                 street: str = None,
+                 house: str = None,
+                 apartment: str = None):
 
+        """Initialize an Address object.
         Args:
             country (str): The country.
             zip_code (int): The postal code.
@@ -89,7 +82,21 @@ class Address:
 
     def __repr__(self) -> str:
         """Return a string representation of the Address object."""
-        return f"{self.country}|{self.zip_code}|{self.city}|{self.street}|{self.house}|{self.apartment}"
+        return (
+            f'{self.country}|'
+            f'{self.zip_code}|'
+            f'{self.city}|'
+            f'{self.street}|'
+            f'{self.house}|'
+            f'{self.apartment}'
+        )
+
+
+class Email(Field):
+    """
+    A class for email in the address book.
+    """
+    pass
 
 
 class Record:
@@ -110,9 +117,9 @@ class Record:
         """
         self.name = Name(name)
         self.birthday = Birthday(birthday) if birthday else None
-        self.address = address
+        self.address = None
         self.email = Email(email) if email else None
-        self.phones = phones
+        self.phones = []
 
     def add_phone(self, value: str):
         """
@@ -145,8 +152,14 @@ class Record:
             if apartment:
                 self.address.apartment = apartment
         else:
-            self.address = Address(country, zip_code, city,
-                                   street, house, apartment)
+            self.address = Address(
+                country if country else '',
+                zip_code if zip_code else 0,
+                city if city else '',
+                street if street else '',
+                house if house else '',
+                apartment if apartment else ''
+            )
 
     def add_edit_email(self, value: str):
         """
@@ -195,8 +208,8 @@ class Record:
             if phone.value == old_phone:
                 phone.value = new_phone
                 break
-            else:
-                raise ValueError("phone_not_found")
+        else:
+            raise ValueError("phone_not_found")
 
     def remove_phone(self, value: str) -> None:
         """
@@ -209,8 +222,8 @@ class Record:
             if phone.value == value:
                 self.phones.remove(phone)
                 break
-            else:
-                raise ValueError("phone_not_found")
+        else:
+            raise ValueError("phone_not_found")
 
     def del_address(self) -> None:
         """
@@ -226,14 +239,29 @@ class Record:
         """
         self.email = None
 
+    @property
+    def search_str(self) -> str:
+        name_str = f"$NAME${self.name.value}"
+        address_str = f"$ADDRESS${self.address}"
+        email_str = f"$EMAIL${self.email}"
+        phones_str = f"$PHONES${'| '.join(str(p) for p in self.phones)}"
+        bday_str = f"$BDAY${self.birthday if self.birthday else ''}"
+        return (
+            f"{name_str}::"
+            f"{address_str}::"
+            f"{email_str}::"
+            f"{phones_str}::"
+            f"{bday_str}"
+        )
+
 
 class AddressBook(UserDict):
     """Class representing an address book."""
-    
+
     def __iter__(self) -> iter:
         """Return an iterator over the records in the address book."""
         return iter(self.data.values())
-    
+
     def add_record(self, record: 'Record') -> None:
         """Add a new record to the address book.
 
@@ -242,11 +270,8 @@ class AddressBook(UserDict):
         """
         self.data[record.search_str] = record
 
-    def edit_record(self,
-                    old_record: Record,
-                    new_record: Record) -> None:
+    def edit_record(self, old_record: 'Record', new_record: 'Record') -> None:
         """Edit an existing record in the address book.
-
         Args:
             old_record (Record): The current record to be edited.
             new_record (Record): The new record.
@@ -254,31 +279,50 @@ class AddressBook(UserDict):
         if old_record.search_str in self.data:
             del self.data[old_record.search_str]
             self.add_record(new_record)
+        else:
+            raise ValueError("No_find_records")
 
     def delete_record(self, record: 'Record') -> None:
         """Delete a record from the address book.
-
         Args:
             record (Record): The record to be deleted.
         """
         if record.search_str in self.data:
             del self.data[record.search_str]
+        else:
+            raise ValueError("No_find_records")
+
+    def find_record(self, query: str) -> List['Record']:
+        """Search for records in the address book.
+        Args:
+            query (str): The search query.
+        Returns: List[Record] - List of records that match
+        the search query.
+        """
+        records = [
+            record for record in self.data.values()
+            if query.lower() in record.search_str.lower()
+        ]
+        if not records:
+            print("No_find_records")
+        else:
+            return records
+
+    def print_address_book(self):
+        for key, record in self.data.items():
+            print(key)
+            print(record)
+            print()
 
     def upcoming_birthdays(self) -> List['Record']:
         """Return a list of contacts with birthdays upcoming from tomorrow to 7 days ahead.
-
-        Returns:
-            List[Record]: List of records with upcoming birthdays.
+        Returns: List[Record]: List of records with upcoming birthdays.
         """
         today = datetime.date.today()
         tomorrow = today + datetime.timedelta(days=1)
         upcoming_date = tomorrow + datetime.timedelta(days=6)
-        
         upcoming_contacts = [
-            record for record in self.values() 
+            record for record in self.values()
             if tomorrow <= record.birthday <= upcoming_date
         ]
-        
         return upcoming_contacts
-
-
