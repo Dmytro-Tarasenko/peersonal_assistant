@@ -44,7 +44,7 @@ class Sorter(Static):
         buttons = [Button("/",
                           variant="primary",
                           classes="tree_button",
-                          d="root_drive")]
+                          id="root_drive")]
 
     def compose(self) -> ComposeResult:
         yield Vertical(
