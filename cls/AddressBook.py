@@ -115,7 +115,7 @@ class Record:
         self.phones.append(value)
 
     def add_edit_address(self,
-                         address: Address=Address()):
+                         address: Address = Address()):
         """
         Adds or edit an address in a record.
         """
