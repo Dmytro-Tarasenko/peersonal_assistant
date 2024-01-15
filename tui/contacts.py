@@ -4,6 +4,7 @@ Contacts widget
 from typing import List
 
 from rich.console import RenderableType
+from rich.text import Text
 from textual.app import ComposeResult
 from textual.containers import Horizontal, Vertical, Grid
 from textual.message import Message
@@ -35,7 +36,8 @@ class ContactDetails(Static):
         address = self.current_record.address
         email_ = self.current_record.email
         phones = self.current_record.phones
-
+        text = Text()
+        text.append("")
         return f"sdfsdf{self.current_record}"
 
 
