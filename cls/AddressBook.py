@@ -1,5 +1,5 @@
 from collections import UserDict
-from typing import List
+from typing import 
 from datetime import datetime
 
 
@@ -47,13 +47,6 @@ class Birthday(Field):
         return self.value.strftime('%d-%m-%Y')
 
 
-class Phone(Field):
-    """
-    A class for a phone number in an address book.
-    """
-    pass
-
-
 class Address(Field):
     """Class representing an address."""
     def __init__(self,
@@ -63,7 +56,6 @@ class Address(Field):
                  street: str = "",
                  house: str = "",
                  apartment: str = ""):
-
         """Initialize an Address object.
         Args:
             country (str): The country.
@@ -90,13 +82,6 @@ class Address(Field):
             f'bld. {self.house}, '
             f'app. {self.apartment}'
         )
-
-
-class Email(Field):
-    """
-    A class for email in the address book.
-    """
-    pass
 
 
 class Record:
@@ -129,41 +114,18 @@ class Record:
         self.phones.append(value)
 
     def add_edit_address(self,
-                         country: str = None,
-                         zip_code: int = None,
-                         city: str = None,
-                         street: str = None,
-                         house: str = None,
-                         apartment: str = None):
+                         address: ADdress=Address()):
         """
         Adds or edit an address in a record.
         """
-        if self.address:
-            if country:
-                self.address.country = country
-            if zip_code:
-                self.address.zip_code = zip_code
-            if city:
-                self.address.city = city
-            if street:
-                self.address.street = street
-            if house:
-                self.address.house = house
-            if apartment:
-                self.address.apartment = apartment
-        else:
-            self.address = Address(country, zip_code, city,
-                                   street, house, apartment)
+        self.address = address
 
-    def add_edit_email(self, value: str):
+    def add_edit_email(self, value: str=""):
         """
         Adds or updates email in a record.
         :param value: Email to add.
         """
-        if self.address:
-            self.email = value
-        else:
-            self.email = Email(value)
+        self.address.email = value
 
     def add_edit_birthday(self, value: str):
         """
@@ -253,26 +215,38 @@ class Record:
 class AddressBook(UserDict):
     """Class representing an address book."""
 
-    def __iter__(self) -> iter:
+    def __iter__(self):
         """Return an iterator over the records in the address book."""
         return iter(self.data.values())
 
-    def add_record(self, record: Record) -> None:
-        """Add a new record to the address book.
+    def __getitem__(self, key):
+        """Get an item from the address book."""
+        return self.data[key.search_str]
 
+    def print_address_book(self):
+        """Print all records in the address book."""
+        for record in self.values():
+            print(record)
+
+    def add_record(self, record: 'Record') -> None:
+        """Додайте новий запис до адресної книги.
+        
         Args:
-            record (Record): The record to be added.
+            record (Record): Запис, який слід додати.
         """
         self.data[record.name] = record
 
-    def edit_record(self, old_record: Record, new_record: Record) -> None:
+
+    def edit_record(self,
+                    old_record: Record,
+                    new_record: Record) -> None:
         """Edit an existing record in the address book.
         Args:
             old_record (Record): The current record to be edited.
             new_record (Record): The new record.
         """
         if old_record.name in self.data:
-            del self.data[old_record.name]
+            self.data.pop[old_record.name]
             self.add_record(new_record)
         else:
             raise ValueError("No_find_records")
@@ -286,22 +260,6 @@ class AddressBook(UserDict):
             del self.data[record.name]
         else:
             raise ValueError("No_find_records")
-
-    def find_record(self, query: str) -> List[Record]:
-        """Search for records in the address book.
-        Args:
-            query (str): The search query.
-        Returns: List[Record] - List of records that match
-        the search query.
-        """
-        records = [
-            record for record in self.data.values()
-            if query.lower() in record.search_str.lower()
-        ]
-        if not records:
-            print("No_find_records")
-        else:
-            return records
 
     def print_address_book(self):
         for key, record in self.data.items():
@@ -321,3 +279,26 @@ class AddressBook(UserDict):
             if tomorrow <= record.birthday <= upcoming_date
         ]
         return upcoming_contacts
+    
+    
+    def find_record(self, search_params: List[str]) -> List[Record]:
+        """
+        Finds records in the address book based on a list of search parameters.
+
+        Args:
+            search_params (List[str]): A list of search parameters.
+
+        Returns:
+            List[Record]: A list of the found records.
+        """
+
+        search_exprs = [re.compile(f"({search_param})") for search_param in search_params]
+
+        results = []
+        for record in self.values():
+            for search_expr in search_exprs:
+                if search_expr.search(record.search_str):
+                    results.append(record)
+                    break
+
+        return results
