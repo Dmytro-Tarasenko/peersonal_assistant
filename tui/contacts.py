@@ -7,7 +7,6 @@ from rich.console import RenderableType
 from textual.app import ComposeResult
 from textual.containers import Horizontal, Vertical, Grid
 from textual.message import Message
-from textual.reactive import reactive
 from textual.widget import Widget
 from textual.widgets import (Markdown,
                              Static,
@@ -31,6 +30,12 @@ class ContactDetails(Static):
 
     def render(self) -> RenderableType:
         self.get_record_info()
+        name = self.current_record.name
+        bday = self.current_record.birthday
+        address = self.current_record.address
+        email_ = self.current_record.email
+        phones = self.current_record.phones
+
         return f"sdfsdf{self.current_record}"
 
 

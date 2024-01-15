@@ -38,10 +38,12 @@ class PersonalAssistant(App):
                 "tcss/contacts.tcss"]
 
     address_book = AddressBook()
+    # note_book = NoteBook()
 
     def load_books(self) -> None:
         """Loads data to use in app"""
         abook_bin = Path("data/addressbook.bin")
+        # nbook_bin = Path("data/notebook.bin")
         if abook_bin.exists():
             with abook_bin.open('rb') as fin:
                 try:
@@ -50,9 +52,19 @@ class PersonalAssistant(App):
                     self.notify(f"{err}", severity="error", timeout=5)
                     self.address_book = AddressBook()
 
+        # if nbook_bin.exists():
+        #     with nbook_bin.open('rb') as fin:
+        #         try:
+        #             self.note_book = pickle.load(fin, fix_imports=False)
+        #         except Exception as err:
+        #             self.notify(f"{err}", severity="error", timeout=5)
+        #             self.note_book = NoteBook()
+
+    def on_mount(self):
+        self.load_books()
+
     def compose(self) -> ComposeResult:
         """Create childs for the application"""
-        self.load_books()
         yield Header()
         yield Footer()
 
