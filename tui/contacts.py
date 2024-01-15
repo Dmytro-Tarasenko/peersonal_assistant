@@ -1,10 +1,12 @@
 """
 Contacts widget
 """
+from typing import List
+
 from rich.console import RenderableType
-from rich.table import Table
 from textual.app import ComposeResult
 from textual.containers import Horizontal, Vertical, Grid
+from textual.message import Message
 from textual.reactive import reactive
 from textual.widget import Widget
 from textual.widgets import (Markdown,
@@ -12,17 +14,10 @@ from textual.widgets import (Markdown,
                              Button,
                              ContentSwitcher, DataTable, Label, Input)
 from cls.AddressBook import Address, AddressBook, Email, Record, Phone
-from datetime import date
 
 
-class ContactDetails(Widget):
+class ContactDetails(Static):
     """Widget to display contact info"""
-    name = reactive("name")
-    bday = reactive("birthday")
-    email = reactive("email")
-    phones = reactive("phones")
-    address = reactive("address")
-    current_record = reactive(None)
 
     def on_mount(self) -> None:
         self.styles.border_title_align = "left"
@@ -33,64 +28,49 @@ class ContactDetails(Widget):
         """Sets attributes according ro Record fields"""
         cv_main: ContactsView = self.app.query_one("Contacts")
         self.current_record: Record = cv_main.current_record
-        self.name = str(self.current_record.name)
-        self.bday = str(self.current_record.birthday)
-        self.email = str(self.current_record.email)
-        self.phones = str(self.current_record.phones)
-        self.address = str(self.current_record.address)
 
-    def compose(self) -> ComposeResult:
+    def render(self) -> RenderableType:
         self.get_record_info()
-        yield Grid(
-            Horizontal(
-                Label("Name: "),
-                Label(str(self.name)),
-                classes="grid_box"
-            ),
-            Horizontal(
-                Label("Phones: "),
-                Label(self.phones),
-                classes="grid_box"
-            ),
-            Horizontal(
-                Label("Birthday: "),
-                Label(self.bday),
-                classes="grid_box"
-            ),
-            Horizontal(
-                Label("Email: "),
-                Label(self.email),
-                classes="grid_box"
-            ),
-            Horizontal(
-                Label("Address: "),
-                Label(self.address),
-                classes="grid_box"
-            ),
-            id="cd_grid"
-        )
+        return f"sdfsdf{self.current_record}"
 
 
 class ContatsList(Widget):
+    """Widget to display list of contacts"""
     def on_mount(self) -> None:
+        self.styles.border_title_align = "left"
+        self.border_title = "Contacts list"
+        self.styles.border = ("round", "#FFD900")
         table = self.query_one(DataTable)
         table.zebra_stripes = True
         table.cell_padding = 2
         table.cursor_type = "row"
-        table.add_columns("#", "Name", "Age")
-        table.add_row("1", "Engelgardt asdasd", "43")
-        table.add_row("2", "Shevchenko", "12")
-        table.add_row("3", "Engelgardt", "123")
+        table.add_column("#", width=3)
+        table.add_column("Name", width=10)
+        table.add_column("Birhday", width=10)
+        table.add_column("Address", width=20)
+        table.add_column("e-mail", width=18)
+        table.add_column("Phones", width=20)
+        line_num = 1
+        contacts_wdgt: Contacts = self.app.query_one("Contacts")
+        for row in contacts_wdgt.records:
+            table.add_row(str(line_num),
+                          row.name,
+                          row.birthday,
+                          row.address,
+                          row.email,
+                          row.phones,
+                          height=1)
+            line_num += 1
 
     def compose(self) -> ComposeResult:
-        yield Vertical(
-            Label("Contacts list:"),
-            DataTable(classes="data_table", id="contacts_list")
-        )
+        yield DataTable(classes="data_table", id="contacts_list")
 
-
-class ButtonPressed:
-    pass
+    def on_data_table_row_selected(self, row_info: Message) -> None:
+        contacts_wdgt: Contacts = self.app.query_one("Contacts")
+        contacts_wdgt.current_record = contacts_wdgt.records[row_info.cursor_row]
+        details_wdgt: ContactDetails = self.parent.query_one("#contact_details_wdgt")
+        details_wdgt.get_record_info()
+        details_wdgt.update()
 
 
 class ContactsViewControl(Widget):
@@ -115,17 +95,14 @@ class ContactsViewControl(Widget):
                         classes="cv_input")
             yield Button("Lookup", variant="primary")
 
-    def on_button_pressed(self, event: ButtonPressed):
-        """Placeholder gor future"""
-        pass
-
 
 class ContactsView(Static):
     """Widget to display contacts list and details for selected """
     def compose(self) -> ComposeResult:
         yield Horizontal(
             Vertical(
-                ContactDetails(classes="cv_details"),
+                ContactDetails(id="contact_details_wdgt",
+                               classes="cv_details"),
                 ContatsList(classes="cv_details"),
                 id="cntct_viewer_details"),
             ContactsViewControl(id="cntct_viewer_ctrl")
@@ -135,7 +112,10 @@ class ContactsView(Static):
 class ContactsAdd(Static):
     """Widget to add contact """
     def compose(self) -> ComposeResult:
-        yield Markdown("**Contact adder**")
+        yield Horizontal(
+            Label("Record info", classes="cntct_add_fields"),
+            Label("Add fileds", classes="cntct_add_fields")
+        )
 
 
 class ContactsEdit(Static):
@@ -146,23 +126,17 @@ class ContactsEdit(Static):
 
 class Contacts(Static):
     """Container widger for Contacts tab"""
-    current_record: Record = Record(name="Taras Shevchenko",
-                                    birthday="09-03-1814",
-                                    email=None,
-                                    address=Address(country="Ukraine",
-                                                    zip_code=12345,
-                                                    city="s. Moryntsi",
-                                                    street="Vyshneva",
-                                                    house="12",
-                                                    apartment="1"),
-                                    phones=[Phone(123),
-                                            Phone(23423),
-                                            Phone(4323)]
-                                    )
-    addressbook = AddressBook()
-    addressbook.add_record(current_record)
+    current_record: Record = Record()
+    records: List[Record] = []
+    super_address: Address = Address()
 
     def compose(self) -> ComposeResult:
+        self.records = list(self.app.address_book.data.values())
+        self.current_record = self.records[0]
+        self.super_address = self.current_record.address
+        self.super_address.zip_code = 54321
+        self.current_record.address = self.super_address
+        self.notify(f"{self.current_record.address}", severity="information", timeout=15)
         """Composing main elements"""
         with Horizontal(id="contacts_workspaces"):
             yield Button("View contacts", id="contacts_viewer")

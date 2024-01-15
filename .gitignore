@@ -4,6 +4,7 @@ __pycache__/
 *$py.class
 
 tests.py
+data/generator.py
 
 # C extensions
 *.so
@@ -162,3 +163,4 @@ cython_debug/
 #.idea/
 /addressbook.dat
 /notebook.dat
+/data/generator.py
