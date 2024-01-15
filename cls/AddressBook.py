@@ -1,7 +1,6 @@
 from collections import UserDict
 from typing import List
 from datetime import datetime
-import pickle
 
 
 class Field:
@@ -84,12 +83,12 @@ class Address(Field):
     def __repr__(self) -> str:
         """Return a string representation of the Address object."""
         return (
-            f'{self.country}|'
-            f'{self.zip_code}|'
-            f'{self.city}|'
-            f'{self.street}|'
-            f'{self.house}|'
-            f'{self.apartment}'
+            f'{self.country}, '
+            f'{self.zip_code}, '
+            f'{self.city}, '
+            f'str. {self.street}, '
+            f'bld. {self.house}, '
+            f'app. {self.apartment}'
         )
 
 
@@ -181,14 +180,14 @@ class Record:
         """
         Returns the string representation of the record.
         """
-        phones = (' | '.join(str(phone) for phone in self.phones)
+        phones = ('|'.join(str(phone) for phone in self.phones)
                   if self.phones else 'None')
         return (
-            f"|Contact name: {self.name}| "
-            f"phones: {phones}| "
-            f"Address: {self.address}| "
-            f"email: {self.email}| "
-            f"Birthday: {self.birthday}|"
+            f"Name: {self.name}, "
+            f"phones: {phones}, "
+            f"Address: {self.address}, "
+            f"email: {self.email}, "
+            f"Birthday: {self.birthday}"
         )
 
     def edit_phone(self, old_phone: str, new_phone: str) -> None:
@@ -226,7 +225,7 @@ class Record:
         Deletes the address from the record.
         Returns: None
         """
-        self.address = None
+        self.address = Address()
 
     def del_email(self) -> None:
         """
@@ -258,22 +257,22 @@ class AddressBook(UserDict):
         """Return an iterator over the records in the address book."""
         return iter(self.data.values())
 
-    def add_record(self, record: 'Record') -> None:
+    def add_record(self, record: Record) -> None:
         """Add a new record to the address book.
 
         Args:
             record (Record): The record to be added.
         """
-        self.data[record.search_str] = record
+        self.data[record.name] = record
 
-    def edit_record(self, old_record: 'Record', new_record: 'Record') -> None:
+    def edit_record(self, old_record: Record, new_record: Record) -> None:
         """Edit an existing record in the address book.
         Args:
             old_record (Record): The current record to be edited.
             new_record (Record): The new record.
         """
-        if old_record.search_str in self.data:
-            del self.data[old_record.search_str]
+        if old_record.name in self.data:
+            del self.data[old_record.name]
             self.add_record(new_record)
         else:
             raise ValueError("No_find_records")
@@ -283,12 +282,12 @@ class AddressBook(UserDict):
         Args:
             record (Record): The record to be deleted.
         """
-        if record.search_str in self.data:
-            del self.data[record.search_str]
+        if record.name in self.data:
+            del self.data[record.name]
         else:
             raise ValueError("No_find_records")
 
-    def find_record(self, query: str) -> List['Record']:
+    def find_record(self, query: str) -> List[Record]:
         """Search for records in the address book.
         Args:
             query (str): The search query.
@@ -310,7 +309,7 @@ class AddressBook(UserDict):
             print(record)
             print()
 
-    def upcoming_birthdays(self) -> List['Record']:
+    def upcoming_birthdays(self) -> List[Record]:
         """Return a list of contacts with birthdays upcoming from tomorrow to 7 days ahead.
         Returns: List[Record]: List of records with upcoming birthdays.
         """

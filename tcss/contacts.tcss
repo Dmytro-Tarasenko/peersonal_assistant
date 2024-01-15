@@ -39,3 +39,7 @@ Label.cv_input{
 .grid_box{
     height: 100%;
 }
+
+.cntct_add_fields{
+    width: 1fr;
+}
