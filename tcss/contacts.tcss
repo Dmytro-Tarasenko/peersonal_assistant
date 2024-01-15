@@ -1,0 +1,45 @@
+#contacts_workspaces {
+    height: 3;
+    margin: 0 1;
+}
+
+ContentSwitcher#cs_contacts {
+    background: $panel;
+    height: 1fr;
+}
+
+.cv_details_view{
+    border: $warning;
+    overflow-x: auto;
+}
+
+#cntct_viewer_details{
+    width: 5fr;
+    overflow-x: auto;
+}
+
+#cntct_viewer_ctrl{
+    width: 2fr;
+}
+
+.cv_details{
+    height: 1fr;
+    overflow-x: auto;
+}
+
+Label.cv_input{
+    margin: 1 0 0 0;
+}
+
+#cd_grid{
+    grid-size: 2;
+    grid-columns: 1fr 1fr;
+}
+
+.grid_box{
+    height: 100%;
+}
+
+.cntct_add_fields{
+    width: 1fr;
+}

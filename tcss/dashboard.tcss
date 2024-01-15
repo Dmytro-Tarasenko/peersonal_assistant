@@ -8,6 +8,7 @@
 
 #db_bd_upcoming{
     height: 2fr;
+    overflow: auto;
 }
 
 #db_stats{
