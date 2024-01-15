@@ -13,7 +13,7 @@ from textual.widgets import (Markdown,
                              Static,
                              Button,
                              ContentSwitcher, DataTable, Label, Input)
-from cls.AddressBook import Address, AddressBook, Email, Record, Phone
+from cls.AddressBook import Address, AddressBook, Record
 
 
 class ContactDetails(Static):
