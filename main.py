@@ -60,11 +60,10 @@ class PersonalAssistant(App):
         #             self.notify(f"{err}", severity="error", timeout=5)
         #             self.note_book = NoteBook()
 
-    def on_mount(self):
-        self.load_books()
 
     def compose(self) -> ComposeResult:
         """Create childs for the application"""
+        self.load_books()
         yield Header()
         yield Footer()
 

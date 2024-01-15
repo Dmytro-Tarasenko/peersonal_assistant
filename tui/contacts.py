@@ -136,13 +136,10 @@ class Contacts(Static):
     super_address: Address = Address()
 
     def compose(self) -> ComposeResult:
+        """Composing main elements"""
         self.records = list(self.app.address_book.data.values())
         self.current_record = self.records[0]
-        self.super_address = self.current_record.address
-        self.super_address.zip_code = 54321
-        self.current_record.address = self.super_address
-        self.notify(f"{self.current_record.address}", severity="information", timeout=15)
-        """Composing main elements"""
+
         with Horizontal(id="contacts_workspaces"):
             yield Button("View contacts", id="contacts_viewer")
             yield Button("Add contacts", id="contacts_adder")
