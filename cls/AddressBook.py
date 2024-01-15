@@ -299,20 +299,24 @@ class AddressBook(UserDict):
 
         return upcoming_contacts
 
-    def find_record(self, search_param: str) -> 'Record':
-        """Find a record in the address book based on search parameters.
+    def find_record(self, search_params: List[str]) -> List[Record]:
+        """
+        Finds records in the address book based on a list of search parameters.
 
         Args:
-            search_param (str): Search parameter (e.g., name, birthday).
+            search_params (List[str]): A list of search parameters.
 
         Returns:
-            Record: The found record.
+            List[Record]: A list of the found records.
         """
-        for record in self.values():
-            if (
-                record.name.value.lower() == search_param.lower() or
-                (record.birthday is not None and record.birthday.value.strftime('%d-%m-%Y') == search_param)
-            ):
-                return record
 
-        raise ValueError("Record not found.")
+        search_exprs = [re.compile(f"({search_param})") for search_param in search_params]
+
+        results = []
+        for record in self.values():
+            for search_expr in search_exprs:
+                if search_expr.search(record.search_str):
+                    results.append(record)
+                    break
+
+        return results
