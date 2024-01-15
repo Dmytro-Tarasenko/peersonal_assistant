@@ -199,11 +199,11 @@ class Record:
 
     @property
     def search_str(self) -> str:
-        name_str = f"$NAME${self.name}"
-        address_str = f"$ADDRESS${self.address}"
-        email_str = f"$EMAIL${self.email}"
-        phones_str = f"$PHONES${'| '.join(str(p) for p in self.phones)}"
-        bday_str = f"$BDAY${self.birthday if self.birthday else ''}"
+        name_str = f"%NAME%{self.name}"
+        address_str = f"%ADDRESS%{self.address}"
+        email_str = f"%EMAIL%{self.email}"
+        phones_str = f"%PHONES%{'|'.join(str(p) for p in self.phones)}"
+        bday_str = f"%BDAY%{self.birthday if self.birthday else ''}"
         return (
             f"{name_str}::"
             f"{address_str}::"
@@ -216,13 +216,9 @@ class Record:
 class AddressBook(UserDict):
     """Class representing an address book."""
 
-    def __iter__(self) -> iter:
+    def iterator(self) -> Record:
         """Return an iterator over the records in the address book."""
-        return iter(self.data.values())
-
-    def __getitem__(self, key):
-        """Get an item from the address book."""
-        return self.data[key.search_str]
+        yield self.data.values()
 
     def print_address_book(self):
         """Print all records in the address book."""
@@ -281,7 +277,6 @@ class AddressBook(UserDict):
         ]
         return upcoming_contacts
 
-
     def find_record(self, search_params: List[str]) -> List[Record]:
         """
         Finds records in the address book based on a list of search parameters.
@@ -292,13 +287,22 @@ class AddressBook(UserDict):
         Returns:
             List[Record]: A list of the found records.
         """
-
-        search_exprs = [re.compile(f"({search_param})") for search_param in search_params]
+        regexp_block = r"[\w@\.\-\|\,]*"
+        search_exprs = []
+        for param in search_params:
+            param = (param.replace("\\", "\\\\")
+                     .replace(".", "\.")
+                     .replace("-", "\-")
+                     .replace(",", "\,"))
+            search_field,  search_cond = param.rsplit("%", maxsplit=1)
+            search_field += "%"
+            search_exprs.append(rf"{search_field}{regexp_block}"
+                                 + rf"{search_cond}{regexp_block}::")
 
         results = []
         for record in self.values():
             for search_expr in search_exprs:
-                if search_expr.search(record.search_str):
+                if re.search(search_expr, record.search_str):
                     results.append(record)
                     break
 

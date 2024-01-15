@@ -13,7 +13,8 @@ from textual.widgets import (Markdown,
                              Static,
                              Button,
                              ContentSwitcher, DataTable, Label, Input)
-from cls.AddressBook import Address, AddressBook, Record
+from cls.AddressBook import Address, Record, AddressBook
+from cls.validators import BirthdayValidator
 
 
 class ContactDetails(Static):
@@ -36,9 +37,22 @@ class ContactDetails(Static):
         address = self.current_record.address
         email_ = self.current_record.email
         phones = self.current_record.phones
-        text = Text()
-        text.append("")
-        return f"sdfsdf{self.current_record}"
+        text = Text(tab_size=1)
+        text.append("\n")
+        text.append("\tName: ", style="bold italic #A2A2B5")
+        text.append("\t"+name)
+        text.append("\tBirthday: ", style="bold italic #A2A2B5")
+        text.append("\t"+bday)
+        text.append("\n\n")
+        text.append("\te-mail: ", style="bold italic #A2A2B5")
+        text.append("\t"+email_)
+        text.append("\n\n")
+        text.append("\tAddress: ", style="bold italic #A2A2B5")
+        text.append("\t" + str(address))
+        text.append("\n\n")
+        text.append("\tPhones: ", style="bold italic #A2A2B5")
+        text.append("\t" + ",".join(phones))
+        return text
 
 
 class ContatsList(Widget):
@@ -65,7 +79,7 @@ class ContatsList(Widget):
                           row.birthday,
                           row.address,
                           row.email,
-                          row.phones,
+                          ",".join(row.phones),
                           height=1)
             line_num += 1
 
@@ -87,20 +101,44 @@ class ContactsViewControl(Widget):
             yield Label("Enter at least 3 characters",
                         classes="cv_input")
             yield Input(placeholder="Name\\part to lookup",
-                        classes="cv_input")
-            yield Label("Enter at least 3 digits",
+                        classes="cv_input",
+                        restrict=r"\w+",
+                        id="cv_control_name")
+            yield Label("Enter from 3 to 10 digits",
                         classes="cv_input")
             yield Input(placeholder="Phone\\part  to lookup",
-                        classes="cv_input")
+                        classes="cv_input",
+                        type="integer",
+                        restrict=r"\d{,10}",
+                        id="cv_control_phones")
             yield Label("Enter at least 3 characters",
                         classes="cv_input")
             yield Input(placeholder="E-mail\\part to lookup",
-                        classes="cv_input")
+                        classes="cv_input",
+                        restrict=r"[\w.@]+",
+                        id="cv_control_email")
             yield Label("Enter at least 3 symbols",
                         classes="cv_input")
             yield Input(placeholder="Address\\part to lookup",
-                        classes="cv_input")
+                        classes="cv_input",
+                        restrict=r"[\w.,-]+",
+                        id="cv_control_address")
             yield Button("Lookup", variant="primary")
+
+    def on_button_pressed(self, event: Button.Pressed) -> None:
+        """Process Lookup button pressed"""
+        inputs: List[Input] = self.query("Input.cv_input")
+        search_condition = ""
+        address_book: AddressBook = self.app.address_book
+        for input in inputs:
+            field = input.id.rsplit("_")[-1]
+            if input.value:
+                search_condition += f"${field.upper()}${input.value}"
+        self.notify(search_condition, severity="information", timeout=10)
+        self.notify(str(address_book.find_record), severity="information", timeout=10)
+        # records: List[Record] = address_book.find_record(search_condition)
+        # self.notify(f"{len(records)}", severity="information", timeout=10)
+        event.button.refresh()
 
 
 class ContactsView(Static):
