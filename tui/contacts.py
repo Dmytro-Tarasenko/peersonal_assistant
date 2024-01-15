@@ -123,22 +123,23 @@ class ContactsViewControl(Widget):
                         classes="cv_input",
                         restrict=r"[\w.,-]+",
                         id="cv_control_address")
-            yield Button("Lookup", variant="primary")
+            yield Button("Lookup", variant="primary", id="cv_control_lookup")
 
     def on_button_pressed(self, event: Button.Pressed) -> None:
         """Process Lookup button pressed"""
         inputs: List[Input] = self.query("Input.cv_input")
-        search_condition = ""
+        search_conditions = []
         address_book: AddressBook = self.app.address_book
         for input in inputs:
             field = input.id.rsplit("_")[-1]
             if input.value:
-                search_condition += f"${field.upper()}${input.value}"
-        self.notify(search_condition, severity="information", timeout=10)
-        self.notify(str(address_book.find_record), severity="information", timeout=10)
-        # records: List[Record] = address_book.find_record(search_condition)
-        # self.notify(f"{len(records)}", severity="information", timeout=10)
-        event.button.refresh()
+                search_conditions.append(f"%{field.upper()}%{input.value}")
+        if len(search_conditions) == 0:
+            self.notify("No search conditions are specified!",
+                        severity="warning",
+                        timeout=10)
+        records: List[Record] = address_book.find_record(search_conditions)
+        self.app.query_one("#contacts_viewer").refresh()
 
 
 class ContactsView(Static):
@@ -181,9 +182,9 @@ class Contacts(Static):
         self.current_record = self.records[0]
 
         with Horizontal(id="contacts_workspaces"):
-            yield Button("View contacts", id="contacts_viewer")
-            yield Button("Add contacts", id="contacts_adder")
-            yield Button("Edit\\Delete contacts", id="contacts_editor")
+            yield Button("View contacts", id="btn_contacts_viewer")
+            yield Button("Add contacts", id="btn_contacts_adder")
+            yield Button("Edit\\Delete contacts", id="btn_contacts_editor")
 
         with ContentSwitcher(initial="contacts_viewer", id="cs_contacts"):
             yield ContactsView(id="contacts_viewer")
@@ -192,8 +193,9 @@ class Contacts(Static):
 
     def on_button_pressed(self, event: Button.Pressed) -> None:
         """Switchin content by button presseed"""
-        self.query_one(ContentSwitcher).current = event.button.id
+        if event.button.id.startswith("btn_contacts_"):
+            self.query_one(ContentSwitcher).current = event.button.id.split("_", maxsplit=1)[-1]
 
     def on_mount(self) -> None:
-        initial: Widget = self.query_one("Static#contacts_viewer")
+        initial: Widget = self.query_one("ContactsView")
         initial.refresh()
