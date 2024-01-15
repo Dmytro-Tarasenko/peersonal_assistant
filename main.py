@@ -12,7 +12,7 @@ from textual.widgets import (Header,
                              TabPane)
 from pathlib import Path
 
-import cls.AddressBook as AddressBook
+from cls.AddressBook import AddressBook
 from tui import dashboard, contacts, notes, settings, sorter
 import pickle
 
@@ -37,7 +37,7 @@ class PersonalAssistant(App):
                 "tcss/sorter.tcss",
                 "tcss/contacts.tcss"]
 
-    address_book = AddressBook.AddressBook()
+    address_book = AddressBook()
 
     def load_books(self) -> None:
         """Loads data to use in app"""
@@ -45,17 +45,16 @@ class PersonalAssistant(App):
         if abook_bin.exists():
             with abook_bin.open('rb') as fin:
                 try:
-                    self.address_book = pickle.load(fin)
+                    self.address_book = pickle.load(fin, fix_imports=False)
                 except Exception as err:
                     self.notify(f"{err}", severity="error", timeout=5)
-                    self.address_book = AddressBook.AddressBook()
+                    self.address_book = AddressBook()
 
     def compose(self) -> ComposeResult:
         """Create childs for the application"""
         self.load_books()
         yield Header()
         yield Footer()
-        self.notify(f"{len(self.address_book.data)}", severity="information", timeout=5)
 
         with TabbedContent():
             with TabPane("Dashboard", id="dashbrd"):
