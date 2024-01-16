@@ -299,7 +299,7 @@ class AddressBook(UserDict):
         results = []
         for record in self.values():
             for search_expr in search_exprs:
-                if re.search(search_expr, record.search_str):
+                if re.search(search_expr, record.search_str, re.I):
                     results.append(record)
                     break
 

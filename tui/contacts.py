@@ -9,10 +9,12 @@ from textual.app import ComposeResult
 from textual.containers import Horizontal, Vertical, Grid
 from textual.message import Message
 from textual.widget import Widget
-from textual.widgets import (Markdown,
-                             Static,
+from textual.widgets import (Static,
                              Button,
-                             ContentSwitcher, DataTable, Label, Input, Rule)
+                             ContentSwitcher,
+                             DataTable,
+                             Label,
+                             Input)
 from cls.AddressBook import Address, Record, AddressBook
 from cls.validators import (BirthdayValidator,
                             EmailValidator,
@@ -28,7 +30,7 @@ class ContactDetails(Static):
 
     def on_mount(self) -> None:
         self.styles.border_title_align = "left"
-        self.border_title = "Contact details"
+        self.border_title = "Current contact details"
         self.styles.border = ("round", "#FFD900")
 
     def get_record_info(self) -> None:
@@ -89,7 +91,6 @@ class ContatsList(Widget):
         #     )
         #     line_num += 1
 
-
     def on_mount(self) -> None:
         self.styles.border_title_align = "left"
         self.border_title = "Contacts list"
@@ -112,20 +113,23 @@ class ContatsList(Widget):
         line_num = 1
         for row in self.records:
             self.table.add_row(str(line_num),
-                          row.name,
-                          row.birthday,
-                          row.address,
-                          row.email,
-                          ",".join(row.phones),
-                          height=1)
+                               row.name,
+                               row.birthday,
+                               row.address,
+                               row.email,
+                               ",".join(row.phones),
+                               height=1,
+                               key=row.name)
             line_num += 1
 
     def compose(self) -> ComposeResult:
         yield self.table
 
-    def on_data_table_row_selected(self, row_info: Message) -> None:
+    def on_data_table_row_selected(self, row_info: DataTable.RowSelected) -> None:
         contacts_wdgt: Contacts = self.app.query_one("Contacts")
-        contacts_wdgt.current_record = contacts_wdgt.records[row_info.cursor_row]
+        address_book: AddressBook = self.app.address_book
+        self.notify(f"{row_info.row_key.value}")
+        contacts_wdgt.current_record = address_book.data[row_info.row_key.value]
         details_wdgt: ContactDetails = self.parent.query_one("#contact_details_wdgt")
         details_wdgt.get_record_info()
         details_wdgt.update()
@@ -179,11 +183,11 @@ class ContactsViewControl(Widget):
             self.notify("No search conditions are specified!",
                         severity="warning",
                         timeout=10)
+        self.notify(f"{search_conditions}", timeout=10)
         records: List[Record] = address_book.find_record(search_conditions)
         contacts_list: ContatsList = self.parent.query_one(ContatsList)
         contacts_list.records = records
         contacts_list.table.clear()
-        self.notify(f"{contacts_list.table.classes}", severity="information", timeout=10)
         contacts_list.fill_the_table(records)
         contacts_list.refresh()
 
@@ -444,11 +448,6 @@ class ContactsAdd(Static):
                 switcher.current = "contacts_viewer"
 
 
-
-class ContactsEdit(Static):
-    """Widget to edit/delete contacts """
-
-
 class Contacts(Static):
     """Container widger for Contacts tab"""
     current_record: Record = Record()
@@ -475,7 +474,3 @@ class Contacts(Static):
         """Switchin content by button presseed"""
         if event.button.id.startswith("btn_contacts_"):
             self.query_one(ContentSwitcher).current = event.button.id.split("_", maxsplit=1)[-1]
-
-    # def on_mount(self) -> None:
-    #     initial: Widget = self.query_one("ContactsView")
-    #     initial.refresh()

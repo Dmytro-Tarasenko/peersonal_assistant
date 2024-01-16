@@ -1,7 +1,3 @@
-NoteInput#text_area{
-    height: 80%;
-}
-
 ContentSwitcher#cs_notes {
     background: $panel;
     height: 90%;
@@ -10,4 +6,32 @@ ContentSwitcher#cs_notes {
 .nt_details{
     height: 1fr;
     overflow-x: auto;
+}
+
+#nt_viewer_details{
+    width: 5fr;
+    height: 90%;
+    overflow: auto;
+}
+
+#nt_viewer_ctrl{
+    width: 2fr;
+}
+
+TextArtes#nt_input_text_area{
+    height: 7fr;
+}
+
+.nt_input_inline{
+    height: 3;
+    width: 75%;
+    align: center middle;
+}
+
+#nt_input_buttons{
+    height: 1fr;
+}
+
+Button#nt_input_save_button{
+    height: 3;
 }

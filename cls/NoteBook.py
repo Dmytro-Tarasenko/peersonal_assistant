@@ -8,10 +8,13 @@ class Note:
     and contains the note_id, content, tags information,
     and several methods for manipulating content and tags.'''    
     
-    def __init__(self, content: str | None = None):
+    def __init__(self,
+                 content: str | None = None,
+                 tags: List[str] = []):
         self.content: str = content
         self.note_id: int = int(datetime.timestamp(datetime.now()))  
-        self.tags: List[str] = self._extract_tags(content)  
+        self.tags = self._extract_tags(content)
+        self.tags.extend(tags)
 
     def _parse_tags(self, content: str) -> str:
         

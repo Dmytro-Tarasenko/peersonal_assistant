@@ -49,17 +49,17 @@ class PersonalAssistant(App):
         if abook_bin.exists():
             with abook_bin.open('rb') as fin:
                 try:
-                    self.address_book = pickle.load(fin, fix_imports=False)
+                    self.address_book = pickle.load(fin)
                 except Exception as err:
                     self.notify(f"{err}", severity="error", timeout=5)
                     self.address_book = AddressBook()
 
         if notebook_bin.exists():
-            with notebook_bin.open('rb') as notes_file:
+            with notebook_bin.open('rb') as fin:
                 try:
-                    self.note_book = pickle.load(notes_file, fix_imports=False)
+                    self.note_book = pickle.load(fin)
                 except Exception as err:
-                    self.notify(f"{err}", severity="error", timeout=5)
+                    self.notify(f"notebook_trouble {err}", severity="error", timeout=5)
                     self.note_book = Notebook()
                     
                 
