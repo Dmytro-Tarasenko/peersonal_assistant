@@ -93,10 +93,10 @@ class PersonalAssistant(App):
 
     def action_quit(self) -> None:
         """Performes quit action"""
-        with open("addressbook.dat", "a") as ab_file:
-            ab_file.write("AddressBook is saved\n")
-        with open("notebook.dat", "a") as nb_file:
-            nb_file.write("Notebook is saved\n")
+        with open("data/addressbook.bin", "wb") as ab_file:
+            pickle.dump(self.address_book, ab_file)
+        with open("data/notebook.bin", "wb") as nb_file:
+            pickle.dump(self.note_book, nb_file)
         self.exit()
 
 

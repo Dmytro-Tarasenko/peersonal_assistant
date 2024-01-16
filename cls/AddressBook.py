@@ -52,7 +52,7 @@ class Address(Field):
     """Class representing an address."""
     def __init__(self,
                  country: str = "",
-                 zip_code: int = None,
+                 zip_code: str = "",
                  city: str = "",
                  street: str = "",
                  house: str = "",
@@ -254,7 +254,7 @@ class AddressBook(UserDict):
             record (Record): The record to be deleted.
         """
         if record.name in self.data:
-            del self.data[record.name]
+            self.data.pop[record.name]
         else:
             raise ValueError("No_find_records")
 

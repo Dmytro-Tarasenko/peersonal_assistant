@@ -12,7 +12,7 @@ from textual.widget import Widget
 from textual.widgets import (Markdown,
                              Static,
                              Button,
-                             ContentSwitcher, DataTable, Label, Input)
+                             ContentSwitcher, DataTable, Label, Input, Rule)
 from cls.AddressBook import Address, Record, AddressBook
 from cls.validators import (BirthdayValidator,
                             EmailValidator,
@@ -160,17 +160,21 @@ class ContactsViewControl(Widget):
                         classes="cv_input",
                         restrict=r"[\w.,-]+",
                         id="cv_control_address")
-            yield Button("Lookup", variant="primary", id="cv_control_lookup")
+            with Horizontal():
+                yield Button("Lookup", variant="primary", id="cv_control_lookup")
+                yield Button("Clear Search", variant="warning", id="cv_control_clear")
+            with Horizontal():
+                yield Button("Edit record", variant="warning", id="cv_control_edit")
+                yield Button("Delete record", variant="error", id="cv_control_delete")
 
-    def on_button_pressed(self, event: Button.Pressed) -> None:
-        """Process Lookup button pressed"""
+    def cv_control_lookup(self) -> None:
         inputs: List[Input] = self.query("Input.cv_input")
         search_conditions = []
         address_book: AddressBook = self.app.address_book
-        for input in inputs:
-            field = input.id.rsplit("_")[-1]
-            if input.value:
-                search_conditions.append(f"%{field.upper()}%{input.value}")
+        for input_ in inputs:
+            field = input_.id.rsplit("_")[-1]
+            if input_.value:
+                search_conditions.append(f"%{field.upper()}%{input_.value}")
         if len(search_conditions) == 0:
             self.notify("No search conditions are specified!",
                         severity="warning",
@@ -178,11 +182,81 @@ class ContactsViewControl(Widget):
         records: List[Record] = address_book.find_record(search_conditions)
         contacts_list: ContatsList = self.parent.query_one(ContatsList)
         contacts_list.records = records
-        self.notify(f"{records}", severity="information", timeout=10)
         contacts_list.table.clear()
-
+        self.notify(f"{contacts_list.table.classes}", severity="information", timeout=10)
         contacts_list.fill_the_table(records)
         contacts_list.refresh()
+
+    def cv_control_clear(self) -> None:
+        inputs: List[Input] = self.query("Input.cv_input")
+        for input_ in inputs:
+            input_.clear()
+        contacts_list: ContatsList = self.parent.query_one(ContatsList)
+        contacts_list.table.clear()
+        contacts_list.fill_the_table()
+        contacts_list.refresh()
+
+    def cv_control_delete(self) -> None:
+        self.notify("cv_control_delete")
+
+    def cv_control_edit(self) -> None:
+        record: Record = self.app.query_one(Contacts).current_record
+        address: Address = record.address
+        editor: ContactsEdit = self.app.query_one(ContactsEdit)
+        inputs: List[Input] = editor.query(Input)
+        for field in inputs:
+            match field.id:
+                case "name_input":
+                    if name := record.name:
+                        field.value = name
+                case "phone_input":
+                    if phones := record.phones:
+                        field.value = " ".join(phones)
+                case "birthday_input":
+                    if birthday:= record.birthday:
+                        field.value = birthday
+                case "email_input":
+                    if email := record.email:
+                        field.value = email
+                case "zipcode_input":
+                    if address:
+                        if zip_code := address.zip_code:
+                            field.value = str(zip_code)
+                case "country_input":
+                    if address:
+                        if country := address.country:
+                            field.value = country
+                case "city_input":
+                    if address:
+                        if city := address.city:
+                            field.value = city
+                case "street_input":
+                    if address:
+                        if street := address.street:
+                            field.value = street
+                case "house_input":
+                    if address:
+                        if house := address.house:
+                            field.value = str(house)
+                case "apartment_input":
+                    if address:
+                        if apartment := address.apartment:
+                            field.value = str(apartment)
+        switcher: ContentSwitcher = (self.app.query_one(Contacts)
+                                     .query_one(ContentSwitcher))
+        switcher.current = "contacts_editor"
+
+    def on_button_pressed(self, event: Button.Pressed) -> None:
+        """Process Lookup button pressed"""
+        match event.button.id:
+            case "cv_control_lookup":
+                self.cv_control_lookup()
+            case "cv_control_clear":
+                self.cv_control_clear()
+            case "cv_control_edit":
+                self.cv_control_edit()
+            case "cv_control_delete":
+                self.cv_control_delete()
 
 
 class ContactsView(Static):
@@ -219,52 +293,66 @@ class ContactsAdd(Static):
         self.address_book = address_book
 
     def compose(self) -> ComposeResult:
-        yield Label('Enter user`s name (only alphabetic characters|first letter must be capital)')
-        yield Input(
-            placeholder="Enter user name...",
-            validators=[NameValidator()],
-            id="name_input",
-        )
-        yield Label("Enter user`s phone number (10 digits):")
-        yield Input(
-            placeholder="Enter phone number...",
-            validators=[PhoneNumberValidator()],
-            id="phone_input",
-        )
-        yield Label("Enter user`s birthday (in format DD-MM-YYYY)")
-        yield Input(
-            placeholder="Enter user birthday...",
-            validators=[BirthdayValidator()],
-            id="birthday_input",
-        )
-        yield Label("Enter user`s email address (Exa.mple123@email.com)")
-        yield Input(
-            placeholder="Enter user email...",
-            validators=[EmailValidator()],
-            id="email_input",
-            restrict=None
-        )
-        yield Label("Enter user`s zip code")
-        yield Input(placeholder="Enter zip code",
-                    validators=[ZipCodeValidator()],
-                    id="zipcode_input")
-        yield Label("Enter user`s country")
-        yield Input(placeholder="Enter country...",
-                    id="country_input")
-        yield Label("Enters user`s city")
-        yield Input(placeholder="Enter city...",
-                    id="city_input")
-        yield Label("Enter user`s street")
-        yield Input(placeholder="Enter street...",
-                    id="street_input")
-        yield Label("Enter user`s № house")
-        yield Input(placeholder="Enter № house...",
-                    id="house_input")
-        yield Label("Enter user`s № apartment")
-        yield Input(placeholder="Enter № apartment...",
-                    id="apartment_input")
+        with Grid(id="cv_adder_editor"):
+            yield Vertical(
+                Label('Enter user`s name (only alphabetic characters|first letter must be capital)'),
+                Input(
+                    placeholder="Enter user name...",
+                    validators=[NameValidator()],
+                    id="name_input")
+            )
+            yield Vertical(
+                Label("Enter user`s phone number (10 digits):"),
+                Input(placeholder="Enter phone number...",
+                      validators=[PhoneNumberValidator()],
+                      id="phone_input")
+            )
+            yield Vertical(
+                Label("Enter user`s birthday (in format DD-MM-YYYY)"),
+                Input(placeholder="Enter user birthday...",
+                      validators=[BirthdayValidator()],
+                      id="birthday_input")
+            )
+            yield Vertical(
+                Label("Enter user`s email address (Exa.mple123@email.com)"),
+                Input(placeholder="Enter user email...",
+                      validators=[EmailValidator()],
+                      id="email_input",
+                      restrict=None)
+            )
+            yield Vertical(
+                Label("Enter user`s zip code"),
+                Input(placeholder="Enter zip code",
+                      validators=[ZipCodeValidator()],
+                      id="zipcode_input")
+            )
+            yield Vertical(
+                Label("Enter user`s country"),
+                Input(placeholder="Enter country...",
+                      id="country_input")
+            )
+            yield Vertical(
+                Label("Enters user`s city"),
+                Input(placeholder="Enter city...",
+                      id="city_input")
+            )
+            yield Vertical(
+                Label("Enter user`s street"),
+                Input(placeholder="Enter street...",
+                      id="street_input")
+            )
+            yield Vertical(
+                Label("Enter user`s № house"),
+                Input(placeholder="Enter № house...",
+                      id="house_input")
+            )
+            yield Vertical(
+                Label("Enter user`s № apartment"),
+                Input(placeholder="Enter № apartment...",
+                      id="apartment_input")
+            )
 
-        yield Button(label="Submit info")
+        yield Button(label="Submit info", id="add_info")
 
     @on(Button.Pressed)
     def accept_info(self):
@@ -322,16 +410,17 @@ class ContactsAdd(Static):
                     birthday=birthday_widget if birthday_widget else None,
                     email=email_widget if email_widget else None,
                     address=Address(
-                        country=country_widget if country_widget else None,
-                        zip_code=zipcode_widget if zipcode_widget else None,
-                        city=city_widget if city_widget else None,
-                        street=street_widget if street_widget else None,
-                        house=house_widget if house_widget else None,
-                        apartment=apartment_widget if apartment_widget else None
+                        country=country_widget if country_widget else "",
+                        zip_code=zipcode_widget if zipcode_widget else "",
+                        city=city_widget if city_widget else "",
+                        street=street_widget if street_widget else "",
+                        house=house_widget if house_widget else "",
+                        apartment=apartment_widget if apartment_widget else ""
                     )
                 )
                 self.app.address_book.add_record(record)
                 contacts_list = self.app.query_one(ContatsList).refresh()
+                self.notify(f"{len(self.app.address_book.data)}", timeout=10)
                 contacts_list.contact_adder()
                 for widget in input_widgets:
                     widget.value = ''
@@ -350,7 +439,10 @@ class Contacts(Static):
     def compose(self) -> ComposeResult:
         """Composing main elements"""
         self.records = list(self.app.address_book.data.values())
-        self.current_record = self.records[0]
+        if len(self.records) > 0:
+            self.current_record = self.records[0]
+        else:
+            self.current_record = Record()
 
         with Horizontal(id="contacts_workspaces"):
             yield Button("View contacts", id="btn_contacts_viewer")

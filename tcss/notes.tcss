@@ -1,8 +1,13 @@
-#text_area{
+NoteInput#text_area{
     height: 80%;
-    
 }
-#cs_notes{
-    height: 3;
 
+ContentSwitcher#cs_notes {
+    background: $panel;
+    height: 90%;
+}
+
+.nt_details{
+    height: 1fr;
+    overflow-x: auto;
 }

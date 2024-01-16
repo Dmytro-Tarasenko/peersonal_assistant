@@ -60,9 +60,12 @@ class TodaysMates(Widget):
     def on_mount(self) -> None:
         table = self.query_one(DataTable)
         table.zebra_stripes = True
+        table.styles.width = "65%"
         table.cell_padding = 2
         table.cursor_type = "row"
-        table.add_columns("#", "Name", "Age")
+        table.add_column("#", width=5)
+        table.add_column("Name", width=20)
+        table.add_column("Age", width=10)
         table.add_row("1", "Engelgardt asdasd", "43")
         table.add_row("2", "Shevchenko", "55")
         table.add_row("3", "Engelgardt", "98")
@@ -87,8 +90,12 @@ class UpcomingMates(Widget):
         table = self.query_one(DataTable)
         table.zebra_stripes = True
         table.cell_padding = 2
+        table.styles.width = "90%"
         table.cursor_type = "row"
-        table.add_columns("#", "Name", "Birthday", "Age")
+        table.add_column("#", width=5)
+        table.add_column("Name", width=20)
+        table.add_column("Birthday", width=16)
+        table.add_column("Age", width=10)
         table.add_row("1", "Engelgardt asdasd asdasdasdasdasdasdasdasd", "12-01-1980", "43")
         table.add_row("2", "Shevchenko", "16-01-1969", "55")
         table.add_row("3", "Engelgardt", "17-01-1926", "98")

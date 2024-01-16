@@ -14,7 +14,7 @@ class NameValidator(Validator):
             - ValidationResult: Результат перевірки.
             """
     def validate(self, value: str) -> ValidationResult:
-        if value.isalpha() and value[0].isupper() and len(value) > 1:
+        if value.isalpha() and value[0].isupper() and len(str(value)) > 1:
             return self.success()
         else:
             return self.failure("Invalid name. Please enter a valid name starting with an uppercase letter"
@@ -32,7 +32,7 @@ class PhoneNumberValidator(Validator):
             - ValidationResult: Результат перевірки.
             """
     def validate(self, value: str) -> ValidationResult:
-        if value.isdigit() and len(value) == 10:
+        if str(value).isdigit() and len(str(value)) == 10:
             return self.success()
         elif not value:
             return self.success()
@@ -51,7 +51,7 @@ class BirthdayValidator(Validator):
            - ValidationResult: Результат перевірки.
            """
     def validate(self, value: str) -> ValidationResult:
-        if len(value) == 10:
+        if len(str(value)) == 10:
             try:
                 datetime.strptime(value, '%d-%m-%Y')
                 return self.success()
@@ -94,7 +94,7 @@ class ZipCodeValidator(Validator):
                 - ValidationResult: Результат перевірки.
                 """
     def validate(self, value: str) -> ValidationResult:
-        if value.isdigit() and len(value) == 5:
+        if str(value).isdigit() and len(str(value)) == 5:
             return self.success()
         elif not value:
             return self.success()

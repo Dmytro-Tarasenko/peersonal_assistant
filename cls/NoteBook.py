@@ -1,14 +1,15 @@
-from typing import List, Dict, Union # for type annotation
-import re # to search for hashtags using regexp
-from datetime import datetime # to create a unique ID
+from collections import UserDict
+from typing import List, Dict, Union  # for type annotation
+import re  # to search for hashtags using regexp
+from datetime import datetime  # to create a unique ID
 
 class Note:
     ''' The Class Note is a separate note
     and contains the note_id, content, tags information,
     and several methods for manipulating content and tags.'''    
     
-    def __init__(self, content: str):
-        self.content: str = self._parse_tags(content)  
+    def __init__(self, content: str | None = None):
+        self.content: str = content
         self.note_id: int = int(datetime.timestamp(datetime.now()))  
         self.tags: List[str] = self._extract_tags(content)  
 
@@ -20,10 +21,10 @@ class Note:
         Returns:
         str:Returning value'''
 
-        if len(content) < 1:
+        if not content:
             raise ValueError('empty_note')
         
-        return re.sub(r'#(.*?)#', r'\1', content)  
+        return re.sub(r'#[\w\-]*\b', r'\1', content)
 
     def _extract_tags(self, content: str) -> List[str]:
         
@@ -32,16 +33,16 @@ class Note:
         argument_1(content: str) : It is the string typed by the user.
         Returns:
         List[str]:Returning value'''
+        if not content:
+            return []
+        return re.findall(r'#[\w\-]*\b', content)
 
-        
-        return re.findall(r'#(.*?)#', content)  
-
-    def edit_note(self, new_content: str) -> None:
-
-        '''The edit_note method re-creates the note content. 
+    def edit_note(self, note_id: int,
+                  new_content: str) -> None:
+        '''The edit_note method re-creates the note content.
         When editing a note, it parses the new text for tags and selects new tags from the new text.'''
         
-        self.content = self._parse_tags(new_content) 
+        # self.content = self._parse_tags(new_content)
         self.tags = self._extract_tags(new_content) 
 
     def __repr__(self) -> str:
@@ -50,27 +51,28 @@ class Note:
         Returns:
         str:Returning value'''
 
-        return f"{self.note_id}::{self.content[:20]}::{'|'.join(self.tags)}"  
+        return f"{self.note_id}::{self.content[:50]}::{'|'.join(self.tags)}"
    
 
-class Notebook:
+class Notebook(UserDict):
     '''The Class Notebook is a notebook 
     and contains a list of notes and dict of tags for quicker searching.'''
 
     def __init__(self) -> None:
         self.notes: List[Note] = []
         self.tag_pool: Dict[str, List[int]] = {}
+        super().__init__()
 
-    def add_note(self, note_content: str) -> None:
+    def add_note(self, note: Note) -> None:
 
         '''The add_note method creates a new note,
         then adds the note to the list and updates the tag_pool.
         Parameters:
         argument_1(note_content: str) : It's the string typed by the user.
         '''
-        
-        note = Note(note_content)
-        self.notes.append(note)
+        if _ := self.data.get(note.note_id):
+            raise KeyError("note_exists")
+        self.data[note.note_id] = note
         self.update_tag_pool(note)
         
     def del_note(self, del_note: Note) -> None:
@@ -79,11 +81,9 @@ class Notebook:
         Parameters:
         argument_1(del_note: Note) : Object of Class Note, note forwarded for deletion. 
         '''
-        
-        if del_note in self.notes:
-            note_id = del_note.note_id
-            self.notes.remove(del_note)
-            self.clean_tags(note_id)
+        if _ := self.data.get(del_note.note_id):
+            self.clean_tags(del_note.note_id)
+            self.data.pop(del_note.note_id)
 
     def find_notes_by_keyword(self, keyword: str) ->List[Note]:
 
@@ -94,7 +94,7 @@ class Notebook:
         List[Note]:Returning value
         '''
 
-        return [note for note in self.notes if keyword.lower() in note.content.lower()]
+        return [note for note in self.data.values() if keyword.lower() in note.content.lower()]
        
     def find_notes_by_tags(self, tag: str) -> List[Note]:
         
@@ -104,7 +104,7 @@ class Notebook:
         Returns:
         List[Note]:Returning value'''
         
-        return [note for note in self.notes if tag.lower() in note.tags]
+        return [note for note in self.data.values() if tag.lower() in note.tags]
    
     def update_tag_pool(self, note: Note) -> None:
 
@@ -131,6 +131,3 @@ class Notebook:
             self.tag_pool[tag].remove(note_id)
             if not self.tag_pool[tag]:
                 del self.tag_pool[tag]
-
-    def __iter__(self) -> List[Note]:
-        return iter(self.notes)

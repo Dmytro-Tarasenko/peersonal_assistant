@@ -15,6 +15,7 @@ ContentSwitcher#cs_contacts {
 
 #cntct_viewer_details{
     width: 5fr;
+    height: 90%;
     overflow-x: auto;
 }
 
@@ -33,4 +34,13 @@ Label.cv_input{
 
 .cntct_add_fields{
     width: 1fr;
+}
+
+.data_table{
+    height: 100%;
+}
+
+Grid#cv_adder_editor{
+    grid-size: 2;
+    padding: 0 0 0 1;
 }
