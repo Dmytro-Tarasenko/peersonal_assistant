@@ -1,0 +1,8 @@
+#text_area{
+    height: 80%;
+    
+}
+#cs_notes{
+    height: 3;
+
+}
