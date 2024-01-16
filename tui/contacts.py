@@ -149,6 +149,7 @@ class ContactsViewControl(Widget):
         contacts_list.records = records
         self.notify(f"{records}", severity="information", timeout=10)
         contacts_list.table.clear()
+
         contacts_list.fill_the_table(records)
         contacts_list.refresh()
 
