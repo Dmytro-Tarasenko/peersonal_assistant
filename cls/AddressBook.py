@@ -15,11 +15,11 @@ class Field:
         """
         self.value = value
 
-    def __repr__(self) -> str:
-        """
-        Returns the string representation of the field value.
-        """
-        return str(self.value)
+    # def __repr__(self) -> str:
+    #     """
+    #     Returns the string representation of the field value.
+    #     """
+    #     return str(self.value)
 
 
 class Name(Field):
@@ -215,6 +215,10 @@ class Record:
 
 class AddressBook(UserDict):
     """Class representing an address book."""
+    def __getitem__(self, name: str) -> None:
+        if name in self.data:
+            return self.data.get(name)
+        return None
 
     def iterator(self) -> Record:
         """Return an iterator over the records in the address book."""
@@ -225,14 +229,13 @@ class AddressBook(UserDict):
         for record in self.values():
             print(record)
 
-    def add_record(self, record: 'Record') -> None:
+    def add_record(self, record: Record) -> None:
         """Додайте новий запис до адресної книги.
 
         Args:
             record (Record): The record to be added.
         """
         self.data[record.name] = record
-
 
     def edit_record(self,
                     old_record: Record,
@@ -248,21 +251,15 @@ class AddressBook(UserDict):
         else:
             raise ValueError("No_find_records")
 
-    def delete_record(self, record: 'Record') -> None:
+    def delete_record(self, name: str) -> None:
         """Delete a record from the address book.
         Args:
             record (Record): The record to be deleted.
         """
-        if record.name in self.data:
-            self.data.pop[record.name]
+        if self.data[name]:
+            self.data.pop(name)
         else:
             raise ValueError("No_find_records")
-
-    def print_address_book(self):
-        for key, record in self.data.items():
-            print(key)
-            print(record)
-            print()
 
     def upcoming_birthdays(self) -> List[Record]:
         """Return a list of contacts with birthdays upcoming from tomorrow to 7 days ahead.

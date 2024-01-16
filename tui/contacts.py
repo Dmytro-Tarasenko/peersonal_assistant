@@ -197,12 +197,25 @@ class ContactsViewControl(Widget):
         contacts_list.refresh()
 
     def cv_control_delete(self) -> None:
-        self.notify("cv_control_delete")
+        record: Record = self.app.query_one(Contacts).current_record
+        self.app.address_book.delete_record(record.name)
+        table = self.parent.query_one(DataTable)
+        table.clear()
+        contacts_list: ContatsList = self.parent.query_one(ContatsList)
+        contacts: Contacts = self.app.query_one(Contacts)
+        contacts.records = list(self.app.address_book.data.values())
+        if contacts.records:
+            contacts.current_record = contacts.records[0]
+        else:
+            contacts.current_record = Record()
+        contacts_list.fill_the_table()
+        table.refresh()
 
     def cv_control_edit(self) -> None:
+        self.app.query_one(Contacts).edit_flag = True
         record: Record = self.app.query_one(Contacts).current_record
         address: Address = record.address
-        editor: ContactsEdit = self.app.query_one(ContactsEdit)
+        editor: ContactsEdit = self.app.query_one(ContactsAdd)
         inputs: List[Input] = editor.query(Input)
         for field in inputs:
             match field.id:
@@ -244,7 +257,7 @@ class ContactsViewControl(Widget):
                             field.value = str(apartment)
         switcher: ContentSwitcher = (self.app.query_one(Contacts)
                                      .query_one(ContentSwitcher))
-        switcher.current = "contacts_editor"
+        switcher.current = "contacts_adder"
 
     def on_button_pressed(self, event: Button.Pressed) -> None:
         """Process Lookup button pressed"""
@@ -418,12 +431,17 @@ class ContactsAdd(Static):
                         apartment=apartment_widget if apartment_widget else ""
                     )
                 )
+                if self.app.query_one(Contacts).edit_flag:
+                    self.app.address_book.delete_record(record.name)
+                    self.app.query_one(Contacts).edit_flag = False
                 self.app.address_book.add_record(record)
                 contacts_list = self.app.query_one(ContatsList).refresh()
-                self.notify(f"{len(self.app.address_book.data)}", timeout=10)
                 contacts_list.contact_adder()
                 for widget in input_widgets:
                     widget.value = ''
+                switcher: ContentSwitcher = (self.app.query_one(Contacts)
+                                             .query_one(ContentSwitcher))
+                switcher.current = "contacts_viewer"
 
 
 
@@ -435,6 +453,7 @@ class Contacts(Static):
     """Container widger for Contacts tab"""
     current_record: Record = Record()
     records: List[Record] = []
+    edit_flag = False
 
     def compose(self) -> ComposeResult:
         """Composing main elements"""

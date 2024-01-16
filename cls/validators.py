@@ -14,7 +14,7 @@ class NameValidator(Validator):
             - ValidationResult: Результат перевірки.
             """
     def validate(self, value: str) -> ValidationResult:
-        if value.isalpha() and value[0].isupper() and len(str(value)) > 1:
+        if re.match(r"[\w\- ]+", value) and value[0].isupper() and len(str(value)) > 1:
             return self.success()
         else:
             return self.failure("Invalid name. Please enter a valid name starting with an uppercase letter"

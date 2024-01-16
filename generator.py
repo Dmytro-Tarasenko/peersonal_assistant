@@ -28,7 +28,7 @@ def generate_contact():
 
 def address_book_generator():
     ab = AddressBook()
-    for _ in range(10):
+    for _ in range(15):
         contact = generate_contact()
         ab.add_record(contact)
     return ab
@@ -42,4 +42,3 @@ with open('data/addressbook.bin', 'wb') as f:
 
 with open('data/addressbook.bin', 'rb') as f:
     address_book = pickle.load(f)
-print(address_book)
