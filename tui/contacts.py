@@ -69,19 +69,25 @@ class ContatsList(Widget):
 
     def contact_adder(self):
         table = self.query_one(DataTable)
+        table.clear()
+        contacts_list: ContatsList = self.parent.query_one(ContatsList)
+        contacts: Contacts = self.app.query_one(Contacts)
+        contacts.records = list(self.app.address_book.data.values())
+        contacts.current_record = contacts.records[0]
+        contacts_list.fill_the_table()
         table.refresh()
-        line_num = 1
-        for row in self.app.address_book.data.values():
-            table.add_row(
-                str(line_num),
-                row.name,
-                row.birthday,
-                row.address,
-                row.email,
-                row.phones,
-                height=1
-            )
-            line_num += 1
+        # line_num = 1
+        # for row in self.app.address_book.data.values():
+        #     table.add_row(
+        #         str(line_num),
+        #         row.name,
+        #         row.birthday,
+        #         row.address,
+        #         row.email,
+        #         row.phones,
+        #         height=1
+        #     )
+        #     line_num += 1
 
 
     def on_mount(self) -> None:
@@ -194,16 +200,6 @@ class ContactsView(Static):
 
 class ContactsAdd(Static):
     """Widget to add contact """
-    def compose(self) -> ComposeResult:
-        yield Horizontal(
-            Label("Record info", classes="cntct_add_fields"),
-            Label("Add fileds", classes="cntct_add_fields")
-        )
-
-
-class ContactsEdit(Static):
-    """Widget to edit/delete contacts """
-
     def __init__(self, widget_value_name='', widget_value_phone=None,
                  widget_value_birthday=None, widget_value_email=None,
                  widget_value_zipcode=None, widget_value_country=None, widget_value_city=None,
@@ -341,6 +337,11 @@ class ContactsEdit(Static):
                     widget.value = ''
 
 
+
+class ContactsEdit(Static):
+    """Widget to edit/delete contacts """
+
+
 class Contacts(Static):
     """Container widger for Contacts tab"""
     current_record: Record = Record()
@@ -353,13 +354,11 @@ class Contacts(Static):
 
         with Horizontal(id="contacts_workspaces"):
             yield Button("View contacts", id="btn_contacts_viewer")
-            yield Button("Add contacts", id="btn_contacts_adder")
-            yield Button("Edit\\Delete contacts", id="btn_contacts_editor")
+            yield Button("Add\\Edit contacts", id="btn_contacts_adder")
 
         with ContentSwitcher(initial="contacts_viewer", id="cs_contacts"):
             yield ContactsView(id="contacts_viewer")
             yield ContactsAdd(id="contacts_adder")
-            yield ContactsEdit(id="contacts_editor")
 
     def on_button_pressed(self, event: Button.Pressed) -> None:
         """Switchin content by button presseed"""
