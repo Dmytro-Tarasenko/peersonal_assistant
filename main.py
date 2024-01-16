@@ -12,6 +12,7 @@ from textual.widgets import (Header,
                              TabPane)
 from pathlib import Path
 
+from cls.NoteBook import Note, Notebook
 from cls.AddressBook import AddressBook
 from tui import dashboard, contacts, notes, settings, sorter
 import pickle
@@ -35,15 +36,16 @@ class PersonalAssistant(App):
     CSS_PATH = ["tcss/main.tcss",
                 "tcss/dashboard.tcss",
                 "tcss/sorter.tcss",
+                "tcss/notes.tcss",
                 "tcss/contacts.tcss"]
 
     address_book = AddressBook()
-    # note_book = NoteBook()
+    note_book = Notebook()
 
     def load_books(self) -> None:
         """Loads data to use in app"""
         abook_bin = Path("data/addressbook.bin")
-        # nbook_bin = Path("data/notebook.bin")
+        notebook_bin = Path("data/notebook.bin")
         if abook_bin.exists():
             with abook_bin.open('rb') as fin:
                 try:
@@ -52,13 +54,15 @@ class PersonalAssistant(App):
                     self.notify(f"{err}", severity="error", timeout=5)
                     self.address_book = AddressBook()
 
-        # if nbook_bin.exists():
-        #     with nbook_bin.open('rb') as fin:
-        #         try:
-        #             self.note_book = pickle.load(fin, fix_imports=False)
-        #         except Exception as err:
-        #             self.notify(f"{err}", severity="error", timeout=5)
-        #             self.note_book = NoteBook()
+        if notebook_bin.exists():
+            with notebook_bin.open('rb') as notes_file:
+                try:
+                    self.note_book = pickle.load(notes_file, fix_imports=False)
+                except Exception as err:
+                    self.notify(f"{err}", severity="error", timeout=5)
+                    self.note_book = Notebook()
+                    
+                
 
 
     def compose(self) -> ComposeResult:
@@ -73,7 +77,7 @@ class PersonalAssistant(App):
             with TabPane("Contacts", id="contacts"):
                 yield contacts.Contacts()
             with TabPane("Notes", id="notes"):
-                yield notes.paNotes
+                yield notes.Notes()
             with TabPane("Settings", id="settings"):
                 yield settings.paSettings
             with TabPane("File Sorter", id="sort"):
@@ -92,7 +96,7 @@ class PersonalAssistant(App):
         with open("addressbook.dat", "a") as ab_file:
             ab_file.write("AddressBook is saved\n")
         with open("notebook.dat", "a") as nb_file:
-            nb_file.write("AddressBook is saved\n")
+            nb_file.write("Notebook is saved\n")
         self.exit()
 
 
