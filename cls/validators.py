@@ -34,6 +34,8 @@ class PhoneNumberValidator(Validator):
     def validate(self, value: str) -> ValidationResult:
         if value.isdigit() and len(value) == 10:
             return self.success()
+        elif not value:
+            return self.success()
         else:
             return self.failure("Invalid phone number. Please enter 10 digits.")
 
@@ -55,6 +57,8 @@ class BirthdayValidator(Validator):
                 return self.success()
             except ValueError:
                 return self.failure('Invalid birthday format. Please use DD-MM-YYYY.')
+        elif not value:
+            return self.success()
         else:
             return self.failure('Invalid birthday format. Please use DD-MM-YYYY.')
 
@@ -73,5 +77,32 @@ class EmailValidator(Validator):
         pattern = r"^[a-zA-Z0-9.]+@[a-zA-Z0-9]+\.[a-zA-Z]{2,}$"
         if re.match(pattern, value):
             return self.success()
+        elif not value:
+            return self.success()
         else:
             return self.failure("Invalid email address. Use Exa.mple123@email.com format")
+
+
+class ZipCodeValidator(Validator):
+    """
+                Перевіряє коректність введеного поштового індексу.
+
+                Параметри:
+                - value (str): Введене значення для перевірки.
+
+                Повертає:
+                - ValidationResult: Результат перевірки.
+                """
+    def validate(self, value: str) -> ValidationResult:
+        if value.isdigit() and len(value) == 5:
+            return self.success()
+        elif not value:
+            return self.success()
+        else:
+            return self.failure("Invalid zipcode. Enter 5 digits")
+
+
+class EmptyValueValidator(Validator):
+    def validate(self, value: str) -> ValidationResult:
+        if not value:
+            return self.success()
