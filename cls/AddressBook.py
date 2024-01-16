@@ -66,12 +66,12 @@ class Address(Field):
             house (str): The house number.
             apartment (str): The apartment number.
         """
-        self.country = country.capitalize()
-        self.zip_code = zip_code
-        self.city = city.capitalize()
-        self.street = street.capitalize()
-        self.house = house
-        self.apartment = apartment
+        self.country = country.capitalize() if country else None
+        self.zip_code = zip_code if zip_code else None
+        self.city = city.capitalize() if city else None
+        self.street = street.capitalize() if street else None
+        self.house = house if house else None
+        self.apartment = apartment if apartment else None
 
     def __repr__(self) -> str:
         """Return a string representation of the Address object."""
