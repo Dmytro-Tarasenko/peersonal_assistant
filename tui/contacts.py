@@ -22,6 +22,7 @@ from cls.validators import (BirthdayValidator,
 from textual import on
 
 
+
 class ContactDetails(Static):
     """Widget to display contact info"""
 
@@ -62,6 +63,10 @@ class ContactDetails(Static):
 
 class ContatsList(Widget):
     """Widget to display list of contacts"""
+
+    records: List[Record] = []
+    table = DataTable(classes="data_table", id="contacts_list")
+
     def contact_adder(self):
         table = self.query_one(DataTable)
         table.refresh()
@@ -78,24 +83,29 @@ class ContatsList(Widget):
             )
             line_num += 1
 
+
     def on_mount(self) -> None:
         self.styles.border_title_align = "left"
         self.border_title = "Contacts list"
         self.styles.border = ("round", "#FFD900")
-        table = self.query_one(DataTable)
-        table.zebra_stripes = True
-        table.cell_padding = 2
-        table.cursor_type = "row"
-        table.add_column("#", width=3)
-        table.add_column("Name", width=10)
-        table.add_column("Birhday", width=10)
-        table.add_column("Address", width=20)
-        table.add_column("e-mail", width=18)
-        table.add_column("Phones", width=20)
+        self.table = self.query_one(DataTable)
+        self.table.zebra_stripes = True
+        self.table.cell_padding = 2
+        self.table.cursor_type = "row"
+        self.table.add_column("#", width=3)
+        self.table.add_column("Name", width=10)
+        self.table.add_column("Birhday", width=10)
+        self.table.add_column("Address", width=20)
+        self.table.add_column("e-mail", width=18)
+        self.table.add_column("Phones", width=20)
+        self.fill_the_table()
+
+    def fill_the_table(self, records: List[Record] = []):
+        if not records:
+            self.records = self.app.query_one("Contacts").records
         line_num = 1
-        contacts_wdgt: Contacts = self.app.query_one("Contacts")
-        for row in contacts_wdgt.records:
-            table.add_row(str(line_num),
+        for row in self.records:
+            self.table.add_row(str(line_num),
                           row.name,
                           row.birthday,
                           row.address,
@@ -105,7 +115,7 @@ class ContatsList(Widget):
             line_num += 1
 
     def compose(self) -> ComposeResult:
-        yield DataTable(classes="data_table", id="contacts_list")
+        yield self.table
 
     def on_data_table_row_selected(self, row_info: Message) -> None:
         contacts_wdgt: Contacts = self.app.query_one("Contacts")
@@ -160,7 +170,13 @@ class ContactsViewControl(Widget):
                         severity="warning",
                         timeout=10)
         records: List[Record] = address_book.find_record(search_conditions)
-        self.app.query_one("#contacts_viewer").refresh()
+        contacts_list: ContatsList = self.parent.query_one(ContatsList)
+        contacts_list.records = records
+        self.notify(f"{records}", severity="information", timeout=10)
+        contacts_list.table.clear()
+
+        contacts_list.fill_the_table(records)
+        contacts_list.refresh()
 
 
 class ContactsView(Static):
@@ -329,7 +345,6 @@ class Contacts(Static):
     """Container widger for Contacts tab"""
     current_record: Record = Record()
     records: List[Record] = []
-    super_address: Address = Address()
 
     def compose(self) -> ComposeResult:
         """Composing main elements"""
@@ -351,6 +366,6 @@ class Contacts(Static):
         if event.button.id.startswith("btn_contacts_"):
             self.query_one(ContentSwitcher).current = event.button.id.split("_", maxsplit=1)[-1]
 
-    def on_mount(self) -> None:
-        initial: Widget = self.query_one("ContactsView")
-        initial.refresh()
+    # def on_mount(self) -> None:
+    #     initial: Widget = self.query_one("ContactsView")
+    #     initial.refresh()
