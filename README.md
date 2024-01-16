@@ -33,6 +33,10 @@ pip install virtual-personal-assistant
 
 `AddressBook` і `Record`  повинні бути імпортовані передвикористанням.
 
+`Sorter` треба додати щось про сортер.
+
+`Note` та `NoteBook` теж стислий опис роботи.
+
 ```Python
 # Створення екземпляру помічника
 assistant = AddressBook()
@@ -49,11 +53,18 @@ assistant.add_record(contact)
 result = assistant.find_record("John Doe")
 print(result)
 
+# Створення нотатки
+some_note = Note('Content')
+
+# Створення записника
+notes_book = Notebook()
+
+
 # Додавання нотатки
-assistant.add_note("Meeting at 3 PM", tags=["meeting", "work"])
+notes_book.add_note(some_note)
 
 # Пошук нотаток за тегами
-notes = assistant.search_notes_by_tags(["meeting"])
+notes = notes_book.find_notes_by_keyword(keyword)
 print(notes)
 
 # і так далі...
