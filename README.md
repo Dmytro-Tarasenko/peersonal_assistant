@@ -17,14 +17,14 @@ ___
 6. зберігає нотатки з текстовою інформацією;
 7. дозволяє проводити пошук за нотатками та додавати в нотатки "теги", ключові слова, що описують тему та предмет запису;
 8. сортує файли у зазначеній папці за категоріями (зображення, документи, відео та ін.).
-  
+___  
 ### Технології
 [Google](http:/google.com)
 
 [Google](http:/google.com)
 
 [Google](http:/google.com) 
-
+___
 
 ### Вимоги
 Для встановлення та запуску проекту необхідно:
@@ -40,6 +40,7 @@ ___
 * [x] uc-micro-py==1.0.2
 * [x] ...
 
+___
 ### Встановлення: 
 > Як встановити та налаштувати проект?
 
@@ -51,7 +52,7 @@ pip install virtual-personal-assistant
 
 
 
-
+___
 ### Використання: 
 
 > Як використовувати ваш проект? Приклади коду або команд.
@@ -61,6 +62,8 @@ pip install virtual-personal-assistant
 `Sorter` треба додати щось про сортер.
 
 `Note` та `NoteBook` теж стислий опис роботи.
+
+___
 
 #### Приклади використання додатку
 
@@ -98,6 +101,8 @@ notes = notes_book.find_notes_by_keyword(keyword)
 
 # і так далі...
 ```
+___
+
 #### Команда проекта:
 * [ ] Aleksei Shevchenko
 * [ ] Ivan Danyleiko
@@ -106,8 +111,6 @@ notes = notes_book.find_notes_by_keyword(keyword)
 * [ ] Dmytro Tarasenko
 * [ ] Serhii Chabanchuk
 
-
+___
 ### Ліцензія:
-
-
 > #### GNU GENERAL PUBLIC LICENSE Version 3, 29 June 2007
