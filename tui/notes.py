@@ -51,14 +51,23 @@ class NoteInput(Widget):
                 self.query_one(TextArea).clear()
                 self.query_one("Input#nt_input_tags_field").clear()
             case 'nt_input_save_button':
+                if self.app.query_one(Notes).edit_flag:
+                    note = self.app.query_one(Notes).current_note
+                    self.app.note_book.del_note(note)
+                    self.app.query_one(Notes).edit_flag = False
                 text = self.query_one(TextArea).text
-                tags = (self.query_one("Input#nt_input_tags_field")
-                        .value().split(" "))
+                tags = self.query_one("Input#nt_input_tags_field").value.split()
                 note_book: Notebook = self.app.note_book
-                self.notify(f"{len(note_book.data)}")
                 note_book.add_note(Note(content=text,
                                         tags=tags))
-                self.notify(f"{len(note_book.data)}")
+                notes_list = self.app.query_one(NotesList).refresh()
+                notes_list.note_adder()
+                self.query_one(TextArea).clear()
+                self.query_one("Input#nt_input_tags_field").clear()
+                switcher: ContentSwitcher = (self.app.query_one(Notes)
+                                             .query_one(ContentSwitcher))
+                switcher.current = "notes_view"
+
 
 
 class CreateNote(Static):
@@ -70,6 +79,16 @@ class NotesList(Widget):
 
     notes: List[Note] = []
     table = DataTable(classes="data_table", id="nt_dt_notes_list")
+
+    def note_adder(self):
+        table = self.query_one(DataTable)
+        table.clear()
+        notes_list: NotesList = self.parent.query_one(NotesList)
+        notes: Notes = self.app.query_one(Notes)
+        notes.notes = list(self.app.note_book.data.values())
+        notes.current_note = notes.notes[0]
+        notes_list.fill_the_table()
+        table.refresh()
 
     def on_mount(self) -> None:
         self.styles.border_title_align = "left"
@@ -195,22 +214,33 @@ class NotesViewControl(Widget):
         notes_list.refresh()
 
     def nt_control_delete(self) -> None:
-        note: Note = self.app.query_one(Notes).current_record
-        self.app.note_book.delete_record(note)
+        note: Note = self.app.query_one(Notes).current_note
+        self.app.note_book.del_note(note)
         table = self.parent.query_one(DataTable)
         table.clear()
         note_list: NotesList = self.parent.query_one(NotesList)
-        contacts: Notes = self.app.query_one(Notes)
-        contacts.records = list(self.app.address_book.data.values())
-        if contacts.records:
-            contacts.current_record = contacts.records[0]
+        notes: Notes = self.app.query_one(Notes)
+        notes.notes = list(self.app.note_book.data.values())
+        if notes.notes:
+            notes.current_note = notes.notes[0]
         else:
-            contacts.current_record = Record()
-        contacts_list.fill_the_table()
+            notes.current_note = Note()
+        note_list.fill_the_table()
         table.refresh()
+        note_list.refresh()
 
     def nt_control_edit(self) -> None:
-        pass
+        self.app.query_one(Notes).edit_flag = True
+        note: Note = self.app.query_one(Notes).current_note
+        editor: NoteInput = self.app.query_one(NoteInput)
+        content: TextArea = editor.query_one(TextArea)
+        tags: Input = editor.query_one("Input#nt_input_tags_field")
+        content.text = note.content
+        tags.value = " ".join(note.tags)
+        switcher: ContentSwitcher = (self.app.query_one(Notes)
+                                     .query_one(ContentSwitcher))
+        switcher.current = "notes_create"
+
 
     def on_button_pressed(self, event: Button.Pressed) -> None:
         match event.button.id:

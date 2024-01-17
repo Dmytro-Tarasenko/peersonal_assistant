@@ -1,6 +1,6 @@
 from collections import UserDict
 from typing import List
-from datetime import datetime
+from datetime import datetime, timedelta
 import re
 
 
@@ -261,18 +261,31 @@ class AddressBook(UserDict):
         else:
             raise ValueError("No_find_records")
 
-    def upcoming_birthdays(self) -> List[Record]:
+    def upcoming_mates(self, days: int) -> List[Record]:
         """Return a list of contacts with birthdays upcoming from tomorrow to 7 days ahead.
         Returns: List[Record]: List of records with upcoming birthdays.
         """
-        today = datetime.date.today()
-        tomorrow = today + datetime.timedelta(days=1)
-        upcoming_date = tomorrow + datetime.timedelta(days=6)
-        upcoming_contacts = [
-            record for record in self.values()
-            if tomorrow <= record.birthday <= upcoming_date
-        ]
-        return upcoming_contacts
+        checks = []
+        for inc in range(1, days+1):
+            check = (datetime.today() + timedelta(days=inc)).strftime("%d-%m")
+            checks.append(check)
+        res = []
+        for record in self.data.values():
+            if record.birthday[:5] in checks:
+                res.append(record)
+
+        return res
+
+    def today_mates(self) -> List[Record]:
+        today_check = datetime.today().strftime("%d-%m")
+        res = []
+        for record in self.data.values():
+            if record.birthday.startswith(today_check):
+                res.append(record)
+
+        return res
+
+
 
     def find_record(self, search_params: List[str]) -> List[Record]:
         """

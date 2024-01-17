@@ -39,13 +39,16 @@ def address_book_generator():
     return ab
 
 address_book = AddressBook()
-# address_book = address_book_generator()
+address_book = address_book_generator()
 
-
-# with open('data/addressbook.bin', 'wb') as f:
-#      pickle.dump(address_book, f)
+with open('data/addressbook.bin', 'wb') as f:
+    pickle.dump(address_book, f)
 
 with open('data/addressbook.bin', 'rb') as f:
     address_book: AddressBook = pickle.load(f)
 
-print(address_book.find_record(["%ADDRESS%daches", "%PHONES%544"]))
+print(address_book.upcoming_mates(40))
+print(address_book.today_mates())
+
+
+

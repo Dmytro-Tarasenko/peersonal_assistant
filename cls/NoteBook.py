@@ -10,12 +10,12 @@ class Note:
     and several methods for manipulating content and tags.'''    
     
     def __init__(self,
-                 content: str | None = None,
+                 content: str = "",
                  tags: List[str] = []):
-        self.content: str = content
         self.note_id: int = int(datetime.timestamp(datetime.now()))  
         self.tags = self._extract_tags(content)
         self.tags.extend(tags)
+        self.content: str = content.replace("#", "")
 
     @staticmethod
     def _parse_tags(content: str) -> str:

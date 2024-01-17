@@ -221,7 +221,7 @@ class ContactsViewControl(Widget):
         self.app.query_one(Contacts).edit_flag = True
         record: Record = self.app.query_one(Contacts).current_record
         address: Address = record.address
-        editor: ContactsEdit = self.app.query_one(ContactsAdd)
+        editor: ContactsAdd = self.app.query_one(ContactsAdd)
         inputs: List[Input] = editor.query(Input)
         for field in inputs:
             match field.id:
