@@ -284,13 +284,13 @@ class AddressBook(UserDict):
         Returns:
             List[Record]: A list of the found records.
         """
-        regexp_block = r"[\w@\.\-\|\,]*"
+        regexp_block = r"[\w\.\, ]*"
         search_exprs = []
         for param in search_params:
-            param = (param.replace("\\", "\\\\")
-                     .replace(".", "\.")
-                     .replace("-", "\-")
-                     .replace(",", "\,"))
+            param = (param.replace("\\", "")
+                     .replace(".", "")
+                     .replace("-", "")
+                     .replace(",", ""))
             search_field,  search_cond = param.rsplit("%", maxsplit=1)
             search_field += "%"
             search_exprs.append(rf"{search_field}{regexp_block}"

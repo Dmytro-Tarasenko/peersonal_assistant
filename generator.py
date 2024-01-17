@@ -1,13 +1,18 @@
 import faker
 import pickle
 from cls.AddressBook import Record, Address, AddressBook
-
+from random import randrange
 fake = faker.Faker()
 
+def make_phone():
+    phone = ""
+    for _ in range(10):
+        phone += str(randrange(0, 10))
+    return phone
 
 def generate_contact():
     name = fake.name()
-    phone = [fake.phone_number()]
+    phone = [make_phone()]
     bday = fake.date_of_birth(minimum_age=18, maximum_age=60).strftime("%d-%m-%Y")
     email = fake.email()
 
@@ -33,12 +38,14 @@ def address_book_generator():
         ab.add_record(contact)
     return ab
 
+address_book = AddressBook()
+# address_book = address_book_generator()
 
-address_book = address_book_generator()
 
-
-with open('data/addressbook.bin', 'wb') as f:
-    pickle.dump(address_book, f)
+# with open('data/addressbook.bin', 'wb') as f:
+#      pickle.dump(address_book, f)
 
 with open('data/addressbook.bin', 'rb') as f:
-    address_book = pickle.load(f)
+    address_book: AddressBook = pickle.load(f)
+
+print(address_book.find_record(["%ADDRESS%daches", "%PHONES%544"]))

@@ -14,7 +14,7 @@ from textual.widgets import (Label,
                              TextArea,
                              DataTable,
                              ContentSwitcher,
-                             Input)
+                             Input, Rule)
 
 from cls.NoteBook import Note, Notebook
 from datetime import datetime
@@ -52,7 +52,8 @@ class NoteInput(Widget):
                 self.query_one("Input#nt_input_tags_field").clear()
             case 'nt_input_save_button':
                 text = self.query_one(TextArea).text
-                tags = self.query_one("Input#nt_input_tags_field").value
+                tags = (self.query_one("Input#nt_input_tags_field")
+                        .value().split(" "))
                 note_book: Notebook = self.app.note_book
                 self.notify(f"{len(note_book.data)}")
                 note_book.add_note(Note(content=text,
@@ -79,8 +80,8 @@ class NotesList(Widget):
         self.table.cell_padding = 2
         self.table.cursor_type = "row"
         self.table.add_column("#", width=3)
-        self.table.add_column("Note created", width=18)
-        self.table.add_column("Brief", width=40)
+        self.table.add_column("Note created", width=14)
+        self.table.add_column("Brief", width=38)
         self.table.add_column("Tags", width=40)
         self.fill_the_table()
 
@@ -90,8 +91,10 @@ class NotesList(Widget):
         line_num = 1
         self.notify(f"{len(self.notes)}")
         for row in self.notes:
+            created = (datetime.fromtimestamp(row.note_id)
+                       .strftime("%a %d-%m-%Y %H:%M:%S"))
             self.table.add_row(str(line_num),
-                               row.note_id,
+                               created,
                                (row.content[:35]+"..."),
                                "; ".join(row.tags),
                                height=1,
@@ -101,13 +104,127 @@ class NotesList(Widget):
     def compose(self) -> ComposeResult:
         yield self.table
 
+    def on_data_table_row_selected(self,
+                                   row_info: DataTable.RowSelected) -> None:
+        notes_wdgt: Notes = self.app.query_one("Notes")
+        note_book: Notebook = self.app.note_book
+        self.notify(f"{type(row_info.row_key.value)}")
+        notes_wdgt.current_note = note_book.data[row_info.row_key.value]
+        details_wdgt: NoteDetails = self.parent.query_one("#nt_viewer_details_wdgt")
+        details_wdgt.get_note_info()
+        details_wdgt.update()
+
 
 class NotesViewControl(Widget):
     def compose(self) -> ComposeResult:
-        yield Label("Notes Control")
+        with Vertical(id="nt_controls"):
+            yield Label("Words to search:",
+                        classes="nt_input")
+            yield Input(placeholder="full word search",
+                        classes="nt_input",
+                        restrict=r"[a-zA-Z_ ]*",
+                        id="nt_control_word")
+
+            yield Label("Tags to search:",
+                        classes="nt_input")
+            yield Input(placeholder="search tags go here",
+                        classes="nt_input",
+                        restrict=r"[a-zA-Z_ ]*",
+                        id="nt_control_tags")
+
+            yield Rule()
+            with Horizontal():
+                yield Button("Lookup",
+                             variant="primary",
+                             id="nt_btn_control_lookup")
+                yield Button("Clear Search",
+                             variant="warning",
+                             id="nt_btn_control_clear")
+
+            yield Rule()
+            with Horizontal():
+                yield Button("Edit note",
+                             variant="warning",
+                             id="nt_btn_control_edit")
+                yield Button("Delete note",
+                             variant="error",
+                             id="nt_btn_control_delete")
+
+    def nt_control_lookup(self) -> None:
+        inputs: List[Input] = self.query("Input.nt_input")
+        full_words = []
+        tags = []
+        note_book: Notebook = self.app.note_book
+        for input_ in inputs:
+            match input_.id:
+                case "nt_control_word":
+                    full_words.extend(input_.value.split(" "))
+                case "nt_control_tags":
+                    tags.extend(input_.value.split(" "))
+        self.notify(f"words: {full_words}\ntags: {tags}")
+        notes: List[Note] = []
+        notes_by_word: List[Note] = []
+        notes_by_tag: List[Note] = []
+        if len(full_words) > 0:
+            notes.extend(note_book.find_notes_by_keyword(full_words))
+        if len(tags) > 0:
+            notes.extend(note_book.find_notes_by_tags(tags))
+            self.notify(f"{note_book.find_notes_by_tags(tags)}", timeout=10)
+        notes.extend(notes_by_tag)
+        for note in notes_by_word:
+            if note not in notes:
+                notes.append(note)
+        if len(notes) == 0:
+            self.notify("Search returned no results!",
+                        severity="warning",
+                        timeout=8)
+            return
+        notes_list: NotesList = self.parent.query_one(NotesList)
+        notes_list.notes = notes
+        notes_list.table.clear()
+        notes_list.fill_the_table(notes)
+        notes_list.refresh()
+
+    def nt_control_clear(self) -> None:
+        inputs: List[Input] = self.query("Input.nt_input")
+        for input_ in inputs:
+            input_.clear()
+        notes_list: NotesList = self.parent.query_one(NotesList)
+        notes_list.table.clear()
+        notes_list.fill_the_table()
+        notes_list.refresh()
+
+    def nt_control_delete(self) -> None:
+        note: Note = self.app.query_one(Notes).current_record
+        self.app.note_book.delete_record(note)
+        table = self.parent.query_one(DataTable)
+        table.clear()
+        note_list: NotesList = self.parent.query_one(NotesList)
+        contacts: Notes = self.app.query_one(Notes)
+        contacts.records = list(self.app.address_book.data.values())
+        if contacts.records:
+            contacts.current_record = contacts.records[0]
+        else:
+            contacts.current_record = Record()
+        contacts_list.fill_the_table()
+        table.refresh()
+
+    def nt_control_edit(self) -> None:
+        pass
+
+    def on_button_pressed(self, event: Button.Pressed) -> None:
+        match event.button.id:
+            case "nt_btn_control_lookup":
+                self.nt_control_lookup()
+            case "nt_btn_control_clear":
+                self.nt_control_clear()
+            case "nt_btn_control_edit":
+                self.nt_control_edit()
+            case "nt_btn_control_delete":
+                self.nt_control_delete()
 
 
-class NoteDetails(Widget):
+class NoteDetails(Static):
     def on_mount(self):
         self.styles.border_title_align = "left"
         self.border_title = "Notes list"
@@ -140,13 +257,12 @@ class NoteDetails(Widget):
         return text
 
 
-
 class NotesView(Widget):
     def compose(self) -> ComposeResult:
         yield Horizontal(
             Vertical(
                 NoteDetails(classes="nt_details",
-                            id="nt_viewer_details_wdg"),
+                            id="nt_viewer_details_wdgt"),
                 NotesList(classes="nt_details"),
                 id="nt_viewer_details"
             ),

@@ -3,6 +3,7 @@ from typing import List, Dict, Union  # for type annotation
 import re  # to search for hashtags using regexp
 from datetime import datetime  # to create a unique ID
 
+
 class Note:
     ''' The Class Note is a separate note
     and contains the note_id, content, tags information,
@@ -16,8 +17,8 @@ class Note:
         self.tags = self._extract_tags(content)
         self.tags.extend(tags)
 
-    def _parse_tags(self, content: str) -> str:
-        
+    @staticmethod
+    def _parse_tags(content: str) -> str:
         '''The _parse_tags method checks if the note is empty and removes the tag frame (#) from the text.
         Parameters:
         argument_1(content: str) : It is the string typed by the user 
@@ -29,7 +30,8 @@ class Note:
         
         return re.sub(r'#[\w\-]*\b', r'\1', content)
 
-    def _extract_tags(self, content: str) -> List[str]:
+    @staticmethod
+    def _extract_tags(content: str) -> List[str]:
         
         '''The _extract_tags method finds all tags in the text.
         Parameters:
@@ -38,7 +40,11 @@ class Note:
         List[str]:Returning value'''
         if not content:
             return []
-        return re.findall(r'#[\w\-]*\b', content)
+        res = []
+        for tag in re.findall(r'#[\w\-]*\b', content):
+            res.append(tag.replace("#", ""))
+
+        return res
 
     def edit_note(self, note_id: int,
                   new_content: str) -> None:
@@ -62,9 +68,16 @@ class Notebook(UserDict):
     and contains a list of notes and dict of tags for quicker searching.'''
 
     def __init__(self) -> None:
-        self.notes: List[Note] = []
         self.tag_pool: Dict[str, List[int]] = {}
         super().__init__()
+
+    def __getitem__(self, item) -> Note | None:
+        """
+        item - note_id
+        """
+        if item in self.data:
+            return self.data.get(item)
+        return None
 
     def add_note(self, note: Note) -> None:
 
@@ -88,7 +101,7 @@ class Notebook(UserDict):
             self.clean_tags(del_note.note_id)
             self.data.pop(del_note.note_id)
 
-    def find_notes_by_keyword(self, keyword: str) ->List[Note]:
+    def find_notes_by_keyword(self, keywords: List[str]) -> List[Note]:
 
         '''The find_notes_by_keyword method returns a list of notes with the specified keyword in the text.
         Parameters:
@@ -96,18 +109,35 @@ class Notebook(UserDict):
         Returns:
         List[Note]:Returning value
         '''
-
-        return [note for note in self.data.values() if keyword.lower() in note.content.lower()]
+        res = []
+        if len(keywords) == 0 or keywords == [""]:
+            return []
+        ids_set = set()
+        for word in keywords:
+            for note in self.data.values():
+                if word.lower() in note.content.lower():
+                    ids_set |= {note.note_id}
+        for note_id in ids_set:
+            res.append(self.data.get(note_id))
+        return res
        
-    def find_notes_by_tags(self, tag: str) -> List[Note]:
+    def find_notes_by_tags(self, tag: List[str]) -> List[Note]:
         
         '''The find_notes_by_tags method returns a list of notes that have the given tag.
         Parameters:
         argument_1(tag: str) : User's request for search.
         Returns:
         List[Note]:Returning value'''
-        
-        return [note for note in self.data.values() if tag.lower() in note.tags]
+        if len(tag) == 0 or tag == [""]:
+            return []
+        res: List[Note] = []
+        ids_set = set()
+        for entry in tag:
+            if id_list := self.tag_pool.get(entry):
+                ids_set |= set(id_list)
+        for note_id in ids_set:
+            res.append(self.data.get(note_id))
+        return res
    
     def update_tag_pool(self, note: Note) -> None:
 

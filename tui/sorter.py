@@ -108,13 +108,12 @@ class Sorter(Static):
 
         if event.button.id.endswith("_drive"):
             drive_letter = str(event.button.label).rstrip(":").lower()
-            new_path = f"{drive_letter}:"
+            new_path = f"{drive_letter}:{os.sep}"
             self.cur_dir = Path("/") if new_path == "root" else Path(new_path)
         elif event.button.id == "sort_folder":
             folder_to_sort = self.dir_tree.path
             sorted_file = sorted_folder(folder_to_sort)
-            print(f"Sorted folder '{folder_to_sort}' and results saved in "
-                  f"'{sorted_file}'")
+            self.notify(f"Folder {folder_to_sort} is sorted.\nResults saved to: {sorted_file}", timeout=7)
 
             self.dir_tree.refresh()
         elif event.button.id == "up_tree":

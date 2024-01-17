@@ -24,7 +24,6 @@ from cls.validators import (BirthdayValidator,
 from textual import on
 
 
-
 class ContactDetails(Static):
     """Widget to display contact info"""
 
@@ -125,10 +124,10 @@ class ContatsList(Widget):
     def compose(self) -> ComposeResult:
         yield self.table
 
-    def on_data_table_row_selected(self, row_info: DataTable.RowSelected) -> None:
+    def on_data_table_row_selected(self,
+                                   row_info: DataTable.RowSelected) -> None:
         contacts_wdgt: Contacts = self.app.query_one("Contacts")
         address_book: AddressBook = self.app.address_book
-        self.notify(f"{row_info.row_key.value}")
         contacts_wdgt.current_record = address_book.data[row_info.row_key.value]
         details_wdgt: ContactDetails = self.parent.query_one("#contact_details_wdgt")
         details_wdgt.get_record_info()
@@ -183,8 +182,11 @@ class ContactsViewControl(Widget):
             self.notify("No search conditions are specified!",
                         severity="warning",
                         timeout=10)
-        self.notify(f"{search_conditions}", timeout=10)
         records: List[Record] = address_book.find_record(search_conditions)
+        if len(records) == 0:
+            self.notify("Search returned no results!",
+                        severity="warning",
+                        timeout=8)
         contacts_list: ContatsList = self.parent.query_one(ContatsList)
         contacts_list.records = records
         contacts_list.table.clear()
