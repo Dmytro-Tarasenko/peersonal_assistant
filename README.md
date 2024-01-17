@@ -64,42 +64,9 @@ ___
 
 ___
 
-#### *Приклади використання додатку*
+#### *Як використовувати додаток*
 
-```Python
-# Створення екземпляру помічника
-assistant = PersonalAssistant()
-
-# створення контакту
-contact = Record(name="John Doe", birthday="25-06-1990", mail="john@example.com")
-
-# Додавання даних до контакту
-contact.add_phone("1234567890")
-contact.add_edit_address(country="Country", zip_code=12345, city="City", street="Street", house="200", apartment="100")
-
-# створення книги контактів
-adress_book = AddressBook()
-
-# Додавання контакту до книги контактів
-adress_book.add_record(contact)
-
-# Пошук контакту
-result = assistant.find_record("John Doe")
-
-# Створення нотатки
-some_note = Note('Content')
-
-# Створення записника
-notes_book = Notebook()
-
-# Додавання нотатки
-notes_book.add_note(some_note)
-
-# Пошук нотаток за тегами
-notes = notes_book.find_notes_by_keyword(keyword)
-
-# і так далі...
-```
+Додаток має зручний та інтуітивно зрозумілий інтерфейс.
 ___
 
 #### Команда проекта:
