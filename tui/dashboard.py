@@ -2,12 +2,16 @@
 Dashboard widget
 """
 from rich.console import RenderableType
+from rich.table import Table
+from textual import events
 from textual.app import ComposeResult
 from textual.containers import Horizontal, Vertical
 from textual.reactive import reactive
 from textual.widget import Widget
-from textual.widgets import Markdown, Static, Label, DataTable
+from textual.widgets import Markdown, Static, Label, DataTable, Input, Button
 from datetime import datetime
+from cls.AddressBook import Record
+from typing import List
 
 
 class DateClock(Widget):
@@ -43,62 +47,88 @@ class AddressBookStats(Widget):
         yield Label("AddressBook is loaded", classes="db_stats_title")
         yield Label(f"contains {abook_len} items", classes="db_stats_nums")
 
+    def on_show(self) -> None:
+        app = self.app
+        abook_len = len(app.address_book.data)
+        yield Label("AddressBook is loaded", classes="db_stats_title")
+        yield Label(f"contains {abook_len} items", classes="db_stats_nums")
+        self.refresh()
+
 
 class NoteBookStats(Widget):
     """
     Widget to display statistic of AddressBook and NoteBook
     """
     def compose(self) -> ComposeResult:
+        app = self.app
+        nbook_len = len(app.note_book.data)
         yield Label("Notebook is loaded", classes="db_stats_title")
-        yield Label("contains 12 items", classes="db_stats_nums")
+        yield Label(f"contains {nbook_len} items", classes="db_stats_nums")
+
+    def on_show(self) -> ComposeResult:
+        app = self.app
+        nbook_len = len(app.note_book.data)
+        yield Label("Notebook is loaded", classes="db_stats_title")
+        yield Label(f"contains {nbook_len} items", classes="db_stats_nums")
+        self.refresh()
 
 
-class TodaysMates(Widget):
+class TodaysMates(Static):
     """
     Displays today`s Birthday mates
     """
+    today_mates = []
     def on_mount(self) -> None:
-        table = self.query_one(DataTable)
-        table.zebra_stripes = True
-        table.styles.width = "65%"
-        table.cell_padding = 2
-        table.cursor_type = "row"
-        table.add_column("#", width=5)
-        table.add_column("Name", width=20)
-        table.add_column("Age", width=10)
-        table.add_row("1", "Engelgardt asdasd", "43")
-        table.add_row("2", "Shevchenko", "55")
-        table.add_row("3", "Engelgardt", "98")
+        self.styles.border = ("round", "#FFD900")
 
-    def compose(self) -> ComposeResult:
-        yield Vertical(
-            Label("Today`s Birthday mate(s):"),
-            DataTable(classes="data_table")
-        )
+    def render(self) -> RenderableType:
+        self.today_mates = self.app.address_book.today_mates()
+        table = Table(title="Today birthday mates")
+        table.box = None
+        table.add_column("#", justify="center", width=6)
+        table.add_column("Name", justify="left", width=20)
+        table.add_column("Age", justify="center", width=6)
+        num_line = 1
+        for mate in self.today_mates:
+            cur_year = datetime.today().year
+            born_year = int(mate.birthday[-4:])
+            age = str(cur_year - born_year)
+            table.add_row(str(num_line), mate.name, age)
+            num_line += 1
+
+        return table
 
 
 class UpcomingMates(Widget):
     """Displays upcoming Birthday mates"""
-
-    def compose(self) -> ComposeResult:
-        yield Vertical(
-            Label("Upcoming Birthday mate(s) in 5 days:"),
-            DataTable(classes="data_table")
-        )
+    days_to_watch = 5
+    upcoming_mates = []
 
     def on_mount(self) -> None:
-        table = self.query_one(DataTable)
-        table.zebra_stripes = True
-        table.cell_padding = 2
-        table.styles.width = "90%"
-        table.cursor_type = "row"
-        table.add_column("#", width=5)
-        table.add_column("Name", width=20)
-        table.add_column("Birthday", width=16)
-        table.add_column("Age", width=10)
-        table.add_row("1", "Engelgardt asdasd asdasdasdasdasdasdasdasd", "12-01-1980", "43")
-        table.add_row("2", "Shevchenko", "16-01-1969", "55")
-        table.add_row("3", "Engelgardt", "17-01-1926", "98")
+        self.styles.border = ("round", "#FFD900")
+
+    def render(self) -> RenderableType:
+        self.upcoming_mates = (self.app.address_book
+                               .upcoming_mates(self.days_to_watch))
+        title = f"Birthday mates upcoming in {self.days_to_watch}"
+        table = Table(title=title)
+        table.box = None
+        table.add_column("#", justify="center", width=6)
+        table.add_column("Name", justify="left", width=20)
+        table.add_column("Birthday", justify="center", width=18)
+        table.add_column("Age", justify="center", width=6)
+        num_line = 1
+        for mate in self.upcoming_mates:
+            cur_year = datetime.today().year
+            born_year = int(mate.birthday[-4:])
+            age = str(cur_year - born_year)
+            table.add_row(str(num_line),
+                          mate.name,
+                          mate.birthday,
+                          age)
+            num_line += 1
+
+        return table
 
 
 class DashBoard(Static):
@@ -116,6 +146,25 @@ class DashBoard(Static):
                 DateClock(classes="db_stats_row"),
                 AddressBookStats(classes="db_stats_row"),
                 NoteBookStats(classes="db_stats_row"),
+                Vertical(
+                    Label("Set num. of days to watch for mates:"),
+                    Input(placeholder="digits only",
+                          restrict=r"\d+",
+                          id="db_input_days_to_mates"),
+                    Button(label='Set',
+                           variant="primary",
+                           id="db_set_days")
+                ),
                 id="db_stats"
             )
         )
+
+    def on_button_pressed(self, event: Button.Pressed) -> None:
+        match event.button.id:
+            case "db_set_days":
+                input: Input = self.query_one("#db_input_days_to_mates")
+                if not input.value:
+                    return
+                up_mates: UpcomingMates = self.query_one(UpcomingMates)
+                up_mates.days_to_watch = int(input.value)
+                up_mates.refresh()

@@ -29,7 +29,7 @@ class ContactDetails(Static):
 
     def on_mount(self) -> None:
         self.styles.border_title_align = "left"
-        self.border_title = "Current contact details"
+        self.border_title = "Contact info"
         self.styles.border = ("round", "#FFD900")
 
     def get_record_info(self) -> None:

@@ -6,6 +6,7 @@ Personal_assistant is a personal manager for everyday tasks:
 """
 from textual.app import App, ComposeResult
 from textual.binding import Binding
+from textual.command import Provider, Hit
 from textual.widgets import (Header,
                              Footer,
                              TabbedContent,
@@ -16,6 +17,11 @@ from cls.NoteBook import Note, Notebook
 from cls.AddressBook import AddressBook
 from tui import dashboard, contacts, notes, settings, sorter
 import pickle
+
+
+class AssistantCommands(Provider):
+    def add_contact(self) -> None:
+        self.notify(f"{self.app.name}")
 
 
 class PersonalAssistant(App):
@@ -39,6 +45,8 @@ class PersonalAssistant(App):
                 "tcss/notes.tcss",
                 "tcss/contacts.tcss"]
 
+    COMMANDS = App.COMMANDS | {AssistantCommands}
+
     address_book = AddressBook()
     note_book = Notebook()
 
@@ -61,9 +69,6 @@ class PersonalAssistant(App):
                 except Exception as err:
                     self.notify(f"notebook_trouble {err}", severity="error", timeout=5)
                     self.note_book = Notebook()
-                    
-                
-
 
     def compose(self) -> ComposeResult:
         """Create childs for the application"""
@@ -78,10 +83,10 @@ class PersonalAssistant(App):
                 yield contacts.Contacts()
             with TabPane("Notes", id="notes"):
                 yield notes.Notes()
-            with TabPane("Settings", id="settings"):
-                yield settings.paSettings
             with TabPane("File Sorter", id="sort"):
                 yield sorter.Sorter()
+            with TabPane("About", id="about"):
+                yield settings.paSettings
 
     def action_show_tab(self, tab_id: str) -> None:
         """
