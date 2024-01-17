@@ -34,7 +34,7 @@ class PersonalAssistant(App):
         ("c", "show_tab('contacts')", "Contacts"),
         ("n", "show_tab('notes')", "Notes"),
         ("f", "show_tab('sort')", "File sorter"),
-        ("s", "show_tab('settings')", "Settings"),
+        ("a", "show_tab('about')", "About"),
         Binding("ctrl+c", "quit", "Save all and quit",
                 show=True, priority=True)
     ]

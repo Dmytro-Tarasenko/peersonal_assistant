@@ -51,12 +51,12 @@ class Birthday(Field):
 class Address(Field):
     """Class representing an address."""
     def __init__(self,
-                 country: str = "",
-                 zip_code: str = "",
-                 city: str = "",
-                 street: str = "",
-                 house: str = "",
-                 apartment: str = ""):
+                 country: str |None = None,
+                 zip_code: str |None = None,
+                 city: str |None = None,
+                 street: str |None = None,
+                 house: str |None = None,
+                 apartment: str |None = None):
         """Initialize an Address object.
         Args:
             country (str): The country.
@@ -75,14 +75,13 @@ class Address(Field):
 
     def __repr__(self) -> str:
         """Return a string representation of the Address object."""
-        return (
-            f'{self.country}, '
-            f'{self.zip_code}, '
-            f'{self.city}, '
-            f'str. {self.street}, '
-            f'bld. {self.house}, '
-            f'app. {self.apartment}'
-        )
+        country = f'{self.country}, ' if self.country else ""
+        zip = f'{self.zip_code}, ' if self.zip_code else ""
+        city = f'{self.city}, ' if self.city else ""
+        street = f'str. {self.street}, ' if self.street else ""
+        house = f'bld. {self.house}, ' if self.house else ""
+        apprt = f'app. {self.apartment}, ' if self.apartment else ""
+        return f"{country}{zip}{city}{street}{house}{apprt}"
 
 
 class Record:
@@ -93,8 +92,8 @@ class Record:
                  name: str = "",
                  birthday: str = "",
                  email: str = "",
-                 address: Address = None,
-                 phones: List[str] = None):
+                 address: Address = Address(),
+                 phones: List[str] = []):
         """
         Initializes a record.
         :param name: Name to record.

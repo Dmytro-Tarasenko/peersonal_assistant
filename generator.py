@@ -39,10 +39,10 @@ def address_book_generator():
     return ab
 
 address_book = AddressBook()
-# address_book = address_book_generator()
-#
-# with open('data/addressbook.bin', 'wb') as f:
-#     pickle.dump(address_book, f)
+address_book = address_book_generator()
+
+with open('data/addressbook.bin', 'wb') as f:
+    pickle.dump(address_book, f)
 
 with open('data/addressbook.bin', 'rb') as f:
     address_book: AddressBook = pickle.load(f)

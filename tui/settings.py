@@ -4,9 +4,19 @@ Settings widget
 from textual.widgets import Markdown
 
 SETTINGS = """
-# Settings tab
+# Personal Assistant Command (за алфавітом)
 
-Where Settings are setting up.
+**Анжеліка Кодлубовська**
+
+**Дмитро Тарасенко**
+
+**Іван Данилейко**
+
+**Максим Скворцв**
+
+**Олексій Шевченко**
+
+**Сергій Чабанчук**
 """
 
 paSettings = Markdown(SETTINGS)

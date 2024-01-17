@@ -61,7 +61,7 @@ class Sorter(Static):
             ),
             self.dir_tree,
             DirTreeSelected(id="dir_selected"),
-            Button("Sort selected", variant="default", id="sort_folder")
+            Button("Sort files", variant="default", id="sort_folder")
         )
 
     def is_system_folder(self, folder_path: Path) -> bool:

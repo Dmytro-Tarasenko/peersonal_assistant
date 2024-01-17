@@ -40,10 +40,10 @@ class ContactDetails(Static):
     def render(self) -> RenderableType:
         self.get_record_info()
         name = self.current_record.name
-        bday = self.current_record.birthday
-        address = self.current_record.address
-        email_ = self.current_record.email
-        phones = self.current_record.phones
+        bday = self.current_record.birthday or "---"
+        address = self.current_record.address or "---"
+        email_ = self.current_record.email or "---"
+        phones = self.current_record.phones or "---"
         text = Text(tab_size=1)
         text.append("\n")
         text.append("\tName: ", style="bold italic #A2A2B5")
@@ -138,28 +138,28 @@ class ContactsViewControl(Widget):
     """Widget contains control element for contact filtering\\searchin"""
     def compose(self) -> ComposeResult:
         with Vertical(id="cv_controls"):
-            yield Label("Enter at least 3 characters",
+            yield Label("Name\\part to lookup",
                         classes="cv_input")
-            yield Input(placeholder="Name\\part to lookup",
+            yield Input(placeholder="Enter at least 3 characters",
                         classes="cv_input",
                         restrict=r"\w+",
                         id="cv_control_name")
-            yield Label("Enter from 3 to 10 digits",
+            yield Label("Phone\\part  to lookup",
                         classes="cv_input")
-            yield Input(placeholder="Phone\\part  to lookup",
+            yield Input(placeholder="Enter from 3 to 10 digits",
                         classes="cv_input",
                         type="integer",
                         restrict=r"\d{,10}",
                         id="cv_control_phones")
-            yield Label("Enter at least 3 characters",
+            yield Label("E-mail\\part to lookup",
                         classes="cv_input")
-            yield Input(placeholder="E-mail\\part to lookup",
+            yield Input(placeholder="Enter at least 3 characters",
                         classes="cv_input",
                         restrict=r"[\w.@]+",
                         id="cv_control_email")
-            yield Label("Enter at least 3 symbols",
+            yield Label("Address\\part to lookup",
                         classes="cv_input")
-            yield Input(placeholder="Address\\part to lookup",
+            yield Input(placeholder="Enter at least 3 symbols",
                         classes="cv_input",
                         restrict=r"[\w.,-]+",
                         id="cv_control_address")
@@ -168,7 +168,7 @@ class ContactsViewControl(Widget):
                 yield Button("Clear Search", variant="warning", id="cv_control_clear")
             with Horizontal():
                 yield Button("Edit record", variant="warning", id="cv_control_edit")
-                yield Button("Delete record", variant="error", id="cv_control_delete")
+                yield Button("Delete contact", variant="error", id="cv_control_delete")
 
     def cv_control_lookup(self) -> None:
         inputs: List[Input] = self.query("Input.cv_input")

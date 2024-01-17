@@ -62,12 +62,12 @@ class NoteInput(Widget):
                                         tags=tags))
                 notes_list = self.app.query_one(NotesList).refresh()
                 notes_list.note_adder()
+                self.notify("Note`s info added", severity="information", timeout=7)
                 self.query_one(TextArea).clear()
                 self.query_one("Input#nt_input_tags_field").clear()
                 switcher: ContentSwitcher = (self.app.query_one(Notes)
                                              .query_one(ContentSwitcher))
                 switcher.current = "notes_view"
-
 
 
 class CreateNote(Static):
@@ -108,7 +108,6 @@ class NotesList(Widget):
         if not notes:
             self.notes = self.app.query_one(Notes).notes
         line_num = 1
-        self.notify(f"{len(self.notes)}")
         for row in self.notes:
             created = (datetime.fromtimestamp(row.note_id)
                        .strftime("%a %d-%m-%Y %H:%M:%S"))
@@ -225,6 +224,7 @@ class NotesViewControl(Widget):
             notes.current_note = notes.notes[0]
         else:
             notes.current_note = Note()
+        self.notify("Contact deleted.", severity="warning", timeout=7)
         note_list.fill_the_table()
         table.refresh()
         note_list.refresh()
@@ -257,7 +257,7 @@ class NotesViewControl(Widget):
 class NoteDetails(Static):
     def on_mount(self):
         self.styles.border_title_align = "left"
-        self.border_title = "Notes list"
+        self.border_title = "Note info"
         self.styles.border = ("round", "#FFD900")
 
     def get_note_info(self) -> None:
