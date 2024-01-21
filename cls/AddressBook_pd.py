@@ -4,19 +4,28 @@ from datetime import datetime, timedelta
 from pydantic import BaseModel, EmailStr, field_validator, ConfigDict
 import re
 
+
 class ZipFormatError(Exception):
     """Custom error that is raised when zip is not of a right format"""
 
     def __init__(self, value: str, message: str) -> None:
-        self.value =value
+        self.value = value
+        self.message = message
+        super().__init__(message)
+
+
+class PhoneNumberError(Exception):
+    """Custom error that is raised when phone number is not valid"""
+
+    def __init__(self, value: str, message: str) -> None:
+        self.value = value
         self.message = message
         super().__init__(message)
 
 
 class Address(BaseModel):
     """Class representing an address."""
-    model_config = ConfigDict(validate_assignment=True,
-                              coerce_numbers_to_str=True)
+    model_config = ConfigDict(coerce_numbers_to_str=True)
 
     country: Optional[str] = None
     zip_code: Optional[str] = None
@@ -25,14 +34,29 @@ class Address(BaseModel):
     house: Optional[str] = None
     apartment: Optional[str] = None
 
-
     @field_validator("zip_code")
-    @staticmethod
-    def zip_code_valid(value: str, cls) -> str:
-        if not value:
-            if not value.isdigit() or len(value) != 5:
-                raise ZipFormatError(value=value,
-                                     message="ZIP should contain 5 digits.")
+    @classmethod
+    def zip_code_valid(cls, value: str) -> str:
+        if not value.isdigit() or len(value) != 5:
+            raise ZipFormatError(value=value,
+                                 message="ZIP should contain 5 digits.")
+
+        return value
+
+
+class Phone(BaseModel):
+    model_config = ConfigDict(coerce_numbers_to_str=True,
+                              validate_assignment=True)
+    number: str
+
+    @field_validator("number")
+    @classmethod
+    def phones_valid(cls, value: str):
+        if not value.isdigit() or len(value) != 10:
+            raise PhoneNumberError(value=value,
+                                   message=("{value} is not valid. Phone number "
+                                            + "should consist of 10 digits."))
+
         return value
 
 
@@ -44,20 +68,14 @@ class Record(BaseModel):
     birthday: Optional[str] = None
     email: Optional[EmailStr] = None
     address: Address = Address()
-    phones: List[str] = []
+    phones: List[Phone] = []
 
-    @field_validator("phones")
-    @classmethod
-    def phones_valid(value: List[str], cls):
-
-        return value
-
-    def add_phone(self, value: str):
+    def add_phone(self, value: str | int):
         """
         Adds a phone number to a record.
         :param value: The phone number to add.
         """
-        self.phones.append(value)
+        self.phones.append(Phone(value))
 
     def add_edit_address(self,
                          address: Address = Address()):
@@ -79,54 +97,7 @@ class Record(BaseModel):
         :param value: The birthday to add or change
         in the string format 'DD-MM-YYYY'.
         """
-        if self.birthday:
-            self.birthday = value
-        else:
-            self.birthday = Birthday(value)
-
-    def __repr__(self) -> str:
-        """
-        Returns the string representation of the record.
-        """
-        phones = ('|'.join(str(phone) for phone in self.phones)
-                  if self.phones else 'None')
-        return (
-            f"Name: {self.name}, "
-            f"phones: {phones}, "
-            f"Address: {self.address}, "
-            f"email: {self.email}, "
-            f"Birthday: {self.birthday}"
-        )
-
-    def edit_phone(self, old_phone: str, new_phone: str) -> None:
-        """
-        Changes the old phone number to the new one.
-        Parameters:
-        old_phone (str): Old phone number to change.
-        new_phone (str): New phone number to replace the old one.
-        Returns: None
-        """
-        for phone in self.phones:
-            if phone == old_phone:
-                phone_id = self.phones.index(phone)
-                self.phones[phone_id] = new_phone
-                break
-        else:
-            raise ValueError("phone_not_found")
-
-    def remove_phone(self, value: str) -> None:
-        """
-        Removes a phone number from the phone list.
-        Parameters:
-        value (str): The phone number to delete.
-        Returns: None
-        """
-        for phone in self.phones:
-            if phone == value:
-                self.phones.remove(phone)
-                break
-        else:
-            raise ValueError("phone_not_found")
+        self.birthday = value
 
     def del_address(self) -> None:
         """
