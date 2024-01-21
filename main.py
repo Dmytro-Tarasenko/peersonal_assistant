@@ -19,11 +19,6 @@ from tui import dashboard, contacts, notes, settings, sorter
 import pickle
 
 
-class AssistantCommands(Provider):
-    def add_contact(self) -> None:
-        self.notify(f"{self.app.name}")
-
-
 class PersonalAssistant(App):
     """
     Main clas for personal_assistant textual app
@@ -44,8 +39,6 @@ class PersonalAssistant(App):
                 "tcss/sorter.tcss",
                 "tcss/notes.tcss",
                 "tcss/contacts.tcss"]
-
-    COMMANDS = App.COMMANDS | {AssistantCommands}
 
     address_book = AddressBook()
     note_book = Notebook()
