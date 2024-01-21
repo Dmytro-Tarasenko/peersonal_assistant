@@ -8,3 +8,5 @@ phone1 = Phone(number=1234567890)
 phone2 = Phone(number="1234567890")
 
 print(phone1 == phone2)
+
+print(phone1 == Phone(number=1234567890))

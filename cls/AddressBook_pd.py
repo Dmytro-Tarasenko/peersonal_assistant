@@ -1,7 +1,7 @@
 from collections import UserDict
 from typing import List, Optional
 from datetime import datetime, timedelta
-from pydantic import BaseModel, EmailStr, field_validator, ConfigDict
+from pydantic import BaseModel, EmailStr, field_validator, ConfigDict, PositiveInt
 import re
 
 
@@ -70,34 +70,46 @@ class Record(BaseModel):
     address: Address = Address()
     phones: List[Phone] = []
 
-    def add_phone(self, value: str | int):
+    def add_phone(self, value: str | PositiveInt):
         """
         Adds a phone number to a record.
         :param value: The phone number to add.
         """
-        self.phones.append(Phone(value))
+        if value:
+            self.phones.append(Phone(value))
+        else:
+            raise ValueError("Could not add empty phone")
 
-    def add_edit_address(self,
-                         address: Address = Address()):
+    def add_address(self,
+                         address: Address):
         """
         Adds or edit an address in a record.
         """
-        self.address = address
+        if address:
+            self.address = address
+        else:
+            raise ValueError("Could not process empty address")
 
-    def add_edit_email(self, value: str = ""):
+    def add_email(self, value: EmailStr):
         """
         Adds or updates email in a record.
         :param value: Email to add.
         """
-        self.address.email = value
+        if value:
+            self.address.email = value
+        else:
+            raise ValueError("Could not process empty email")
 
-    def add_edit_birthday(self, value: str):
+    def add_birthday(self, value: str):
         """
         Adds or changes a birthday in a record.
         :param value: The birthday to add or change
         in the string format 'DD-MM-YYYY'.
         """
-        self.birthday = value
+        if value:
+            self.birthday = value
+        else:
+            raise ValueError("Could not process empty birthday")
 
     def del_address(self) -> None:
         """
@@ -118,7 +130,7 @@ class Record(BaseModel):
         name_str = f"%NAME%{self.name}"
         address_str = f"%ADDRESS%{self.address}"
         email_str = f"%EMAIL%{self.email}"
-        phones_str = f"%PHONES%{'|'.join(str(p) for p in self.phones)}"
+        phones_str = f"%PHONES%{'|'.join(str(p.number) for p in self.phones)}"
         bday_str = f"%BDAY%{self.birthday if self.birthday else ''}"
         return (
             f"{name_str}::"
@@ -200,8 +212,6 @@ class AddressBook(UserDict):
                 res.append(record)
 
         return res
-
-
 
     def find_record(self, search_params: List[str]) -> List[Record]:
         """
