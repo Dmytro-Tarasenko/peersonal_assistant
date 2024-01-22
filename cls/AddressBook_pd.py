@@ -1,7 +1,7 @@
 from collections import UserDict
 from typing import List, Optional
 from datetime import datetime, timedelta
-from pydantic import BaseModel, EmailStr, field_validator, ConfigDict, PositiveInt
+from pydantic import BaseModel, EmailStr, field_validator, ConfigDict, PositiveInt, PastDate
 import re
 
 
@@ -60,14 +60,28 @@ class Phone(BaseModel):
         return value
 
 
+class Birthday(BaseModel):
+    """Birtday with local string property"""
+    model_config = ConfigDict(validate_assignment=True)
+
+    date: PastDate = None
+
+    @property
+    def local_str(self) -> str:
+        return self.date.strftime("%d-%m-%Y")
+
+
 class Record(BaseModel):
     """
     Class for writing in the address book.
     """
+    model_config = ConfigDict(coerce_numbers_to_str=True,
+                              validate_assignment=True)
+
     name: str
-    birthday: Optional[str] = None
+    birthday: Birthday = None
     email: Optional[EmailStr] = None
-    address: Address = Address()
+    address: Optional[Address] = None
     phones: List[Phone] = []
 
     def add_phone(self, value: str | PositiveInt):
