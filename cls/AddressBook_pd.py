@@ -191,7 +191,7 @@ class AddressBook(UserDict):
             self.data.pop[old_record.name]
             self.add_record(new_record)
         else:
-            raise ValueError("No_find_records")
+            raise ValueError("no_such_record")
 
     def delete_record(self, name: str) -> None:
         """Delete a record from the address book.
@@ -201,7 +201,7 @@ class AddressBook(UserDict):
         if self.data[name]:
             self.data.pop(name)
         else:
-            raise ValueError("No_find_records")
+            raise ValueError("no_such_record")
 
     def upcoming_mates(self, days: int) -> List[Record]:
         """Return a list of contacts with birthdays upcoming from tomorrow to 7 days ahead.
