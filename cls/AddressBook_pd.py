@@ -1,5 +1,5 @@
 from collections import UserDict
-from typing import List, Optional
+from typing import List, Optional, Generator
 from datetime import datetime, timedelta
 from pydantic import BaseModel, EmailStr, field_validator, ConfigDict, PositiveInt, PastDate
 import re
@@ -79,7 +79,7 @@ class Record(BaseModel):
                               validate_assignment=True)
 
     name: str
-    birthday: Birthday = None
+    birthday: Optional[Birthday] = None
     email: Optional[EmailStr] = None
     address: Optional[Address] = None
     phones: List[Phone] = []
@@ -162,7 +162,7 @@ class AddressBook(UserDict):
             return self.data.get(name)
         return None
 
-    def iterator(self) -> Record:
+    def iterator(self) -> Generator[Record]:
         """Return an iterator over the records in the address book."""
         yield self.data.values()
 
