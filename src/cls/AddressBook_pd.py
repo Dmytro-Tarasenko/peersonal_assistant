@@ -162,7 +162,7 @@ class AddressBook(UserDict[str, Record]):
             return self.data.get(name)
         return None
 
-    def iterator(self) -> Generator[Record]:
+    def iterator(self) -> Record:
         """Return an iterator over the records in the address book."""
         yield self.data.values()
 
