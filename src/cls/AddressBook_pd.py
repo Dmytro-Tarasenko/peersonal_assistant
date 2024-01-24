@@ -64,7 +64,7 @@ class Birthday(BaseModel):
     """Birthday with local string property"""
     model_config = ConfigDict(validate_assignment=True)
 
-    date: PastDate | str = None
+    date: PastDate
 
     @property
     def local_str(self) -> str:
