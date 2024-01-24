@@ -7,7 +7,6 @@ from rich.console import RenderableType
 from rich.text import Text
 from textual.app import ComposeResult
 from textual.containers import Horizontal, Vertical, Grid
-from textual.message import Message
 from textual.widget import Widget
 from textual.widgets import (Static,
                              Button,
@@ -15,12 +14,12 @@ from textual.widgets import (Static,
                              DataTable,
                              Label,
                              Input)
-from cls.AddressBook import Address, Record, AddressBook
-from cls.validators import (BirthdayValidator,
-                            EmailValidator,
-                            PhoneNumberValidator,
-                            NameValidator,
-                            ZipCodeValidator)
+from src.cls.AddressBook import Address, Record, AddressBook
+from src.cls.validators import (BirthdayValidator,
+                                EmailValidator,
+                                PhoneNumberValidator,
+                                NameValidator,
+                                ZipCodeValidator)
 from textual import on
 
 

@@ -1,4 +1,4 @@
-from cls.NoteBook import Note, Notebook
+from src.cls.NoteBook import Note, Notebook
 import pickle
 from time import sleep
 

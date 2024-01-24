@@ -1,8 +1,0 @@
-Screen{
-    content-align: center middle;
-    padding: 0;
-}
-
-Vertical{
-    margin-left: 2;
-}

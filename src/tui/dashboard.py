@@ -3,15 +3,12 @@ Dashboard widget
 """
 from rich.console import RenderableType
 from rich.table import Table
-from textual import events
 from textual.app import ComposeResult
 from textual.containers import Horizontal, Vertical
 from textual.reactive import reactive
 from textual.widget import Widget
-from textual.widgets import Markdown, Static, Label, DataTable, Input, Button
+from textual.widgets import Static, Label, Input, Button
 from datetime import datetime
-from cls.AddressBook import Record
-from typing import List
 
 
 class DateClock(Widget):

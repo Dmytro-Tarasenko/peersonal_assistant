@@ -16,7 +16,7 @@ from textual.widgets import (Label,
                              ContentSwitcher,
                              Input, Rule)
 
-from cls.NoteBook import Note, Notebook
+from src.cls.NoteBook import Note, Notebook
 from datetime import datetime
 
 

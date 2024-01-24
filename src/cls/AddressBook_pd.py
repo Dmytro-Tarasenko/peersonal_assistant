@@ -61,10 +61,10 @@ class Phone(BaseModel):
 
 
 class Birthday(BaseModel):
-    """Birtday with local string property"""
+    """Birthday with local string property"""
     model_config = ConfigDict(validate_assignment=True)
 
-    date: PastDate = None
+    date: PastDate | str = None
 
     @property
     def local_str(self) -> str:
@@ -95,7 +95,7 @@ class Record(BaseModel):
             raise ValueError("Could not add empty phone")
 
     def add_address(self,
-                         address: Address):
+                    address: Address):
         """
         Adds or edit an address in a record.
         """
@@ -121,7 +121,7 @@ class Record(BaseModel):
         in the string format 'DD-MM-YYYY'.
         """
         if value:
-            self.birthday = value
+            self.birthday = Birthday(value)
         else:
             raise ValueError("Could not process empty birthday")
 
@@ -155,7 +155,7 @@ class Record(BaseModel):
         )
 
 
-class AddressBook(UserDict):
+class AddressBook(UserDict[str, Record]):
     """Class representing an address book."""
     def __getitem__(self, name: str) -> None:
         if name in self.data:
@@ -196,9 +196,9 @@ class AddressBook(UserDict):
     def delete_record(self, name: str) -> None:
         """Delete a record from the address book.
         Args:
-            record (Record): The record to be deleted.
+            name (str): name of record to delete.
         """
-        if self.data[name]:
+        if name in self.data:
             self.data.pop(name)
         else:
             raise ValueError("no_such_record")
@@ -213,7 +213,7 @@ class AddressBook(UserDict):
             checks.append(check)
         res = []
         for record in self.data.values():
-            if record.birthday[:5] in checks:
+            if record.birthday.local_str[:5] in checks:
                 res.append(record)
 
         return res
@@ -222,7 +222,7 @@ class AddressBook(UserDict):
         today_check = datetime.today().strftime("%d-%m")
         res = []
         for record in self.data.values():
-            if record.birthday.startswith(today_check):
+            if record.birthday.local_str.startswith(today_check):
                 res.append(record)
 
         return res
@@ -238,7 +238,7 @@ class AddressBook(UserDict):
             List[Record]: A list of the found records.
         """
         regexp_block = r"[\w\.\, ]*"
-        search_exprs = []
+        search_exprsns = []
         for param in search_params:
             param = (param.replace("\\", "")
                      .replace(".", "")
@@ -246,12 +246,12 @@ class AddressBook(UserDict):
                      .replace(",", ""))
             search_field,  search_cond = param.rsplit("%", maxsplit=1)
             search_field += "%"
-            search_exprs.append(rf"{search_field}{regexp_block}"
-                                 + rf"{search_cond}{regexp_block}::")
+            search_exprsns.append(rf"{search_field}{regexp_block}"
+                                  + rf"{search_cond}{regexp_block}::")
 
         results = []
         for record in self.values():
-            for search_expr in search_exprs:
+            for search_expr in search_exprsns:
                 if re.search(search_expr, record.search_str, re.I):
                     results.append(record)
                     break

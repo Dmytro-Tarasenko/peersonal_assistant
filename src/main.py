@@ -6,16 +6,15 @@ Personal_assistant is a personal manager for everyday tasks:
 """
 from textual.app import App, ComposeResult
 from textual.binding import Binding
-from textual.command import Provider, Hit
 from textual.widgets import (Header,
                              Footer,
                              TabbedContent,
                              TabPane)
 from pathlib import Path
 
-from cls.NoteBook import Note, Notebook
-from cls.AddressBook import AddressBook
-from tui import dashboard, contacts, notes, settings, sorter
+from src.cls.NoteBook import Notebook
+from src.cls.AddressBook import AddressBook
+from src.tui import contacts, sorter, notes, settings, dashboard
 import pickle
 
 

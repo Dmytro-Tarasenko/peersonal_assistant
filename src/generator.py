@@ -1,6 +1,6 @@
 import faker
 import pickle
-from cls.AddressBook_pd import Record, Address, AddressBook
+from src.cls.AddressBook_pd import Record, Address, AddressBook
 from random import randrange
 fake = faker.Faker()
 

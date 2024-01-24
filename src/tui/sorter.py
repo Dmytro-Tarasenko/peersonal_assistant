@@ -2,7 +2,7 @@ from textual.app import ComposeResult
 from textual.containers import Vertical, Horizontal
 from textual.reactive import reactive
 from textual.widgets import Static, DirectoryTree, Button
-from modules.sorted_folder import sorted_folder
+from src.modules.sorted_folder import sorted_folder
 from textual.widgets._directory_tree import DirEntry
 from textual.widgets._tree import TreeNode
 from pathlib import Path
