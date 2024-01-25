@@ -1,6 +1,6 @@
 from collections import UserDict
-from typing import List, Optional, Generator
-from datetime import datetime, timedelta
+from typing import List, Optional, Any
+from datetime import datetime
 from pydantic import BaseModel, EmailStr, field_validator, ConfigDict, PositiveInt, PastDate
 import re
 
@@ -34,6 +34,11 @@ class Address(BaseModel):
     house: Optional[str] = None
     apartment: Optional[str] = None
 
+    @property
+    def as_string(self):
+        parts = [*self]
+        return " ".join([part[1] for part in parts if part[1]])
+
     @field_validator("zip_code")
     @classmethod
     def zip_code_valid(cls, value: str) -> str:
@@ -54,7 +59,7 @@ class Phone(BaseModel):
     def phones_valid(cls, value: str):
         if not value.isdigit() or len(value) != 10:
             raise PhoneNumberError(value=value,
-                                   message=("{value} is not valid. Phone number "
+                                   message=(f"{value} is not valid. Phone number "
                                             + "should consist of 10 digits."))
 
         return value
@@ -70,6 +75,18 @@ class Birthday(BaseModel):
     def local_str(self) -> str:
         return self.date.strftime("%d-%m-%Y")
 
+    @property
+    def days_to_birthday(self) -> int:
+        cur_year = datetime.today().year
+        bday_to_be = datetime(day=self.date.day,
+                             month=self.date.month,
+                             year=cur_year).date()
+        if bday_to_be < datetime.today().date():
+            bday_to_be = datetime(day=self.date.day,
+                                  month=self.date.month,
+                                  year=cur_year+1).date()
+        return (bday_to_be - datetime.today().date()).days
+
 
 class Record(BaseModel):
     """
@@ -84,17 +101,35 @@ class Record(BaseModel):
     address: Optional[Address] = None
     phones: List[Phone] = []
 
-    def add_phone(self, value: str | PositiveInt):
+    def add_phone(self, value: Phone) -> bool:
         """
         Adds a phone number to a record.
         :param value: The phone number to add.
         """
-        if value:
-            self.phones.append(Phone(value))
+        if isinstance(value, Phone) and value.number:
+            self.phones.append(value)
+            return True
         else:
-            raise ValueError("Could not add empty phone")
+            raise ValueError(f"{value} is not a valid Phone instance")
 
-    def add_address(self,
+    def edit_phone(self,
+                   old_phone: Phone,
+                   new_phone: Phone) -> bool:
+        for phone in self.phones:
+            if phone == old_phone:
+                self.phones.pop(phone)
+                self.phones.append(new_phone)
+                return True
+        raise ValueError(f"Phone {old_phone.number} is not found")
+
+    def delete_phone(self, del_phone: Phone) -> bool:
+        for phone in self.phones:
+            if phone == del_phone:
+                self.phones.pop(phone)
+                return True
+        raise ValueError(f"Phone {del_phone.number} is not found")
+
+    def set_address(self,
                     address: Address):
         """
         Adds or edit an address in a record.
@@ -104,7 +139,7 @@ class Record(BaseModel):
         else:
             raise ValueError("Could not process empty address")
 
-    def add_email(self, value: EmailStr):
+    def set_email(self, value: EmailStr):
         """
         Adds or updates email in a record.
         :param value: Email to add.
@@ -114,7 +149,7 @@ class Record(BaseModel):
         else:
             raise ValueError("Could not process empty email")
 
-    def add_birthday(self, value: str):
+    def set_birthday(self, value: str):
         """
         Adds or changes a birthday in a record.
         :param value: The birthday to add or change
@@ -142,34 +177,28 @@ class Record(BaseModel):
     @property
     def search_str(self) -> str:
         name_str = f"%NAME%{self.name}"
-        address_str = f"%ADDRESS%{self.address}"
+        address_str = f"%ADDRESS%{self.address.as_string}"
         email_str = f"%EMAIL%{self.email}"
         phones_str = f"%PHONES%{'|'.join(str(p.number) for p in self.phones)}"
-        bday_str = f"%BDAY%{self.birthday if self.birthday else ''}"
+        bday_str = f"%BDAY%{self.birthday.local_str if self.birthday else ''}"
         return (
             f"{name_str}::"
             f"{address_str}::"
             f"{email_str}::"
             f"{phones_str}::"
-            f"{bday_str}"
+            f"{bday_str}::"
         )
 
 
 class AddressBook(UserDict[str, Record]):
     """Class representing an address book."""
-    def __getitem__(self, name: str) -> None:
+    def __getitem__(self, name: str) -> Record | None:
         if name in self.data:
             return self.data.get(name)
-        return None
 
     def iterator(self) -> Record:
         """Return an iterator over the records in the address book."""
         yield self.data.values()
-
-    def print_address_book(self):
-        """Print all records in the address book."""
-        for record in self.values():
-            print(record)
 
     def add_record(self, record: Record) -> None:
         """Додайте новий запис до адресної книги.
@@ -207,24 +236,18 @@ class AddressBook(UserDict[str, Record]):
         """Return a list of contacts with birthdays upcoming from tomorrow to 7 days ahead.
         Returns: List[Record]: List of records with upcoming birthdays.
         """
-        checks = []
-        for inc in range(1, days+1):
-            check = (datetime.today() + timedelta(days=inc)).strftime("%d-%m")
-            checks.append(check)
         res = []
         for record in self.data.values():
-            if record.birthday.local_str[:5] in checks:
+            if 1 <= record.birthday.days_to_birthday <= days:
                 res.append(record)
 
         return res
 
     def today_mates(self) -> List[Record]:
-        today_check = datetime.today().strftime("%d-%m")
         res = []
         for record in self.data.values():
-            if record.birthday.local_str.startswith(today_check):
+            if record.birthday.days_to_birthday == 0:
                 res.append(record)
-
         return res
 
     def find_record(self, search_params: List[str]) -> List[Record]:
