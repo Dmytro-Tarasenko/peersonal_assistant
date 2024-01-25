@@ -30,3 +30,6 @@ with pytest.raises(ValueError, match="is not a valid Phone instance"):
 
 assert rec.add_phone(Phone(number=6789012345)) == True
 
+check = [i.number for i in rec.phones]
+
+assert "6789012345" in check
