@@ -28,7 +28,7 @@ class Address(BaseModel):
     model_config = ConfigDict(coerce_numbers_to_str=True)
 
     country: Optional[str] = None
-    zip_code: Optional[str] = None
+    zip: Optional[str] = None
     city: Optional[str] = None
     street: Optional[str] = None
     house: Optional[str] = None
@@ -39,9 +39,9 @@ class Address(BaseModel):
         parts = [*self]
         return " ".join([part[1] for part in parts if part[1]])
 
-    @field_validator("zip_code")
+    @field_validator("zip")
     @classmethod
-    def zip_code_valid(cls, value: str) -> str:
+    def zip_valid(cls, value: str) -> str:
         if not value.isdigit() or len(value) != 5:
             raise ZipFormatError(value=value,
                                  message="ZIP should contain 5 digits.")
@@ -79,8 +79,8 @@ class Birthday(BaseModel):
     def days_to_birthday(self) -> int:
         cur_year = datetime.today().year
         bday_to_be = datetime(day=self.date.day,
-                             month=self.date.month,
-                             year=cur_year).date()
+                              month=self.date.month,
+                              year=cur_year).date()
         if bday_to_be < datetime.today().date():
             bday_to_be = datetime(day=self.date.day,
                                   month=self.date.month,
@@ -115,39 +115,53 @@ class Record(BaseModel):
     def edit_phone(self,
                    old_phone: Phone,
                    new_phone: Phone) -> bool:
-        for phone in self.phones:
-            if phone == old_phone:
-                self.phones.pop(phone)
-                self.phones.append(new_phone)
-                return True
+        phone_index = [pair[0] for pair in enumerate(self.phones)
+                       if pair[1] == old_phone]
+        if len(phone_index) != 0:
+            self.phones.pop(phone_index[0])
+            self.phones.append(new_phone)
+            return True
+
         raise ValueError(f"Phone {old_phone.number} is not found")
 
     def delete_phone(self, del_phone: Phone) -> bool:
-        for phone in self.phones:
-            if phone == del_phone:
-                self.phones.pop(phone)
-                return True
+        phone_index = [pair[0] for pair in enumerate(self.phones)
+                       if pair[1] == del_phone]
+        if len(phone_index) != 0:
+            self.phones.pop(phone_index[0])
+            return True
+
         raise ValueError(f"Phone {del_phone.number} is not found")
 
     def set_address(self,
-                    address: Address):
+                    address: Address) -> bool:
         """
         Adds or edit an address in a record.
         """
-        if address:
+        if isinstance(address, Address) and address.as_string != "":
             self.address = address
+            return True
         else:
-            raise ValueError("Could not process empty address")
+            raise ValueError("Could not process empty address. Use "
+                             + "delete_address to wipe address from record")
 
-    def set_email(self, value: EmailStr):
+    def set_email(self, value: EmailStr) -> bool:
         """
         Adds or updates email in a record.
         :param value: Email to add.
         """
         if value:
-            self.address.email = value
+            self.email = value
+            return True
         else:
             raise ValueError("Could not process empty email")
+
+    def delete_email(self) -> None:
+        """
+        Deletes an email from a record.
+        Returns: None
+        """
+        self.email = None
 
     def set_birthday(self, value: str):
         """
@@ -160,33 +174,29 @@ class Record(BaseModel):
         else:
             raise ValueError("Could not process empty birthday")
 
-    def del_address(self) -> None:
+    def delete_address(self) -> bool:
         """
         Deletes the address from the record.
         Returns: None
         """
-        self.address = Address()
-
-    def del_email(self) -> None:
-        """
-        Deletes an email from a record.
-        Returns: None
-        """
-        self.email = None
+        if self.address:
+            self.address = None
+            return True
+        raise ValueError("Record got no address field")
 
     @property
     def search_str(self) -> str:
-        name_str = f"%NAME%{self.name}"
-        address_str = f"%ADDRESS%{self.address.as_string}"
-        email_str = f"%EMAIL%{self.email}"
-        phones_str = f"%PHONES%{'|'.join(str(p.number) for p in self.phones)}"
-        bday_str = f"%BDAY%{self.birthday.local_str if self.birthday else ''}"
+        name_str = self.name
+        address_str = self.address.as_string if self.address else ""
+        email_str = self.email
+        phones_str = '|'.join(str(p.number) for p in self.phones)
+        bday_str = self.birthday.local_str if self.birthday else ""
         return (
-            f"{name_str}::"
-            f"{address_str}::"
-            f"{email_str}::"
-            f"{phones_str}::"
-            f"{bday_str}::"
+            f"%NAME%{name_str}::"
+            f"%ADDRESS%{address_str}::"
+            f"%EMAIL%{email_str}::"
+            f"%PHONES%{phones_str}::"
+            f"%BDAY%{bday_str}::"
         )
 
 
