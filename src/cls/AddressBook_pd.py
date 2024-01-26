@@ -115,21 +115,19 @@ class Record(BaseModel):
     def edit_phone(self,
                    old_phone: Phone,
                    new_phone: Phone) -> bool:
-        phone_index = [pair[0] for pair in enumerate(self.phones)
-                       if pair[1] == old_phone]
-        if len(phone_index) != 0:
-            self.phones.pop(phone_index[0])
-            self.phones.append(new_phone)
-            return True
+        for index, phone in enumerate(self.phones):
+            if phone == old_phone:
+                self.phones.pop(index)
+                self.phones.append(new_phone)
+                return True
 
         raise ValueError(f"Phone {old_phone.number} is not found")
 
     def delete_phone(self, del_phone: Phone) -> bool:
-        phone_index = [pair[0] for pair in enumerate(self.phones)
-                       if pair[1] == del_phone]
-        if len(phone_index) != 0:
-            self.phones.pop(phone_index[0])
-            return True
+        for index, phone in enumerate(self.phones):
+            if phone == del_phone:
+                self.phones.pop(index)
+                return True
 
         raise ValueError(f"Phone {del_phone.number} is not found")
 
@@ -210,13 +208,17 @@ class AddressBook(UserDict[str, Record]):
         """Return an iterator over the records in the address book."""
         yield self.data.values()
 
-    def add_record(self, record: Record) -> None:
+    def add_record(self, record: Record) -> bool:
         """Додайте новий запис до адресної книги.
 
         Args:
             record (Record): The record to be added.
         """
-        self.data[record.name] = record
+        if not self.data.get(record.name):
+            self.data[record.name] = record
+            return True
+
+        raise KeyError(f"Record {record.name} already exists")
 
     def edit_record(self,
                     old_record: Record,
