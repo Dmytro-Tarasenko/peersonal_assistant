@@ -1,8 +1,13 @@
 from collections import UserDict
-from typing import List, Optional, Any
+from typing import List, Optional
 from datetime import datetime
-from pydantic import BaseModel, EmailStr, field_validator, ConfigDict, PositiveInt, PastDate
+from pydantic import (BaseModel,
+                      EmailStr,
+                      field_validator,
+                      ConfigDict,
+                      PastDate)
 import re
+from src.abc.AbcBook import Book
 
 
 class ZipFormatError(Exception):
@@ -56,7 +61,7 @@ class Phone(BaseModel):
 
     @field_validator("number")
     @classmethod
-    def phones_valid(cls, value: str):
+    def phones_valid(cls, value: str) -> str:
         if not value.isdigit() or len(value) != 10:
             raise PhoneNumberError(value=value,
                                    message=(f"{value} is not valid. Phone number "
@@ -198,7 +203,7 @@ class Record(BaseModel):
         )
 
 
-class AddressBook(UserDict[str, Record]):
+class AddressBook(Book, UserDict[str, Record]):
     """Class representing an address book."""
     def __getitem__(self, name: str) -> Record | None:
         if name in self.data:
