@@ -451,7 +451,7 @@ class ContactsAdd(Static):
 
 class Contacts(Static):
     """Container widger for Contacts tab"""
-    current_record: Record = Record()
+    current_record: Record = None
     records: List[Record] = []
     edit_flag = False
 
@@ -461,7 +461,7 @@ class Contacts(Static):
         if len(self.records) > 0:
             self.current_record = self.records[0]
         else:
-            self.current_record = Record()
+            self.current_record = None
 
         with Horizontal(id="contacts_workspaces"):
             yield Button("View contacts", id="btn_contacts_viewer")
