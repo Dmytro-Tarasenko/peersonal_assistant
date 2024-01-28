@@ -12,9 +12,9 @@ from textual.widgets import (Header,
                              TabPane)
 from pathlib import Path
 
-from src.cls.NoteBook import Notebook
-from src.cls.AddressBook import AddressBook
-from src.tui import contacts, sorter, notes, settings, dashboard
+from cls.NoteBook import Notebook
+from cls.AddressBook import AddressBook
+from tui import contacts, sorter, notes, settings, dashboard
 import pickle
 
 

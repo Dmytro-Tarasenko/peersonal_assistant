@@ -14,8 +14,8 @@ from textual.widgets import (Static,
                              DataTable,
                              Label,
                              Input)
-from src.cls.AddressBook import Address, Record, AddressBook
-from src.cls.validators import (BirthdayValidator,
+from cls.AddressBook import Address, Record, AddressBook
+from cls.validators import (BirthdayValidator,
                                 EmailValidator,
                                 PhoneNumberValidator,
                                 NameValidator,

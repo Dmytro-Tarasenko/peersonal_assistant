@@ -16,12 +16,12 @@ from textual.widgets import (Label,
                              ContentSwitcher,
                              Input, Rule)
 
-from src.cls.NoteBook import Note, Notebook
+from cls.NoteBook import Note, Notebook
 from datetime import datetime
 
 
 class NoteInput(Widget):
-    '''create note tab'''
+    """create note tab"""
     def compose(self):
         #input_field = TextArea()
         #input_field.on_change = self.save_note
@@ -53,12 +53,12 @@ class NoteInput(Widget):
             case 'nt_input_save_button':
                 if self.app.query_one(Notes).edit_flag:
                     note = self.app.query_one(Notes).current_note
-                    self.app.note_book.del_note(note)
+                    self.app.note_book.delete_record(note)
                     self.app.query_one(Notes).edit_flag = False
                 text = self.query_one(TextArea).text
                 tags = self.query_one("Input#nt_input_tags_field").value.split()
                 note_book: Notebook = self.app.note_book
-                note_book.add_note(Note(content=text,
+                note_book.add_record(Note(content=text,
                                         tags=tags))
                 notes_list = self.app.query_one(NotesList).refresh()
                 notes_list.note_adder()
@@ -126,7 +126,6 @@ class NotesList(Widget):
                                    row_info: DataTable.RowSelected) -> None:
         notes_wdgt: Notes = self.app.query_one("Notes")
         note_book: Notebook = self.app.note_book
-        self.notify(f"{type(row_info.row_key.value)}")
         notes_wdgt.current_note = note_book.data[row_info.row_key.value]
         details_wdgt: NoteDetails = self.parent.query_one("#nt_viewer_details_wdgt")
         details_wdgt.get_note_info()
@@ -179,7 +178,6 @@ class NotesViewControl(Widget):
                     full_words.extend(input_.value.split(" "))
                 case "nt_control_tags":
                     tags.extend(input_.value.split(" "))
-        self.notify(f"words: {full_words}\ntags: {tags}")
         notes: List[Note] = []
         notes_by_word: List[Note] = []
         notes_by_tag: List[Note] = []
@@ -187,7 +185,6 @@ class NotesViewControl(Widget):
             notes.extend(note_book.find_notes_by_keyword(full_words))
         if len(tags) > 0:
             notes.extend(note_book.find_notes_by_tags(tags))
-            self.notify(f"{note_book.find_notes_by_tags(tags)}", timeout=10)
         notes.extend(notes_by_tag)
         for note in notes_by_word:
             if note not in notes:
@@ -214,7 +211,7 @@ class NotesViewControl(Widget):
 
     def nt_control_delete(self) -> None:
         note: Note = self.app.query_one(Notes).current_note
-        self.app.note_book.del_note(note)
+        self.app.note_book.delete_record(note)
         table = self.parent.query_one(DataTable)
         table.clear()
         note_list: NotesList = self.parent.query_one(NotesList)
@@ -224,7 +221,7 @@ class NotesViewControl(Widget):
             notes.current_note = notes.notes[0]
         else:
             notes.current_note = Note()
-        self.notify("Contact deleted.", severity="warning", timeout=7)
+        self.notify("Note is deleted.", severity="warning", timeout=7)
         note_list.fill_the_table()
         table.refresh()
         note_list.refresh()
@@ -301,7 +298,7 @@ class NotesView(Widget):
 
 
 class Notes(Static):
-    '''Parrent class'''
+    """Parrent class"""
     notes: List[Note] = []
     current_note: Note = Note()
     edit_flag = False
@@ -324,7 +321,6 @@ class Notes(Static):
         with ContentSwitcher(initial="notes_view", id="cs_notes"):
             yield NotesView(id="notes_view")
             yield CreateNote(id="notes_create")
-
 
     def on_button_pressed(self, event: Button.Pressed) -> None:
         """Switchin content by button presseed"""

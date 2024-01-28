@@ -80,7 +80,7 @@ rec.set_email("some.adr2@some2.dom")
 # addres block
 adr1 = Address()
 with pytest.raises(ValueError,
-                   match="Could not process empty address. Use delete_address to wipe address from record"):
+                   match="Could not process empty address"):
     rec.set_address(adr1)
 
 adr1 = Address(country="Ukraine",

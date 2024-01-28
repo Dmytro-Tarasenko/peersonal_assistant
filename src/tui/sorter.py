@@ -2,7 +2,7 @@ from textual.app import ComposeResult
 from textual.containers import Vertical, Horizontal
 from textual.reactive import reactive
 from textual.widgets import Static, DirectoryTree, Button
-from src.modules.sorted_folder import sorted_folder
+from modules.sorted_folder import sorted_folder
 from textual.widgets._directory_tree import DirEntry
 from textual.widgets._tree import TreeNode
 from pathlib import Path
@@ -108,8 +108,8 @@ class Sorter(Static):
 
         if event.button.id.endswith("_drive"):
             drive_letter = str(event.button.label).rstrip(":").lower()
-            new_path = f"{drive_letter}:{os.sep}"
-            self.cur_dir = Path("/") if new_path == "root" else Path(new_path)
+            new_path = f"{drive_letter}:{os.sep}" if drive_letter.isalpha() else "/"
+            self.cur_dir = Path(new_path)
         elif event.button.id == "sort_folder":
             folder_to_sort = self.dir_tree.path
             sorted_file = sorted_folder(folder_to_sort)
@@ -117,6 +117,7 @@ class Sorter(Static):
 
             self.dir_tree.refresh()
         elif event.button.id == "up_tree":
+
             self.cur_dir = self.cur_dir.parent
         else:
             return up_button
