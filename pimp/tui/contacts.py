@@ -38,25 +38,29 @@ class ContactDetails(Static):
 
     def render(self) -> RenderableType:
         self.get_record_info()
-        name = self.current_record.name
-        bday = self.current_record.birthday or "---"
-        address = self.current_record.address or "---"
-        email_ = self.current_record.email or "---"
-        phones = self.current_record.phones or "---"
+        if self.current_record:
+            name = self.current_record.name
+            bday = self.current_record.birthday or "---"
+            address = self.current_record.address or "---"
+            email_ = self.current_record.email or "---"
+            phones = self.current_record.phones or "---"
+        else:
+            name = bday = address = email_ = phones = "---"
+        field_name_style = "bold italic #A2A2B5"
         text = Text(tab_size=1)
         text.append("\n")
-        text.append("\tName: ", style="bold italic #A2A2B5")
+        text.append("\tName: ", style=field_name_style)
         text.append("\t"+name)
-        text.append("\tBirthday: ", style="bold italic #A2A2B5")
+        text.append("\tBirthday: ", style=field_name_style)
         text.append("\t"+bday)
         text.append("\n\n")
-        text.append("\te-mail: ", style="bold italic #A2A2B5")
+        text.append("\te-mail: ", style=field_name_style)
         text.append("\t"+email_)
         text.append("\n\n")
-        text.append("\tAddress: ", style="bold italic #A2A2B5")
+        text.append("\tAddress: ", style=field_name_style)
         text.append("\t" + str(address))
         text.append("\n\n")
-        text.append("\tPhones: ", style="bold italic #A2A2B5")
+        text.append("\tPhones: ", style=field_name_style)
         text.append("\t" + ",".join(phones))
         return text
 
@@ -231,7 +235,7 @@ class ContactsViewControl(Widget):
                     if phones := record.phones:
                         field.value = " ".join(phones)
                 case "birthday_input":
-                    if birthday:= record.birthday:
+                    if birthday := record.birthday:
                         field.value = birthday
                 case "email_input":
                     if email := record.email:
@@ -394,7 +398,10 @@ class ContactsAdd(Static):
 
             if validation_result is not None and not validation_result.is_valid:
                 error_message = validation_result.failure_descriptions[0]
-                self.notify(message=error_message, title='Error', severity='error', timeout=7)  # Вивід повідомлення
+                self.notify(message=error_message,
+                            title='Error',
+                            severity='error',
+                            timeout=7)  # Вивід повідомлення
             else:
                 if widget.id == "name_input":
                     name_widget = widget.value
