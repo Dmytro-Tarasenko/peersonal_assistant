@@ -1,4 +1,4 @@
-from src.cls.AddressBook_pd import Record, Phone, Birthday, Address
+from pimp.cls.AddressBook import Record, Phone, Birthday, Address
 from datetime import datetime
 import pytest
 

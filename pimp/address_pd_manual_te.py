@@ -1,4 +1,4 @@
-from src.cls.AddressBook_pd import Address, Phone, Birthday
+from pimp.cls.AddressBook_pd import Address, Phone, Birthday
 from datetime import datetime, timedelta
 
 adr = Address(zip_code=12346)

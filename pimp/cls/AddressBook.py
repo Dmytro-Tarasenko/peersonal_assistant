@@ -7,7 +7,7 @@ from pydantic import (BaseModel,
                       ConfigDict,
                       PastDate)
 import re
-from src.abc.AbcBook import Book
+from abcs.AbcBook import Book
 
 
 class ZipFormatError(Exception):

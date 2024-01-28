@@ -1,6 +1,6 @@
 from pydantic import ValidationError
 
-from src.cls.AddressBook_pd import Birthday
+from pimp.cls.AddressBook import Birthday
 from datetime import datetime, timedelta
 import pytest
 

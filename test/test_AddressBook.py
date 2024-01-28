@@ -1,5 +1,5 @@
 # AddressBook tests go here
-from src.cls.AddressBook_pd import AddressBook, Record, Birthday, Address, Phone
+from pimp.cls.AddressBook import AddressBook, Record, Birthday, Address, Phone
 from datetime import datetime
 import pytest
 
