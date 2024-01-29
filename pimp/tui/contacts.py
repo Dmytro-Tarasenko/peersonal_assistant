@@ -1,6 +1,7 @@
 """
 Contacts widget
 """
+
 import datetime
 from typing import List
 
@@ -9,18 +10,15 @@ from rich.text import Text
 from textual.app import ComposeResult
 from textual.containers import Horizontal, Vertical, Grid
 from textual.widget import Widget
-from textual.widgets import (Static,
-                             Button,
-                             ContentSwitcher,
-                             DataTable,
-                             Label,
-                             Input)
+from textual.widgets import Static, Button, ContentSwitcher, DataTable, Label, Input
 from cls.AddressBook import Address, Record, AddressBook, Birthday, Phone
-from cls.validators import (BirthdayValidator,
-                            EmailValidator,
-                            PhoneNumberValidator,
-                            NameValidator,
-                            ZipCodeValidator)
+from cls.validators import (
+    BirthdayValidator,
+    EmailValidator,
+    PhoneNumberValidator,
+    NameValidator,
+    ZipCodeValidator,
+)
 from textual import on
 
 
@@ -61,12 +59,12 @@ class ContactDetails(Static):
         text = Text(tab_size=1)
         text.append("\n")
         text.append("\tName: ", style=field_name_style)
-        text.append("\t"+name)
+        text.append("\t" + name)
         text.append("\tBirthday: ", style=field_name_style)
-        text.append("\t"+bday)
+        text.append("\t" + bday)
         text.append("\n\n")
         text.append("\te-mail: ", style=field_name_style)
-        text.append("\t"+email_)
+        text.append("\t" + email_)
         text.append("\n\n")
         text.append("\tAddress: ", style=field_name_style)
         text.append("\t" + str(address))
@@ -127,21 +125,22 @@ class ContatsList(Widget):
         for row in self.records:
             bd = row.birthday.local_str if row.birthday else ""
             addr = row.address.as_string if row.address else ""
-            self.table.add_row(str(line_num),
-                               row.name,
-                               bd,
-                               addr,
-                               row.email,
-                               str(row.phones),
-                               height=1,
-                               key=row.name)
+            self.table.add_row(
+                str(line_num),
+                row.name,
+                bd,
+                addr,
+                row.email,
+                str(row.phones),
+                height=1,
+                key=row.name,
+            )
             line_num += 1
 
     def compose(self) -> ComposeResult:
         yield self.table
 
-    def on_data_table_row_selected(self,
-                                   row_info: DataTable.RowSelected) -> None:
+    def on_data_table_row_selected(self, row_info: DataTable.RowSelected) -> None:
         contacts_wdgt: Contacts = self.app.query_one("Contacts")
         address_book: AddressBook = self.app.address_book
         contacts_wdgt.current_record = address_book.data[row_info.row_key.value]
@@ -152,39 +151,52 @@ class ContatsList(Widget):
 
 class ContactsViewControl(Widget):
     """Widget contains control element for contact filtering\\searchin"""
+
     def compose(self) -> ComposeResult:
         with Vertical(id="cv_controls"):
-            yield Label("Name\\part to lookup",
-                        classes="cv_input")
-            yield Input(placeholder="Enter at least 3 characters",
-                        classes="cv_input",
-                        restrict=r"\w+",
-                        id="cv_control_name")
-            yield Label("Phone\\part  to lookup",
-                        classes="cv_input")
-            yield Input(placeholder="Enter from 3 to 10 digits",
-                        classes="cv_input",
-                        type="integer",
-                        restrict=r"\d{,10}",
-                        id="cv_control_phones")
-            yield Label("E-mail\\part to lookup",
-                        classes="cv_input")
-            yield Input(placeholder="Enter at least 3 characters",
-                        classes="cv_input",
-                        restrict=r"[\w.@]+",
-                        id="cv_control_email")
-            yield Label("Address\\part to lookup",
-                        classes="cv_input")
-            yield Input(placeholder="Enter at least 3 symbols",
-                        classes="cv_input",
-                        restrict=r"[\w.,-]+",
-                        id="cv_control_address")
+            yield Label("Name\\part to lookup", classes="cv_input")
+            yield Input(
+                placeholder="Enter at least 3 characters",
+                classes="cv_input",
+                restrict=r"\w+",
+                id="cv_control_name",
+            )
+            yield Label("Phone\\part  to lookup", classes="cv_input")
+            yield Input(
+                placeholder="Enter from 3 to 10 digits",
+                classes="cv_input",
+                type="integer",
+                restrict=r"\d{,10}",
+                id="cv_control_phones",
+            )
+            yield Label("E-mail\\part to lookup", classes="cv_input")
+            yield Input(
+                placeholder="Enter at least 3 characters",
+                classes="cv_input",
+                restrict=r"[\w.@]+",
+                id="cv_control_email",
+            )
+            yield Label("Address\\part to lookup", classes="cv_input")
+            yield Input(
+                placeholder="Enter at least 3 symbols",
+                classes="cv_input",
+                restrict=r"[\w.,-]+",
+                id="cv_control_address",
+            )
             with Horizontal():
-                yield Button("Lookup", variant="primary", id="cv_control_lookup")
-                yield Button("Clear Search", variant="warning", id="cv_control_clear")
+                yield Button("Lookup",
+                             variant="primary",
+                             id="cv_control_lookup")
+                yield Button("Clear Search",
+                             variant="warning",
+                             id="cv_control_clear")
             with Horizontal():
-                yield Button("Edit record", variant="warning", id="cv_control_edit")
-                yield Button("Delete contact", variant="error", id="cv_control_delete")
+                yield Button("Edit record",
+                             variant="warning",
+                             id="cv_control_edit")
+                yield Button("Delete contact",
+                             variant="error",
+                             id="cv_control_delete")
 
     def cv_control_lookup(self) -> None:
         inputs: List[Input] = self.query("Input.cv_input")
@@ -197,7 +209,7 @@ class ContactsViewControl(Widget):
         if len(search_conditions) == 0:
             self.notify("No search conditions are specified!",
                         severity="warning",
-                        timeout=10)
+                        timeout=8)
         records: List[Record] = address_book.find_record(search_conditions)
         if len(records) == 0:
             self.notify("Search returned no results!",
@@ -277,8 +289,9 @@ class ContactsViewControl(Widget):
                     if address:
                         if apartment := address.apartment:
                             field.value = str(apartment)
-        switcher: ContentSwitcher = (self.app.query_one(Contacts)
-                                     .query_one(ContentSwitcher))
+        switcher: ContentSwitcher = self.app.query_one(Contacts).query_one(
+            ContentSwitcher
+        )
         switcher.current = "contacts_adder"
 
     def on_button_pressed(self, event: Button.Pressed) -> None:
@@ -295,25 +308,38 @@ class ContactsViewControl(Widget):
 
 
 class ContactsView(Static):
-    """Widget to display contacts list and details for selected """
+    """Widget to display contacts list and details for selected"""
+
     def compose(self) -> ComposeResult:
         yield Horizontal(
             Vertical(
                 ContactDetails(id="contact_details_wdgt",
                                classes="cv_details"),
                 ContatsList(classes="cv_details"),
-                id="cntct_viewer_details"),
-            ContactsViewControl(id="cntct_viewer_ctrl")
+                id="cntct_viewer_details",
+            ),
+            ContactsViewControl(id="cntct_viewer_ctrl"),
         )
 
 
 class ContactsAdd(Static):
-    """Widget to add contact """
-    def __init__(self, widget_value_name='', widget_value_phone=None,
-                 widget_value_birthday=None, widget_value_email=None,
-                 widget_value_zipcode=None, widget_value_country=None, widget_value_city=None,
-                 widget_value_street=None, widget_value_house=None, widget_value_apartment=None,
-                 address_book=AddressBook, **kwargs):
+    """Widget to add contact"""
+
+    def __init__(
+        self,
+        widget_value_name="",
+        widget_value_phone=None,
+        widget_value_birthday=None,
+        widget_value_email=None,
+        widget_value_zipcode=None,
+        widget_value_country=None,
+        widget_value_city=None,
+        widget_value_street=None,
+        widget_value_house=None,
+        widget_value_apartment=None,
+        address_book=AddressBook,
+        **kwargs,
+    ):
         super().__init__(**kwargs)
         self.widget_value_name = widget_value_name
         self.widget_value_phone = widget_value_phone
@@ -334,61 +360,67 @@ class ContactsAdd(Static):
     def compose(self) -> ComposeResult:
         with Grid(id="cv_adder_editor"):
             yield Vertical(
-                Label('Enter user`s name (only alphabetic characters|first letter must be capital)'),
+                Label(
+                    "Enter user`s name (only alphabetic characters|first letter must be capital)"
+                ),
                 Input(
                     placeholder="Enter user name...",
                     validators=[NameValidator()],
-                    id="name_input")
+                    id="name_input",
+                ),
             )
             yield Vertical(
                 Label("Enter user`s phone number (10 digits):"),
-                Input(placeholder="Enter phone number...",
-                      validators=[PhoneNumberValidator()],
-                      id="phone_input")
+                Input(
+                    placeholder="Enter phone number...",
+                    validators=[PhoneNumberValidator()],
+                    id="phone_input",
+                ),
             )
             yield Vertical(
                 Label("Enter user`s birthday (in format DD-MM-YYYY)"),
-                Input(placeholder="Enter user birthday...",
-                      validators=[BirthdayValidator()],
-                      id="birthday_input")
+                Input(
+                    placeholder="Enter user birthday...",
+                    validators=[BirthdayValidator()],
+                    id="birthday_input",
+                ),
             )
             yield Vertical(
                 Label("Enter user`s email address (Exa.mple123@email.com)"),
-                Input(placeholder="Enter user email...",
-                      validators=[EmailValidator()],
-                      id="email_input",
-                      restrict=None)
+                Input(
+                    placeholder="Enter user email...",
+                    validators=[EmailValidator()],
+                    id="email_input",
+                    restrict=None,
+                ),
             )
             yield Vertical(
                 Label("Enter user`s zip code"),
-                Input(placeholder="Enter zip code",
-                      validators=[ZipCodeValidator()],
-                      id="zipcode_input")
+                Input(
+                    placeholder="Enter zip code",
+                    validators=[ZipCodeValidator()],
+                    id="zipcode_input",
+                ),
             )
             yield Vertical(
                 Label("Enter user`s country"),
-                Input(placeholder="Enter country...",
-                      id="country_input")
+                Input(placeholder="Enter country...", id="country_input"),
             )
             yield Vertical(
                 Label("Enters user`s city"),
-                Input(placeholder="Enter city...",
-                      id="city_input")
+                Input(placeholder="Enter city...", id="city_input"),
             )
             yield Vertical(
                 Label("Enter user`s street"),
-                Input(placeholder="Enter street...",
-                      id="street_input")
+                Input(placeholder="Enter street...", id="street_input"),
             )
             yield Vertical(
                 Label("Enter user`s № house"),
-                Input(placeholder="Enter № house...",
-                      id="house_input")
+                Input(placeholder="Enter № house...", id="house_input"),
             )
             yield Vertical(
                 Label("Enter user`s № apartment"),
-                Input(placeholder="Enter № apartment...",
-                      id="apartment_input")
+                Input(placeholder="Enter № apartment...", id="apartment_input"),
             )
 
         yield Button(label="Submit info", id="add_info")
@@ -415,10 +447,9 @@ class ContactsAdd(Static):
 
             if validation_result is not None and not validation_result.is_valid:
                 error_message = validation_result.failure_descriptions[0]
-                self.notify(message=error_message,
-                            title='Error',
-                            severity='error',
-                            timeout=7)  # Вивід повідомлення
+                self.notify(
+                    message=error_message, title="Error", severity="error", timeout=7
+                )  # Вивід повідомлення
             else:
                 if widget.id == "name_input":
                     name_widget = widget.value
@@ -428,7 +459,7 @@ class ContactsAdd(Static):
                     birthday_widget = widget.value
                 elif widget.id == "email_input":
                     email_widget = widget.value
-                elif widget.id == 'zipcode_input':
+                elif widget.id == "zipcode_input":
                     zipcode_widget = widget.value
                 elif widget.id == "country_input":
                     country_widget = widget.value
@@ -442,14 +473,36 @@ class ContactsAdd(Static):
                     apartment_widget = widget.value
 
         if not validation_errors:
-            if all([phone_widget, email_widget, birthday_widget, zipcode_widget,
-                    country_widget, city_widget, street_widget, house_widget, apartment_widget]) or name_widget:
-                self.notify(message="User`s information added to address book", title='Success',
-                            severity='information', timeout=7)
+            if (
+                all(
+                    [
+                        phone_widget,
+                        email_widget,
+                        birthday_widget,
+                        zipcode_widget,
+                        country_widget,
+                        city_widget,
+                        street_widget,
+                        house_widget,
+                        apartment_widget,
+                    ]
+                )
+                or name_widget
+            ):
+                self.notify(
+                    message="User`s information added to address book",
+                    title="Success",
+                    severity="information",
+                    timeout=7,
+                )
                 record = Record(
                     name=name_widget,
                     phones=[Phone(number=phone_widget)] if phone_widget else None,
-                    birthday=Birthday(date=self._to_date(birthday_widget)) if birthday_widget else None,
+                    birthday=(
+                        Birthday(date=self._to_date(birthday_widget))
+                        if birthday_widget
+                        else None
+                    ),
                     email=email_widget if email_widget else None,
                     address=Address(
                         country=country_widget if country_widget else "",
@@ -457,8 +510,8 @@ class ContactsAdd(Static):
                         city=city_widget if city_widget else "",
                         street=street_widget if street_widget else "",
                         house=house_widget if house_widget else "",
-                        apartment=apartment_widget if apartment_widget else ""
-                    )
+                        apartment=apartment_widget if apartment_widget else "",
+                    ),
                 )
                 if self.app.query_one(Contacts).edit_flag:
                     self.app.address_book.delete_record(record.name)
@@ -467,14 +520,16 @@ class ContactsAdd(Static):
                 contacts_list = self.app.query_one(ContatsList).refresh()
                 contacts_list.contact_adder()
                 for widget in input_widgets:
-                    widget.value = ''
-                switcher: ContentSwitcher = (self.app.query_one(Contacts)
-                                             .query_one(ContentSwitcher))
+                    widget.value = ""
+                switcher: ContentSwitcher = self.app.query_one(Contacts).query_one(
+                    ContentSwitcher
+                )
                 switcher.current = "contacts_viewer"
 
 
 class Contacts(Static):
     """Container widger for Contacts tab"""
+
     current_record: Record = None
     records: List[Record] = []
     edit_flag = False
@@ -498,4 +553,6 @@ class Contacts(Static):
     def on_button_pressed(self, event: Button.Pressed) -> None:
         """Switchin content by button presseed"""
         if event.button.id.startswith("btn_contacts_"):
-            self.query_one(ContentSwitcher).current = event.button.id.split("_", maxsplit=1)[-1]
+            self.query_one(ContentSwitcher).current = event.button.id.split(
+                "_", maxsplit=1
+            )[-1]
