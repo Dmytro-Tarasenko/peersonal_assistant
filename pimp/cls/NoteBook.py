@@ -15,7 +15,7 @@ class Note:
                  tags: Set[str] | None = None):
         self.note_id: int = int(datetime.timestamp(datetime.now()))
         self.tags = self._extract_tags(content)
-        self.tags |= tags if tags else set()
+        self.tags |= set(tags) if tags else set()
         self.content: str = content.replace("#", "")
 
     @staticmethod
@@ -153,16 +153,16 @@ class Notebook(Book, UserDict[int, Note]):
 
         return True
     
-    def _clean_tags(self, note: Note) -> int:
+    def _clean_tags(self, note_id: int) -> int:
         """The clean_tags method removes the IDs of a note
         from the list of the matching tag when the note is deleted.
         Parameters:
         argument_1(note_id: int) : value forwarded for deletion note's ID.
         """
         num_removed = 0
-        tags_to_remove = [tag for tag in self.tag_pool if note.note_id in self.tag_pool[tag]]
+        tags_to_remove = [tag for tag in self.tag_pool if note_id in self.tag_pool[tag]]
         for tag in tags_to_remove:
-            self.tag_pool[tag].remove(note.note_id)
+            self.tag_pool[tag].remove(note_id)
             num_removed += 1
             if not self.tag_pool[tag]:
                 del self.tag_pool[tag]

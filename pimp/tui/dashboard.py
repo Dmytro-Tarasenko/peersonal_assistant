@@ -88,7 +88,7 @@ class TodaysMates(Static):
         num_line = 1
         for mate in self.today_mates:
             cur_year = datetime.today().year
-            born_year = int(mate.birthday[-4:])
+            born_year = int(mate.birthday.local_str[-4:])
             age = str(cur_year - born_year)
             table.add_row(str(num_line), mate.name, age)
             num_line += 1
@@ -117,11 +117,11 @@ class UpcomingMates(Widget):
         num_line = 1
         for mate in self.upcoming_mates:
             cur_year = datetime.today().year
-            born_year = int(mate.birthday[-4:])
+            born_year = int(mate.birthday.local_str[-4:])
             age = str(cur_year - born_year)
             table.add_row(str(num_line),
                           mate.name,
-                          mate.birthday,
+                          mate.birthday.local_str,
                           age)
             num_line += 1
 

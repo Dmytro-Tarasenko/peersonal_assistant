@@ -1,6 +1,7 @@
 """
 Contacts widget
 """
+import datetime
 from typing import List
 
 from rich.console import RenderableType
@@ -14,13 +15,20 @@ from textual.widgets import (Static,
                              DataTable,
                              Label,
                              Input)
-from cls.AddressBook import Address, Record, AddressBook
+from cls.AddressBook import Address, Record, AddressBook, Birthday, Phone
 from cls.validators import (BirthdayValidator,
-                                EmailValidator,
-                                PhoneNumberValidator,
-                                NameValidator,
-                                ZipCodeValidator)
+                            EmailValidator,
+                            PhoneNumberValidator,
+                            NameValidator,
+                            ZipCodeValidator)
 from textual import on
+
+
+def _phones_str(phones):
+    if not phones:
+        return ""
+    phones_list = [i.number for i in phones]
+    return ", ".join(phones_list)
 
 
 class ContactDetails(Static):
@@ -39,11 +47,14 @@ class ContactDetails(Static):
     def render(self) -> RenderableType:
         self.get_record_info()
         if self.current_record:
+            addr = self.current_record.address
+            bd = self.current_record.birthday
+
             name = self.current_record.name
-            bday = self.current_record.birthday or "---"
-            address = self.current_record.address or "---"
+            bday = bd.local_str if bd else "---"
+            address = addr.as_string if addr else "---"
             email_ = self.current_record.email or "---"
-            phones = self.current_record.phones or "---"
+            phones = _phones_str(self.current_record.phones) or "---"
         else:
             name = bday = address = email_ = phones = "---"
         field_name_style = "bold italic #A2A2B5"
@@ -61,7 +72,7 @@ class ContactDetails(Static):
         text.append("\t" + str(address))
         text.append("\n\n")
         text.append("\tPhones: ", style=field_name_style)
-        text.append("\t" + ",".join(phones))
+        text.append("\t" + phones)
         return text
 
 
@@ -114,12 +125,14 @@ class ContatsList(Widget):
             self.records = self.app.query_one("Contacts").records
         line_num = 1
         for row in self.records:
+            bd = row.birthday.local_str if row.birthday else ""
+            addr = row.address.as_string if row.address else ""
             self.table.add_row(str(line_num),
                                row.name,
-                               row.birthday,
-                               row.address,
+                               bd,
+                               addr,
                                row.email,
-                               ",".join(row.phones),
+                               str(row.phones),
                                height=1,
                                key=row.name)
             line_num += 1
@@ -233,17 +246,17 @@ class ContactsViewControl(Widget):
                         field.value = name
                 case "phone_input":
                     if phones := record.phones:
-                        field.value = " ".join(phones)
+                        field.value = _phones_str(phones)
                 case "birthday_input":
-                    if birthday := record.birthday:
+                    if birthday := record.birthday.local_str:
                         field.value = birthday
                 case "email_input":
                     if email := record.email:
                         field.value = email
                 case "zipcode_input":
                     if address:
-                        if zip_code := address.zip_code:
-                            field.value = str(zip_code)
+                        if zip := address.zip:
+                            field.value = str(zip)
                 case "country_input":
                     if address:
                         if country := address.country:
@@ -313,6 +326,10 @@ class ContactsAdd(Static):
         self.widget_value_house = widget_value_house
         self.widget_value_apartment = widget_value_apartment
         self.address_book = address_book
+
+    @staticmethod
+    def _to_date(value: str) -> datetime.date:
+        return datetime.datetime.strptime(value, "%d-%m-%Y").date()
 
     def compose(self) -> ComposeResult:
         with Grid(id="cv_adder_editor"):
@@ -431,12 +448,12 @@ class ContactsAdd(Static):
                             severity='information', timeout=7)
                 record = Record(
                     name=name_widget,
-                    phones=[phone_widget] if phone_widget else None,
-                    birthday=birthday_widget if birthday_widget else None,
+                    phones=[Phone(number=phone_widget)] if phone_widget else None,
+                    birthday=Birthday(date=self._to_date(birthday_widget)) if birthday_widget else None,
                     email=email_widget if email_widget else None,
                     address=Address(
                         country=country_widget if country_widget else "",
-                        zip_code=zipcode_widget if zipcode_widget else "",
+                        zip=zipcode_widget if zipcode_widget else "",
                         city=city_widget if city_widget else "",
                         street=street_widget if street_widget else "",
                         house=house_widget if house_widget else "",

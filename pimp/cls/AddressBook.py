@@ -104,7 +104,7 @@ class Record(BaseModel):
     birthday: Optional[Birthday] = None
     email: Optional[EmailStr] = None
     address: Optional[Address] = None
-    phones: List[Phone] = []
+    phones: Optional[List[Phone]] = None
 
     def add_phone(self, value: Phone) -> bool:
         """
@@ -255,16 +255,18 @@ class AddressBook(Book, UserDict[str, Record]):
         """
         res = []
         for record in self.data.values():
-            if 1 <= record.birthday.days_to_birthday <= days:
-                res.append(record)
+            if record.birthday:
+                if 1 <= record.birthday.days_to_birthday <= days:
+                    res.append(record)
 
         return res
 
     def today_mates(self) -> List[Record]:
         res = []
         for record in self.data.values():
-            if record.birthday.days_to_birthday == 0:
-                res.append(record)
+            if record.birthday:
+                if record.birthday.days_to_birthday == 0:
+                    res.append(record)
         return res
 
     def find_record(self, search_params: List[str]) -> List[Record]:
