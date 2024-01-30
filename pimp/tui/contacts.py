@@ -546,8 +546,9 @@ class Contacts(Static):
     record_editor = ContactsAdd(id="contacts_editor")
 
     def compose(self) -> ComposeResult:
+        abook = AddressBook()
         """Composing main elements"""
-        self.records = list(self.app.address_book.data.values())
+        self.records = list(abook.data.values())
         if len(self.records) > 0:
             self.current_record = self.records[0]
         else:

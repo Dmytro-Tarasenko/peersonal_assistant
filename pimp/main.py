@@ -11,6 +11,7 @@ from textual.widgets import (Header,
                              TabbedContent,
                              TabPane)
 from pathlib import Path
+from copy import deepcopy
 
 from cls.NoteBook import Notebook
 from cls.AddressBook import AddressBook
@@ -46,10 +47,15 @@ class PersonalAssistant(App):
         """Loads data to use in app"""
         abook_bin = Path("data/addressbook.bin")
         notebook_bin = Path("data/notebook.bin")
+        self.notify(f"{id(self.address_book)}", severity="warning", timeout=10)
         if abook_bin.exists():
             with abook_bin.open('rb') as fin:
                 try:
-                    self.address_book = pickle.load(fin)
+                    tmp = pickle.load(fin)
+                    for rec in tmp.data.values():
+                        self.notify(f"{rec}", severity="error", timeout=15)
+                        self.address_book.add_record(rec)
+                    self.notify(f"{self.address_book}", severity="warning", timeout=10)
                 except Exception as err:
                     self.notify(f"{err}", severity="error", timeout=5)
                     self.address_book = AddressBook()
@@ -57,7 +63,7 @@ class PersonalAssistant(App):
         if notebook_bin.exists():
             with notebook_bin.open('rb') as fin:
                 try:
-                    self.note_book = pickle.load(fin)
+                    self.note_book = deepcopy(pickle.load(fin))
                 except Exception as err:
                     self.notify(f"notebook_trouble {err}", severity="error", timeout=5)
                     self.note_book = Notebook()
@@ -66,7 +72,10 @@ class PersonalAssistant(App):
         """Create childs for the application"""
         self.load_books()
         abook = AddressBook()
-        self.notify(f"{abook == self.address_book}", timeout=10)
+        abook2 = AddressBook()
+        self.notify(f"{id(self.address_book)}", timeout=10)
+        self.notify(f"{id(abook)}", timeout=10)
+        self.notify(f"{id(abook2)}", timeout=10)
         yield Header()
         yield Footer()
 
