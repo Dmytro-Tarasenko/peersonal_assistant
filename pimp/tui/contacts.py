@@ -151,6 +151,15 @@ class ContatsList(Widget):
 
 class ContactsViewControl(Widget):
     """Widget contains control element for contact filtering\\searchin"""
+    DEFAULT_CSS = """
+    Vertical{
+        overflow: auto;
+    }
+    
+    Button{
+        min-height: 3;
+    }
+    """
 
     def compose(self) -> ComposeResult:
         with Vertical(id="cv_controls"):
@@ -292,7 +301,7 @@ class ContactsViewControl(Widget):
         switcher: ContentSwitcher = self.app.query_one(Contacts).query_one(
             ContentSwitcher
         )
-        switcher.current = "contacts_adder"
+        switcher.current = "contacts_editor"
 
     def on_button_pressed(self, event: Button.Pressed) -> None:
         """Process Lookup button pressed"""
@@ -528,11 +537,13 @@ class ContactsAdd(Static):
 
 
 class Contacts(Static):
-    """Container widger for Contacts tab"""
+    """Container widget for Contacts tab"""
 
     current_record: Record = None
     records: List[Record] = []
     edit_flag = False
+    record_viewer = ContactsView(id="contacts_viewer")
+    record_editor = ContactsAdd(id="contacts_editor")
 
     def compose(self) -> ComposeResult:
         """Composing main elements"""
@@ -544,11 +555,11 @@ class Contacts(Static):
 
         with Horizontal(id="contacts_workspaces"):
             yield Button("View contacts", id="btn_contacts_viewer")
-            yield Button("Add\\Edit contacts", id="btn_contacts_adder")
+            yield Button("Add\\Edit contacts", id="btn_contacts_editor")
 
         with ContentSwitcher(initial="contacts_viewer", id="cs_contacts"):
-            yield ContactsView(id="contacts_viewer")
-            yield ContactsAdd(id="contacts_adder")
+            yield self.record_viewer
+            yield self.record_editor
 
     def on_button_pressed(self, event: Button.Pressed) -> None:
         """Switchin content by button presseed"""
