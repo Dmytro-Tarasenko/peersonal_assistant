@@ -39,8 +39,8 @@ class PersonalAssistant(App):
                 "tcss/notes.tcss",
                 "tcss/contacts.tcss"]
 
-    address_book = AddressBook()
-    note_book = Notebook()
+    address_book: AddressBook = AddressBook()
+    note_book: Notebook = Notebook()
 
     def load_books(self) -> None:
         """Loads data to use in app"""
@@ -65,6 +65,8 @@ class PersonalAssistant(App):
     def compose(self) -> ComposeResult:
         """Create childs for the application"""
         self.load_books()
+        abook = AddressBook()
+        self.notify(f"{abook == self.address_book}", timeout=10)
         yield Header()
         yield Footer()
 
