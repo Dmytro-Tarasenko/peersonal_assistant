@@ -47,15 +47,12 @@ class PersonalAssistant(App):
         """Loads data to use in app"""
         abook_bin = Path("data/addressbook.bin")
         notebook_bin = Path("data/notebook.bin")
-        self.notify(f"{id(self.address_book)}", severity="warning", timeout=10)
         if abook_bin.exists():
             with abook_bin.open('rb') as fin:
                 try:
-                    tmp = pickle.load(fin)
-                    for rec in tmp.data.values():
-                        self.notify(f"{rec}", severity="error", timeout=15)
+                    _ = pickle.load(fin)
+                    for rec in _.data.values():
                         self.address_book.add_record(rec)
-                    self.notify(f"{self.address_book}", severity="warning", timeout=10)
                 except Exception as err:
                     self.notify(f"{err}", severity="error", timeout=5)
                     self.address_book = AddressBook()
@@ -69,13 +66,8 @@ class PersonalAssistant(App):
                     self.note_book = Notebook()
 
     def compose(self) -> ComposeResult:
-        """Create childs for the application"""
+        """Create children for the application"""
         self.load_books()
-        abook = AddressBook()
-        abook2 = AddressBook()
-        self.notify(f"{id(self.address_book)}", timeout=10)
-        self.notify(f"{id(abook)}", timeout=10)
-        self.notify(f"{id(abook2)}", timeout=10)
         yield Header()
         yield Footer()
 

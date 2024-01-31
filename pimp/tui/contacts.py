@@ -269,11 +269,12 @@ class ContactsViewControl(Widget):
                     if phones := record.phones:
                         field.value = _phones_str(phones)
                 case "birthday_input":
-                    if birthday := record.birthday.local_str:
-                        field.value = birthday
+                    birthday = record.birthday.local_str\
+                        if record.birthday else ""
+                    field.value = birthday
                 case "email_input":
-                    if email := record.email:
-                        field.value = email
+                    email = record.email if record.email else ""
+                    field.value = email
                 case "zipcode_input":
                     if address:
                         if zip := address.zip:
