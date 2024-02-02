@@ -1,0 +1,15 @@
+FROM python:3.11.7-slim
+
+RUN mkdir /pimp
+ENV PIMP /pimp
+WORKDIR PIMP
+
+COPY pimp .
+
+RUN apt update \
+    && apt install -y pip \
+    && apt clean
+
+RUN pip install -r requirements.txt
+
+ENTRYPOINT ["python3", "main.py"]
