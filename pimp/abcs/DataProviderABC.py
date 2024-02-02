@@ -5,15 +5,7 @@ from typing import Any
 class DataProvider(ABC):
     @property
     @abstractmethod
-    def source_description(self) -> Any:
-        pass
-
-    @abstractmethod
-    def open(self) -> bool:
-        pass
-
-    @abstractmethod
-    def close(self) -> bool:
+    def source_description(self) -> dict:
         pass
 
     @abstractmethod
@@ -21,9 +13,9 @@ class DataProvider(ABC):
         pass
 
     @abstractmethod
-    def update_data(self) -> bool:
+    def write_data(self, data: Any) -> bool:
         pass
 
     @abstractmethod
-    def write_data(self) -> bool:
+    def update_data(self, data: Any) -> bool:
         pass

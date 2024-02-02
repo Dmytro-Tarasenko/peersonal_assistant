@@ -1,5 +1,5 @@
 """
-Personal_assistant is a personal manager for everyday tasks:
+Personal_assistant is a personal information manager for everyday tasks:
     keeping contacts - names, addresses, phone etc;
     remaindering of upcoming birthdays;
     keeping personal notes
@@ -51,11 +51,11 @@ class PersonalAssistant(App):
             with abook_bin.open('rb') as fin:
                 try:
                     _ = pickle.load(fin)
-                    for rec in _.data.values():
-                        self.address_book.add_record(rec)
                 except Exception as err:
                     self.notify(f"{err}", severity="error", timeout=5)
                     self.address_book = AddressBook()
+                for rec in _.data.values():
+                    self.address_book.add_record(rec)
 
         if notebook_bin.exists():
             with notebook_bin.open('rb') as fin:

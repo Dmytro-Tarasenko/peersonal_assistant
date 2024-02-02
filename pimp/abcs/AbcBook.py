@@ -37,31 +37,3 @@ class Book(ABC, metaclass=Singleton):
     @abstractmethod
     def iterator(self):
         pass
-
-class TestBook(Book, UserDict):
-    def add_record(self, record):
-        pass
-
-    def edit_record(self,
-                    old_record,
-                    new_record):
-        pass
-
-    def delete_record(self, record):
-        pass
-
-    def find_record(self, search_conditions):
-        pass
-
-    def iterator(self):
-        pass
-
-
-if __name__ == "__main__":
-    tb1 = TestBook()
-    tb2 = TestBook()
-
-    print(tb1)
-    print(tb2)
-
-    print(tb1 == tb2)
