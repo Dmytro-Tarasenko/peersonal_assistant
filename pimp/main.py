@@ -10,8 +10,6 @@ from textual.widgets import (Header,
                              Footer,
                              TabbedContent,
                              TabPane)
-from pathlib import Path
-from copy import deepcopy
 
 from cls.NoteBook import Notebook
 from cls.AddressBook import AddressBook
@@ -41,34 +39,25 @@ class PersonalAssistant(App):
                 "tcss/notes.tcss",
                 "tcss/contacts.tcss"]
 
-    config = PimpConfig()
-
-    def load_books(self) -> None:
-        """Loads data to use in app"""
-        abook_bin = Path("data/addressbook.bin")
-        notebook_bin = Path("data/notebook.bin")
-        if abook_bin.exists():
-            with abook_bin.open('rb') as fin:
-                try:
-                    _ = pickle.load(fin)
-                except Exception as err:
-                    self.notify(f"{err}", severity="error", timeout=5)
-                    self.address_book = AddressBook()
-                for rec in _.data.values():
-                    self.address_book.add_record(rec)
-
-        if notebook_bin.exists():
-            with notebook_bin.open('rb') as fin:
-                try:
-                    self.note_book = deepcopy(pickle.load(fin))
-                except Exception as err:
-                    self.notify(f"notebook_trouble {err}", severity="error", timeout=5)
-                    self.note_book = Notebook()
+    def __init__(
+            self,
+            driver_class=None,
+            css_path=None,
+            watch_css: bool = False,
+    ):
+        super().__init__(driver_class, css_path, watch_css)
+        self.address_book = None
+        self.note_book = None
+        self.config = PimpConfig()
 
     def compose(self) -> ComposeResult:
         """Create children for the application"""
         # self.load_books()
         self.config.read_config("config.yaml")
+
+        self.address_book: AddressBook = self.config.address_book
+        self.note_book: Notebook = self.config.note_book
+
         yield Header()
         yield Footer()
 

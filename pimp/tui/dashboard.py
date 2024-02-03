@@ -9,6 +9,8 @@ from textual.reactive import reactive
 from textual.widget import Widget
 from textual.widgets import Static, Label, Input, Button
 from datetime import datetime
+from cls.AddressBook import AddressBook
+from cls.NoteBook import Notebook
 
 from cls.PimpConfig import PimpConfig
 
@@ -40,7 +42,10 @@ class AddressBookStats(Widget):
     """
     Widget to display statistic of AddressBook and NoteBook
     """
-    address_book = PimpConfig().address_book
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        conf = PimpConfig()
+        self.address_book = conf.address_book
 
     def compose(self) -> ComposeResult:
         abook_len = len(self.address_book.data)
@@ -58,7 +63,10 @@ class NoteBookStats(Widget):
     """
     Widget to display statistic of AddressBook and NoteBook
     """
-    note_book = PimpConfig().note_book
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        conf = PimpConfig()
+        self.note_book = conf.note_book
 
     def compose(self) -> ComposeResult:
         nbook_len = len(self.note_book.data)
@@ -76,8 +84,10 @@ class TodaysMates(Static):
     """
     Displays today`s Birthday mates
     """
-    address_book = PimpConfig().address_book
-    today_mates = []
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.address_book: AddressBook = PimpConfig().address_book
+        self.today_mates = []
 
     def on_mount(self) -> None:
         self.styles.border = ("round", "#FFD900")
@@ -102,9 +112,11 @@ class TodaysMates(Static):
 
 class UpcomingMates(Widget):
     """Displays upcoming Birthday mates"""
-    days_to_watch = 5
-    upcoming_mates = []
-    address_book = PimpConfig().address_book
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.days_to_watch = 5
+        self.upcoming_mates = []
+        self.address_book: AddressBook = PimpConfig().address_book
 
     def on_mount(self) -> None:
         self.styles.border = ("round", "#FFD900")
