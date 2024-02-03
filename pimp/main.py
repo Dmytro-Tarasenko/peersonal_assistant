@@ -41,7 +41,7 @@ class PersonalAssistant(App):
                 "tcss/notes.tcss",
                 "tcss/contacts.tcss"]
 
-    config = PimpConfig("config.yaml")
+    config = PimpConfig()
 
     def load_books(self) -> None:
         """Loads data to use in app"""
@@ -67,7 +67,8 @@ class PersonalAssistant(App):
 
     def compose(self) -> ComposeResult:
         """Create children for the application"""
-        self.load_books()
+        # self.load_books()
+        self.config.read_config("config.yaml")
         yield Header()
         yield Footer()
 

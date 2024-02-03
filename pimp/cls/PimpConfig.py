@@ -28,11 +28,11 @@ class PimpConfig(metaclass=Configleton):
         {"file:pickle": PickleDataProvider.PickleDataProvider,
          "file:json": JsonDataProvider.JsonDataProvider}
 
-    def __init__(self, config_path) -> None:
-        super().__init__()
-        self.__read_config(config_path)
+    # def __init__(self, config_path=None) -> None:
+    #     super().__init__()
+    #     self.__read_config(config_path)
 
-    def __read_config(self, path):
+    def read_config(self, path):
         if Path(path).exists():
             with Path(path).open("r", encoding="utf-8") as fin:
                 config = yaml.safe_load(fin)

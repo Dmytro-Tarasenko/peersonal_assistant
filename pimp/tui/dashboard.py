@@ -10,6 +10,8 @@ from textual.widget import Widget
 from textual.widgets import Static, Label, Input, Button
 from datetime import datetime
 
+from cls.PimpConfig import PimpConfig
+
 
 class DateClock(Widget):
     """
@@ -38,15 +40,15 @@ class AddressBookStats(Widget):
     """
     Widget to display statistic of AddressBook and NoteBook
     """
+    address_book = PimpConfig().address_book
+
     def compose(self) -> ComposeResult:
-        app = self.app
-        abook_len = len(app.address_book.data)
+        abook_len = len(self.address_book.data)
         yield Label("AddressBook is loaded", classes="db_stats_title")
         yield Label(f"contains {abook_len} items", classes="db_stats_nums")
 
     def on_show(self) -> None:
-        app = self.app
-        abook_len = len(app.address_book.data)
+        abook_len = len(self.address_book.data)
         yield Label("AddressBook is loaded", classes="db_stats_title")
         yield Label(f"contains {abook_len} items", classes="db_stats_nums")
         self.refresh()
@@ -56,15 +58,15 @@ class NoteBookStats(Widget):
     """
     Widget to display statistic of AddressBook and NoteBook
     """
+    note_book = PimpConfig().note_book
+
     def compose(self) -> ComposeResult:
-        app = self.app
-        nbook_len = len(app.note_book.data)
+        nbook_len = len(self.note_book.data)
         yield Label("Notebook is loaded", classes="db_stats_title")
         yield Label(f"contains {nbook_len} items", classes="db_stats_nums")
 
     def on_show(self) -> ComposeResult:
-        app = self.app
-        nbook_len = len(app.note_book.data)
+        nbook_len = len(self.note_book.data)
         yield Label("Notebook is loaded", classes="db_stats_title")
         yield Label(f"contains {nbook_len} items", classes="db_stats_nums")
         self.refresh()
@@ -74,12 +76,14 @@ class TodaysMates(Static):
     """
     Displays today`s Birthday mates
     """
+    address_book = PimpConfig().address_book
     today_mates = []
+
     def on_mount(self) -> None:
         self.styles.border = ("round", "#FFD900")
 
     def render(self) -> RenderableType:
-        self.today_mates = self.app.address_book.today_mates()
+        self.today_mates = self.address_book.today_mates()
         table = Table(title="Today birthday mates")
         table.box = None
         table.add_column("#", justify="center", width=6)
@@ -100,12 +104,13 @@ class UpcomingMates(Widget):
     """Displays upcoming Birthday mates"""
     days_to_watch = 5
     upcoming_mates = []
+    address_book = PimpConfig().address_book
 
     def on_mount(self) -> None:
         self.styles.border = ("round", "#FFD900")
 
     def render(self) -> RenderableType:
-        self.upcoming_mates = (self.app.address_book
+        self.upcoming_mates = (self.address_book
                                .upcoming_mates(self.days_to_watch))
         title = f"Birthday mates upcoming in {self.days_to_watch}"
         table = Table(title=title)
