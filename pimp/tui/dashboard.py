@@ -44,8 +44,7 @@ class AddressBookStats(Widget):
     """
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        conf = PimpConfig()
-        self.address_book = conf.address_book
+        self.address_book = PimpConfig().address_book
 
     def compose(self) -> ComposeResult:
         abook_len = len(self.address_book.data)
@@ -65,8 +64,7 @@ class NoteBookStats(Widget):
     """
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        conf = PimpConfig()
-        self.note_book = conf.note_book
+        self.note_book: Notebook = PimpConfig().note_book
 
     def compose(self) -> ComposeResult:
         nbook_len = len(self.note_book.data)
