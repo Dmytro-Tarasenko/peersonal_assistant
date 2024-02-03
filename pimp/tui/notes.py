@@ -19,6 +19,8 @@ from textual.widgets import (Label,
 from cls.NoteBook import Note, Notebook
 from datetime import datetime
 
+from cls.PimpConfig import PimpConfig
+
 
 class NoteInput(Widget):
     """create note tab"""
@@ -299,12 +301,13 @@ class NotesView(Widget):
 
 class Notes(Static):
     """Parrent class"""
+    app_config = PimpConfig()
     notes: List[Note] = []
     current_note: Note = Note()
     edit_flag = False
 
     def compose(self):
-        self.notes = list(self.app.note_book.data.values())
+        self.notes = list(self.app_config.note_book.data.values())
         if len(self.notes) > 0:
             self.current_note = self.notes[0]
         else:

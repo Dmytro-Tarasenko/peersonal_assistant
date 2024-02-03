@@ -15,6 +15,7 @@ from copy import deepcopy
 
 from cls.NoteBook import Notebook
 from cls.AddressBook import AddressBook
+from cls.PimpConfig import PimpConfig
 from tui import contacts, sorter, notes, settings, dashboard
 import pickle
 
@@ -40,8 +41,7 @@ class PersonalAssistant(App):
                 "tcss/notes.tcss",
                 "tcss/contacts.tcss"]
 
-    address_book: AddressBook = AddressBook()
-    note_book: Notebook = Notebook()
+    config = PimpConfig("config.yaml")
 
     def load_books(self) -> None:
         """Loads data to use in app"""

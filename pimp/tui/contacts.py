@@ -20,6 +20,7 @@ from cls.validators import (
     ZipCodeValidator,
 )
 from textual import on
+from cls.PimpConfig import PimpConfig
 
 
 def _phones_str(phones):
@@ -539,7 +540,7 @@ class ContactsAdd(Static):
 
 class Contacts(Static):
     """Container widget for Contacts tab"""
-
+    app_config = PimpConfig()
     current_record: Record = None
     records: List[Record] = []
     edit_flag = False
@@ -547,9 +548,9 @@ class Contacts(Static):
     record_editor = ContactsAdd(id="contacts_editor")
 
     def compose(self) -> ComposeResult:
-        abook = AddressBook()
+
         """Composing main elements"""
-        self.records = list(abook.data.values())
+        self.records = list(self.app_config.address_book.data.values())
         if len(self.records) > 0:
             self.current_record = self.records[0]
         else:

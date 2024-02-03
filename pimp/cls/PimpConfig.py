@@ -32,16 +32,36 @@ class PimpConfig(metaclass=Configleton):
         super().__init__()
         self.__read_config(config_path)
 
-    @staticmethod
-    def __read_config(path):
+    def __read_config(self, path):
         if Path(path).exists():
             with Path(path).open("r", encoding="utf-8") as fin:
                 config = yaml.safe_load(fin)
-        print(config)
+            ab_section = config["AddressBook"]
+            nb_section = config["NoteBook"]
+
+            #TODO: remove after tests and in production variant
+            # ab_section["connection"] = "../" + ab_section["connection"]
+            # nb_section["connection"] = "../" + nb_section["connection"]
+
+            print(Path.cwd())
+            self.__address_book_dp = self.__data_providers[ab_section["provider"]](ab_section["connection"])
+            self.address_book = self.__address_book_dp.read_data()
+
+            self.__note_book_dp = self.__data_providers[nb_section["provider"]](nb_section["connection"])
+            self.note_book = self.__note_book_dp.read_data()
 
     def refresh_data(self):
         pass
 
 
 if __name__ == "__main__":
+    cwd_ = Path.cwd()/"../"
+    print(cwd_)
     pimp_config = PimpConfig(config_path="../config.yaml")
+    conf_2 = PimpConfig()
+
+    print(pimp_config.address_book.data)
+    print(conf_2.address_book.data)
+
+    print(pimp_config.note_book.data)
+    print(conf_2.note_book.data)
