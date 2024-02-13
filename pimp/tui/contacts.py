@@ -1,7 +1,6 @@
 """
 Contacts widget
 """
-
 import datetime
 from typing import List
 
@@ -11,6 +10,7 @@ from textual.app import ComposeResult
 from textual.containers import Horizontal, Vertical, Grid
 from textual.widget import Widget
 from textual.widgets import Static, Button, ContentSwitcher, DataTable, Label, Input
+from textual import on
 from cls.AddressBook import Address, Record, AddressBook, Birthday, Phone
 from cls.validators import (
     BirthdayValidator,
@@ -19,7 +19,6 @@ from cls.validators import (
     NameValidator,
     ZipCodeValidator,
 )
-from textual import on
 from cls.PimpConfig import PimpConfig
 
 
@@ -504,16 +503,16 @@ class Contacts(Static):
         else:
             self.current_record = None
 
-        with Horizontal(id="contacts_workspaces"):
-            yield Button("View contacts", id="btn_contacts_viewer")
-            yield Button("Add\\Edit contacts", id="btn_contacts_editor")
-
-        with ContentSwitcher(initial="contacts_viewer", id="cs_contacts"):
-            yield self.record_viewer
-            yield self.record_editor
+        yield Horizontal(Button("View contacts", id="btn_contacts_viewer"),
+                         Button("Add\\Edit contacts", id="btn_contacts_editor"),
+                         id="contacts_workspaces")
+        yield ContentSwitcher(self.record_viewer,
+                              self.record_editor,
+                              initial="contacts_viewer",
+                              id="cs_contacts")
 
     def on_button_pressed(self, event: Button.Pressed) -> None:
-        """Switchin content by button presseed"""
+        """Switching content by button pressed"""
         if event.button.id.startswith("btn_contacts_"):
             self.query_one(ContentSwitcher).current = event.button.id.split(
                 "_", maxsplit=1
