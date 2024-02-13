@@ -1,20 +1,14 @@
 [tool.poetry]
 name = "pimp"
-version = "0.1.0"
-description = ""
-authors = ["Dmytro Tarasenko <ug.dotenko@gmail.com>"]
+version = "0.0.2"
+description = "Personal Information Manager Pimped by textual and abstractions"
+authors = ["Dmytro-Tarasenko <ug.dotenko@gmail.com>"]
+license = "GNU GPL v.3"
 readme = "README.md"
 
 [tool.poetry.dependencies]
 python = "^3.11"
-textual = "^0.48.2"
-pydantic = {extras = ["email"], version = "^2.6.0"}
 pyyaml = "^6.0.1"
-
-
-[tool.poetry.group.dev.dependencies]
-mypy = "^1.8.0"
-pytest = "^8.0.0"
 
 [build-system]
 requires = ["poetry-core"]

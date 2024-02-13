@@ -1,0 +1,9 @@
+AddressBook:
+  provider: "file:pickle"
+  connection: "./data/addressbook.bin"
+  adapter:
+
+NoteBook:
+  provider: "file:pickle"
+  connection: "./data/notebook.bin"
+  adapter:

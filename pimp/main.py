@@ -1,6 +1,6 @@
 """
-Personal_assistant is a personal manager for everyday tasks:
-    keeping contacts - names, addresses, phone etc;
+Personal_assistant is a personal information manager for everyday tasks:
+    keeping contacts - names, addresses, phone etc.;
     remaindering of upcoming birthdays;
     keeping personal notes
 """
@@ -10,10 +10,10 @@ from textual.widgets import (Header,
                              Footer,
                              TabbedContent,
                              TabPane)
-from pathlib import Path
 
 from cls.NoteBook import Notebook
 from cls.AddressBook import AddressBook
+from cls.PimpConfig import PimpConfig
 from tui import contacts, sorter, notes, settings, dashboard
 import pickle
 
@@ -39,32 +39,23 @@ class PersonalAssistant(App):
                 "tcss/notes.tcss",
                 "tcss/contacts.tcss"]
 
-    address_book = AddressBook()
-    note_book = Notebook()
-
-    def load_books(self) -> None:
-        """Loads data to use in app"""
-        abook_bin = Path("data/addressbook.bin")
-        notebook_bin = Path("data/notebook.bin")
-        if abook_bin.exists():
-            with abook_bin.open('rb') as fin:
-                try:
-                    self.address_book = pickle.load(fin)
-                except Exception as err:
-                    self.notify(f"{err}", severity="error", timeout=5)
-                    self.address_book = AddressBook()
-
-        if notebook_bin.exists():
-            with notebook_bin.open('rb') as fin:
-                try:
-                    self.note_book = pickle.load(fin)
-                except Exception as err:
-                    self.notify(f"notebook_trouble {err}", severity="error", timeout=5)
-                    self.note_book = Notebook()
+    def __init__(
+            self,
+            driver_class=None,
+            css_path=None,
+            watch_css: bool = False,
+    ):
+        super().__init__(driver_class, css_path, watch_css)
+        self.address_book = None
+        self.note_book = None
+        self.config = PimpConfig()
 
     def compose(self) -> ComposeResult:
-        """Create childs for the application"""
-        self.load_books()
+        """Create children for the application"""
+        self.config.read_config("config.yaml")
+        self.address_book: AddressBook = self.config.address_book
+        self.note_book: Notebook = self.config.note_book
+
         yield Header()
         yield Footer()
 
@@ -83,13 +74,13 @@ class PersonalAssistant(App):
     def action_show_tab(self, tab_id: str) -> None:
         """
         Switching tabs by id
-        :param tab_id: identificator for tab user clicked or entered command
+        :param tab_id: identifier for tab user clicked or entered command
         :return: None
         """
         self.get_child_by_type(TabbedContent).active = tab_id
 
     def action_quit(self) -> None:
-        """Performes quit action"""
+        """Performs quit action"""
         with open("data/addressbook.bin", "wb") as ab_file:
             pickle.dump(self.address_book, ab_file)
         with open("data/notebook.bin", "wb") as nb_file:

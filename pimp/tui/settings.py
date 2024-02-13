@@ -4,7 +4,7 @@ Settings widget
 from textual.widgets import Markdown
 
 SETTINGS = """
-# Personal Assistant Command (за алфавітом)
+# Personal Assistant Team (за алфавітом)
 
 **Анжеліка Кодлубовська**
 

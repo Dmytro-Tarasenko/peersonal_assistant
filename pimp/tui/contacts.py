@@ -20,6 +20,7 @@ from cls.validators import (
     ZipCodeValidator,
 )
 from textual import on
+from cls.PimpConfig import PimpConfig
 
 
 def _phones_str(phones):
@@ -76,7 +77,6 @@ class ContactDetails(Static):
 
 class ContatsList(Widget):
     """Widget to display list of contacts"""
-
     records: List[Record] = []
     table = DataTable(classes="data_table", id="contacts_list")
 
@@ -89,18 +89,6 @@ class ContatsList(Widget):
         contacts.current_record = contacts.records[0]
         contacts_list.fill_the_table()
         table.refresh()
-        # line_num = 1
-        # for row in self.app.address_book.data.values():
-        #     table.add_row(
-        #         str(line_num),
-        #         row.name,
-        #         row.birthday,
-        #         row.address,
-        #         row.email,
-        #         row.phones,
-        #         height=1
-        #     )
-        #     line_num += 1
 
     def on_mount(self) -> None:
         self.styles.border_title_align = "left"
@@ -151,7 +139,6 @@ class ContatsList(Widget):
 
 class ContactsViewControl(Widget):
     """Widget contains control element for contact filtering\\searchin"""
-
     def compose(self) -> ComposeResult:
         with Vertical(id="cv_controls"):
             yield Label("Name\\part to lookup", classes="cv_input")
@@ -260,11 +247,12 @@ class ContactsViewControl(Widget):
                     if phones := record.phones:
                         field.value = _phones_str(phones)
                 case "birthday_input":
-                    if birthday := record.birthday.local_str:
-                        field.value = birthday
+                    birthday = record.birthday.local_str\
+                        if record.birthday else ""
+                    field.value = birthday
                 case "email_input":
-                    if email := record.email:
-                        field.value = email
+                    email = record.email if record.email else ""
+                    field.value = email
                 case "zipcode_input":
                     if address:
                         if zip := address.zip:
@@ -292,7 +280,7 @@ class ContactsViewControl(Widget):
         switcher: ContentSwitcher = self.app.query_one(Contacts).query_one(
             ContentSwitcher
         )
-        switcher.current = "contacts_adder"
+        switcher.current = "contacts_editor"
 
     def on_button_pressed(self, event: Button.Pressed) -> None:
         """Process Lookup button pressed"""
@@ -324,35 +312,6 @@ class ContactsView(Static):
 
 class ContactsAdd(Static):
     """Widget to add contact"""
-
-    def __init__(
-        self,
-        widget_value_name="",
-        widget_value_phone=None,
-        widget_value_birthday=None,
-        widget_value_email=None,
-        widget_value_zipcode=None,
-        widget_value_country=None,
-        widget_value_city=None,
-        widget_value_street=None,
-        widget_value_house=None,
-        widget_value_apartment=None,
-        address_book=AddressBook,
-        **kwargs,
-    ):
-        super().__init__(**kwargs)
-        self.widget_value_name = widget_value_name
-        self.widget_value_phone = widget_value_phone
-        self.widget_value_birthday = widget_value_birthday
-        self.widget_value_email = widget_value_email
-        self.widget_value_zipcode = widget_value_zipcode
-        self.widget_value_country = widget_value_country
-        self.widget_value_city = widget_value_city
-        self.widget_value_street = widget_value_street
-        self.widget_value_house = widget_value_house
-        self.widget_value_apartment = widget_value_apartment
-        self.address_book = address_book
-
     @staticmethod
     def _to_date(value: str) -> datetime.date:
         return datetime.datetime.strptime(value, "%d-%m-%Y").date()
@@ -528,15 +487,18 @@ class ContactsAdd(Static):
 
 
 class Contacts(Static):
-    """Container widger for Contacts tab"""
-
+    """Container widget for Contacts tab"""
+    app_config = PimpConfig()
     current_record: Record = None
     records: List[Record] = []
     edit_flag = False
+    record_viewer = ContactsView(id="contacts_viewer")
+    record_editor = ContactsAdd(id="contacts_editor")
 
     def compose(self) -> ComposeResult:
+
         """Composing main elements"""
-        self.records = list(self.app.address_book.data.values())
+        self.records = list(self.app_config.address_book.data.values())
         if len(self.records) > 0:
             self.current_record = self.records[0]
         else:
@@ -544,11 +506,11 @@ class Contacts(Static):
 
         with Horizontal(id="contacts_workspaces"):
             yield Button("View contacts", id="btn_contacts_viewer")
-            yield Button("Add\\Edit contacts", id="btn_contacts_adder")
+            yield Button("Add\\Edit contacts", id="btn_contacts_editor")
 
         with ContentSwitcher(initial="contacts_viewer", id="cs_contacts"):
-            yield ContactsView(id="contacts_viewer")
-            yield ContactsAdd(id="contacts_adder")
+            yield self.record_viewer
+            yield self.record_editor
 
     def on_button_pressed(self, event: Button.Pressed) -> None:
         """Switchin content by button presseed"""

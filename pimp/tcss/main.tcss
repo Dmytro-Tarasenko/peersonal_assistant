@@ -6,3 +6,7 @@ Screen{
 Vertical{
     margin-left: 2;
 }
+
+Button{
+    min-height: 3;
+}
