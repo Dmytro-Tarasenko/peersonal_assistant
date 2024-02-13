@@ -90,18 +90,6 @@ class ContatsList(Widget):
         contacts.current_record = contacts.records[0]
         contacts_list.fill_the_table()
         table.refresh()
-        # line_num = 1
-        # for row in self.app.address_book.data.values():
-        #     table.add_row(
-        #         str(line_num),
-        #         row.name,
-        #         row.birthday,
-        #         row.address,
-        #         row.email,
-        #         row.phones,
-        #         height=1
-        #     )
-        #     line_num += 1
 
     def on_mount(self) -> None:
         self.styles.border_title_align = "left"
@@ -152,16 +140,6 @@ class ContatsList(Widget):
 
 class ContactsViewControl(Widget):
     """Widget contains control element for contact filtering\\searchin"""
-    DEFAULT_CSS = """
-    Vertical{
-        overflow: auto;
-    }
-    
-    Button{
-        min-height: 3;
-    }
-    """
-
     def compose(self) -> ComposeResult:
         with Vertical(id="cv_controls"):
             yield Label("Name\\part to lookup", classes="cv_input")
@@ -335,35 +313,6 @@ class ContactsView(Static):
 
 class ContactsAdd(Static):
     """Widget to add contact"""
-
-    def __init__(
-        self,
-        widget_value_name="",
-        widget_value_phone=None,
-        widget_value_birthday=None,
-        widget_value_email=None,
-        widget_value_zipcode=None,
-        widget_value_country=None,
-        widget_value_city=None,
-        widget_value_street=None,
-        widget_value_house=None,
-        widget_value_apartment=None,
-        address_book=AddressBook,
-        **kwargs,
-    ):
-        super().__init__(**kwargs)
-        self.widget_value_name = widget_value_name
-        self.widget_value_phone = widget_value_phone
-        self.widget_value_birthday = widget_value_birthday
-        self.widget_value_email = widget_value_email
-        self.widget_value_zipcode = widget_value_zipcode
-        self.widget_value_country = widget_value_country
-        self.widget_value_city = widget_value_city
-        self.widget_value_street = widget_value_street
-        self.widget_value_house = widget_value_house
-        self.widget_value_apartment = widget_value_apartment
-        self.address_book = address_book
-
     @staticmethod
     def _to_date(value: str) -> datetime.date:
         return datetime.datetime.strptime(value, "%d-%m-%Y").date()
