@@ -77,7 +77,6 @@ class ContactDetails(Static):
 
 class ContatsList(Widget):
     """Widget to display list of contacts"""
-
     records: List[Record] = []
     table = DataTable(classes="data_table", id="contacts_list")
 

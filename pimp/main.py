@@ -1,6 +1,6 @@
 """
 Personal_assistant is a personal information manager for everyday tasks:
-    keeping contacts - names, addresses, phone etc;
+    keeping contacts - names, addresses, phone etc.;
     remaindering of upcoming birthdays;
     keeping personal notes
 """
@@ -52,9 +52,7 @@ class PersonalAssistant(App):
 
     def compose(self) -> ComposeResult:
         """Create children for the application"""
-        # self.load_books()
         self.config.read_config("config.yaml")
-
         self.address_book: AddressBook = self.config.address_book
         self.note_book: Notebook = self.config.note_book
 
@@ -76,13 +74,13 @@ class PersonalAssistant(App):
     def action_show_tab(self, tab_id: str) -> None:
         """
         Switching tabs by id
-        :param tab_id: identificator for tab user clicked or entered command
+        :param tab_id: identifier for tab user clicked or entered command
         :return: None
         """
         self.get_child_by_type(TabbedContent).active = tab_id
 
     def action_quit(self) -> None:
-        """Performes quit action"""
+        """Performs quit action"""
         with open("data/addressbook.bin", "wb") as ab_file:
             pickle.dump(self.address_book, ab_file)
         with open("data/notebook.bin", "wb") as nb_file:
