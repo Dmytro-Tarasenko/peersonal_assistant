@@ -19,7 +19,7 @@ from textual.widgets import (Label,
 from cls.NoteBook import Note, Notebook
 from datetime import datetime
 
-from cls.PimpConfig import PimpConfig
+from cls.PimpEnvironment import PimpEnvironment
 
 
 class NoteInput(Widget):
@@ -301,7 +301,7 @@ class NotesView(Widget):
 
 class Notes(Static):
     """Parrent class"""
-    app_config = PimpConfig()
+    app_config = PimpEnvironment()
     notes: List[Note] = []
     current_note: Note = Note()
     edit_flag = False

@@ -13,7 +13,7 @@ from textual.widgets import (Header,
 
 from cls.NoteBook import Notebook
 from cls.AddressBook import AddressBook
-from cls.PimpConfig import PimpConfig
+from cls.PimpEnvironment import PimpEnvironment
 from tui import contacts, sorter, notes, settings, dashboard
 import pickle
 
@@ -48,7 +48,7 @@ class PersonalAssistant(App):
         super().__init__(driver_class, css_path, watch_css)
         self.address_book = None
         self.note_book = None
-        self.config = PimpConfig()
+        self.config = PimpEnvironment()
 
     def compose(self) -> ComposeResult:
         """Create children for the application"""

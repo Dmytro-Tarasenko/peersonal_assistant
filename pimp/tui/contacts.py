@@ -1,6 +1,4 @@
-"""
-Contacts widget
-"""
+"""Contacts widget."""
 import datetime
 from typing import List
 
@@ -19,7 +17,7 @@ from cls.validators import (
     NameValidator,
     ZipCodeValidator,
 )
-from cls.PimpConfig import PimpConfig
+from cls.PimpEnvironment import PimpEnvironment
 
 
 def _phones_str(phones):
@@ -127,17 +125,21 @@ class ContatsList(Widget):
     def compose(self) -> ComposeResult:
         yield self.table
 
-    def on_data_table_row_selected(self, row_info: DataTable.RowSelected) -> None:
+    def on_data_table_row_selected(self, row_info: DataTable.RowSelected)\
+            -> None:
         contacts_wdgt: Contacts = self.app.query_one("Contacts")
         address_book: AddressBook = self.app.address_book
-        contacts_wdgt.current_record = address_book.data[row_info.row_key.value]
-        details_wdgt: ContactDetails = self.parent.query_one("#contact_details_wdgt")
+        contacts_wdgt.current_record =\
+            address_book.data[row_info.row_key.value]
+        details_wdgt: ContactDetails =\
+            self.parent.query_one("#contact_details_wdgt")
         details_wdgt.get_record_info()
         details_wdgt.update()
 
 
 class ContactsViewControl(Widget):
     """Widget contains control element for contact filtering\\searchin"""
+
     def compose(self) -> ComposeResult:
         with Vertical(id="cv_controls"):
             yield Label("Name\\part to lookup", classes="cv_input")
@@ -373,12 +375,12 @@ class ContactsAdd(Static):
                 Input(placeholder="Enter street...", id="street_input"),
             )
             yield Vertical(
-                Label("Enter user`s № house"),
-                Input(placeholder="Enter № house...", id="house_input"),
+                Label("Enter user`s # house"),
+                Input(placeholder="Enter # house...", id="house_input"),
             )
             yield Vertical(
-                Label("Enter user`s № apartment"),
-                Input(placeholder="Enter № apartment...", id="apartment_input"),
+                Label("Enter user`s # apartment"),
+                Input(placeholder="Enter # apartment...", id="apartment_input"),
             )
 
         yield Button(label="Submit info", id="add_info")
@@ -455,7 +457,8 @@ class ContactsAdd(Static):
                 )
                 record = Record(
                     name=name_widget,
-                    phones=[Phone(number=phone_widget)] if phone_widget else None,
+                    phones=[Phone(number=phone_widget)
+                            ] if phone_widget else None,
                     birthday=(
                         Birthday(date=self._to_date(birthday_widget))
                         if birthday_widget
@@ -487,7 +490,7 @@ class ContactsAdd(Static):
 
 class Contacts(Static):
     """Container widget for Contacts tab"""
-    app_config = PimpConfig()
+    app_config = PimpEnvironment()
     current_record: Record = None
     records: List[Record] = []
     edit_flag = False
@@ -495,7 +498,6 @@ class Contacts(Static):
     record_editor = ContactsAdd(id="contacts_editor")
 
     def compose(self) -> ComposeResult:
-
         """Composing main elements"""
         self.records = list(self.app_config.address_book.data.values())
         if len(self.records) > 0:
@@ -504,7 +506,8 @@ class Contacts(Static):
             self.current_record = None
 
         yield Horizontal(Button("View contacts", id="btn_contacts_viewer"),
-                         Button("Add\\Edit contacts", id="btn_contacts_editor"),
+                         Button("Add\\Edit contacts",
+                                id="btn_contacts_editor"),
                          id="contacts_workspaces")
         yield ContentSwitcher(self.record_viewer,
                               self.record_editor,

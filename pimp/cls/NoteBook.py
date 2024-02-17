@@ -2,7 +2,7 @@ from collections import UserDict
 from typing import List, Dict, Set
 import re
 from datetime import datetime
-from abcs.AbcBook import Book
+from interfaces.AbcBook import Book
 
 
 class Note:

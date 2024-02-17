@@ -12,7 +12,7 @@ from datetime import datetime
 from cls.AddressBook import AddressBook
 from cls.NoteBook import Notebook
 
-from cls.PimpConfig import PimpConfig
+from cls.PimpEnvironment import PimpEnvironment
 
 
 class DateClock(Widget):
@@ -44,7 +44,7 @@ class AddressBookStats(Widget):
     """
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.address_book = PimpConfig().address_book
+        self.address_book = PimpEnvironment().address_book
 
     def compose(self) -> ComposeResult:
         abook_len = len(self.address_book.data)
@@ -64,7 +64,7 @@ class NoteBookStats(Widget):
     """
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.note_book: Notebook = PimpConfig().note_book
+        self.note_book: Notebook = PimpEnvironment().note_book
 
     def compose(self) -> ComposeResult:
         nbook_len = len(self.note_book.data)
@@ -84,7 +84,7 @@ class TodaysMates(Static):
     """
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.address_book: AddressBook = PimpConfig().address_book
+        self.address_book: AddressBook = PimpEnvironment().address_book
         self.today_mates = []
 
     def on_mount(self) -> None:
@@ -114,7 +114,7 @@ class UpcomingMates(Widget):
         super().__init__(*args, **kwargs)
         self.days_to_watch = 5
         self.upcoming_mates = []
-        self.address_book: AddressBook = PimpConfig().address_book
+        self.address_book: AddressBook = PimpEnvironment().address_book
 
     def on_mount(self) -> None:
         self.styles.border = ("round", "#FFD900")

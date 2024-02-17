@@ -2,12 +2,12 @@ from typing import Dict
 from pathlib import Path
 from cls.AddressBook import AddressBook
 from cls.NoteBook import Notebook
-from abcs.DataProviderABC import DataProvider
+from interfaces.DataProviderABC import DataProvider
 from data_providers import PickleDataProvider, JsonDataProvider
 import yaml
 
 
-class Configleton(type):
+class Environmenton(type):
     _instances = {}
 
     def __call__(self, *args, **kwargs):
@@ -16,7 +16,7 @@ class Configleton(type):
         return self._instances[self]
 
 
-class PimpConfig(metaclass=Configleton):
+class PimpEnvironment(metaclass=Environmenton):
     """Main config storage for all app`s needs"""
     address_book: AddressBook = None
     note_book: Notebook = None
@@ -53,8 +53,8 @@ class PimpConfig(metaclass=Configleton):
 if __name__ == "__main__":
     cwd_ = Path.cwd()/"../"
     print(cwd_)
-    pimp_config = PimpConfig(config_path="../config.yaml")
-    conf_2 = PimpConfig()
+    pimp_config = PimpEnvironment(config_path="../config.yaml")
+    conf_2 = PimpEnvironment()
 
     print(pimp_config.address_book.data)
     print(conf_2.address_book.data)
