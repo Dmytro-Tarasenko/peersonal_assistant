@@ -35,15 +35,14 @@ class PimpEnvironment(metaclass=Environmenton):
             ab_section = config["AddressBook"]
             nb_section = config["NoteBook"]
 
-            #TODO: remove after tests and in production variant
-            # ab_section["connection"] = "../" + ab_section["connection"]
-            # nb_section["connection"] = "../" + nb_section["connection"]
-
-            print(Path.cwd())
-            self.__address_book_dp = self.__data_providers[ab_section["provider"]](ab_section["connection"])
+            dp = ab_section["provider"]
+            con = ab_section["connection"]
+            self.__address_book_dp = self.__data_providers[dp](con)
             self.address_book = self.__address_book_dp.read_data()
 
-            self.__note_book_dp = self.__data_providers[nb_section["provider"]](nb_section["connection"])
+            dp = nb_section["provider"]
+            con = nb_section["connection"]
+            self.__note_book_dp = self.__data_providers[dp](con)
             self.note_book = self.__note_book_dp.read_data()
 
     def refresh_data(self):
