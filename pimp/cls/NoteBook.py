@@ -68,9 +68,17 @@ class Notebook(Book, UserDict[int, Note]):
         """
         item - note_id
         """
-        if item in self.data:
-            return self.data.get(item)
-        return None
+        for _ in range(self.records_quantity):
+            yield self.get_records(_, 1)[0]
+
+    def get_records(self, start: int = 0, limit: int = 5):
+        """The get_records method returns a list of notes with the specified range.
+        Parameters:
+            start (int) : The start of the range.
+            limit (int) : The end of the range.
+        Returns:
+            List[Note]:Returning value"""
+        return list(self.data.values())[start:start+limit]
 
     def add_record(self, note: Note) -> bool:
         """The add_note method creates a new note,
@@ -81,6 +89,7 @@ class Notebook(Book, UserDict[int, Note]):
         if _ := self.data.get(note.note_id):
             raise KeyError("note_exists")
         self.data[note.note_id] = note
+        Notebook.record_counter += 1
         self._update_tag_pool(note)
         return True
         
@@ -92,6 +101,7 @@ class Notebook(Book, UserDict[int, Note]):
         if _ := self.data.get(del_note.note_id):
             self._clean_tags(del_note.note_id)
             self.data.pop(del_note.note_id)
+            Notebook.record_counter -= 1
 
     def edit_record(self,
                     old_note: Note,
