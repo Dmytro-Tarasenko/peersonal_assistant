@@ -100,6 +100,7 @@ class Record(BaseModel):
     model_config = ConfigDict(coerce_numbers_to_str=True,
                               validate_assignment=True)
 
+    id: int = 0
     name: str
     birthday: Optional[Birthday] = None
     email: Optional[EmailStr] = None
@@ -203,15 +204,30 @@ class Record(BaseModel):
         )
 
 
-class AddressBook(Book, UserDict[str, Record]):
+class AddressBook(Book, UserDict[int, Record]):
     """Class representing an address book."""
     def __getitem__(self, name: str) -> Record | None:
-        if name in self.data:
-            return self.data.get(name)
+        """Return a record from the address book by name."""
+        for record in self.data.values():
+            if record.name == name:
+                return record
 
     def iterator(self) -> Record:
         """Return an iterator over the records in the address book."""
-        yield self.data.values()
+        for _ in range(self.records_quantity):
+            yield self.get_records(_, 1)[0]
+
+    def get_records(self, start: int = 0, limit: int = 5) -> List[Record]:
+        """Return a list of records from the address book.
+
+        Args:
+            start (int): The start index.
+            limit (int): The quantity of records.
+
+        Returns:
+            List[Record]: A list of records from the address book.
+        """
+        return list(self.data.values())[start: start + limit]
 
     def add_record(self, record: Record) -> bool:
         """Додайте новий запис до адресної книги.
@@ -219,33 +235,38 @@ class AddressBook(Book, UserDict[str, Record]):
         Args:
             record (Record): The record to be added.
         """
-        if not self.data.get(record.name):
-            self.data[record.name] = record
+        if not self.get(record.name):
+            AddressBook.record_counter += 1
+            AddressBook.record_id += 1
+            record.id = AddressBook.record_id
+            self.data[record.id] = record
             return True
 
         raise KeyError(f"Record {record.name} already exists")
 
     def edit_record(self,
                     old_record: Record,
-                    new_record: Record) -> None:
+                    new_record: Record) -> bool:
         """Edit an existing record in the address book.
         Args:
             old_record (Record): The current record to be edited.
             new_record (Record): The new record.
         """
-        if old_record.name in self.data:
-            self.data.pop[old_record.name]
-            self.add_record(new_record)
+        if old_record.id in self.data:
+            new_record.id = old_record.id
+            self.data[new_record.id] = new_record
+            return True
         else:
             raise ValueError("no_such_record")
 
-    def delete_record(self, name: str) -> None:
+    def delete_record(self, record: Record) -> None:
         """Delete a record from the address book.
         Args:
-            name (str): name of record to delete.
+            record (Record): The record to delete.
         """
-        if name in self.data:
-            self.data.pop(name)
+        if record.id in self.data:
+            self.data.pop(record.id)
+            AddressBook.record_counter -= 1
         else:
             raise ValueError("no_such_record")
 

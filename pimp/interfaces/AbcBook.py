@@ -16,6 +16,14 @@ class Singleton(ABCMeta, type):
 
 
 class Book(ABC, metaclass=Singleton):
+    """Abstract base class for book storage."""
+    record_counter: int = 0
+    record_id: int = 0
+
+    @property
+    def records_quantity(self):
+        return self.record_counter
+
     @abstractmethod
     def add_record(self, record):
         pass
@@ -36,4 +44,8 @@ class Book(ABC, metaclass=Singleton):
 
     @abstractmethod
     def iterator(self):
+        pass
+
+    @abstractmethod
+    def get_records(self, start: int, limit: int):
         pass

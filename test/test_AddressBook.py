@@ -50,3 +50,30 @@ rec.phones = [Phone(number=5869471425)]
 rec.email = "vista@rio.cv"
 
 ab.add_record(rec)
+
+assert ab.record_counter == 3
+assert ab.record_id == 3
+
+ab.delete_record(rec)
+ab.add_record(rec)
+
+assert ab.records_quantity == 3
+assert ab.record_id == 4
+
+ab.delete_record(rec)
+ab.add_record(rec)
+
+assert ab.record_id == rec.id == 5
+
+rec1 = Record(name="Gustavo Gaviria")
+rec1.address = rec.address
+rec1.phones = rec.phones
+rec1.birthday = rec.birthday
+
+assert ab.data[5].name != rec1.name
+
+ab.edit_record(rec, rec1)
+
+assert ab.data[5].name == rec1.name
+assert ab.records_quantity == 3
+assert ab.record_id == 5
