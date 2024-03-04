@@ -2,6 +2,7 @@
 from pimp.cls.AddressBook import AddressBook, Record, Birthday, Address, Phone
 from datetime import datetime
 import pytest
+import json
 
 ab = AddressBook()
 
@@ -77,3 +78,4 @@ ab.edit_record(rec, rec1)
 assert ab.data[5].name == rec1.name
 assert ab.records_quantity == 3
 assert ab.record_id == 5
+

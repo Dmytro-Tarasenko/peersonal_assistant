@@ -1,5 +1,5 @@
 from collections import UserDict
-from typing import List, Optional
+from typing import List, Optional, Generator
 from datetime import datetime
 from pydantic import (BaseModel,
                       EmailStr,
@@ -64,7 +64,7 @@ class Phone(BaseModel):
     def phones_valid(cls, value: str) -> str:
         if not value.isdigit() or len(value) != 10:
             raise PhoneNumberError(value=value,
-                                   message=(f"{value} is not valid. Phone number "
+                                   message=(f"{value} is not valid. Phone "
                                             + "should consist of 10 digits."))
 
         return value
@@ -91,6 +91,9 @@ class Birthday(BaseModel):
                                   month=self.date.month,
                                   year=cur_year+1).date()
         return (bday_to_be - datetime.today().date()).days
+
+    def __dict__(self):
+        return {"date": self.date.strftime("%d-%m-%Y")}
 
 
 class Record(BaseModel):
@@ -212,7 +215,7 @@ class AddressBook(Book, UserDict[int, Record]):
             if record.name == name:
                 return record
 
-    def iterator(self) -> Record:
+    def iterator(self) -> Generator[Record, None, None]:
         """Return an iterator over the records in the address book."""
         for _ in range(self.records_quantity):
             yield self.get_records(_, 1)[0]
@@ -241,7 +244,6 @@ class AddressBook(Book, UserDict[int, Record]):
             record.id = AddressBook.record_id
             self.data[record.id] = record
             return True
-
         raise KeyError(f"Record {record.name} already exists")
 
     def edit_record(self,
@@ -270,8 +272,9 @@ class AddressBook(Book, UserDict[int, Record]):
         else:
             raise ValueError("no_such_record")
 
-    def upcoming_mates(self, days: int) -> List[Record]:
-        """Return a list of contacts with birthdays upcoming from tomorrow to 7 days ahead.
+    def upcoming_mates(self, days: int = 7) -> List[Record]:
+        """Return a list of contacts with birthdays upcoming from 
+        tomorrow to 7 days ahead.
         Returns: List[Record]: List of records with upcoming birthdays.
         """
         res = []
@@ -279,7 +282,6 @@ class AddressBook(Book, UserDict[int, Record]):
             if record.birthday:
                 if 1 <= record.birthday.days_to_birthday <= days:
                     res.append(record)
-
         return res
 
     def today_mates(self) -> List[Record]:
@@ -318,5 +320,4 @@ class AddressBook(Book, UserDict[int, Record]):
                 if re.search(search_expr, record.search_str, re.I):
                     results.append(record)
                     break
-
         return results

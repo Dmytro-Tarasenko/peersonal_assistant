@@ -26,26 +26,31 @@ class Book(ABC, metaclass=Singleton):
 
     @abstractmethod
     def add_record(self, record):
+        """Create."""
+        pass
+
+    @abstractmethod
+    def get_records(self, start: int, limit: int):
+        """Read."""
         pass
 
     @abstractmethod
     def edit_record(self,
                     old_record,
                     new_record):
+        """Update."""
         pass
 
     @abstractmethod
     def delete_record(self, record):
+        """Delete."""
         pass
 
     @abstractmethod
     def find_record(self, search_conditions):
+        """Read (find)."""
         pass
 
     @abstractmethod
     def iterator(self):
-        pass
-
-    @abstractmethod
-    def get_records(self, start: int, limit: int):
         pass

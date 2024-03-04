@@ -1,4 +1,4 @@
-from abcs.DataProviderABC import DataProvider
+from interfaces.DataProviderABC import DataProvider
 from pathlib import Path
 from typing import Any
 from pickle import load, dump

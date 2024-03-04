@@ -1,6 +1,7 @@
 from pimp.cls.AddressBook import Record, Phone, Birthday, Address
 from datetime import datetime
 import pytest
+import json
 
 rec = Record(name="Vasyl Petrenko")
 rec.birthday = Birthday(date=(datetime.strptime("13-01-1930", "%d-%m-%Y").date()))

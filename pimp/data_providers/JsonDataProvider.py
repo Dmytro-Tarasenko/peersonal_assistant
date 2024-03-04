@@ -1,17 +1,28 @@
 from typing import Any
+from pathlib import Path
 from json import load, dump
 
-from abcs.DataProviderABC import DataProvider
+from interfaces.DataProviderABC import DataProvider
 
 
 class JsonDataProvider(DataProvider):
     """Provides read/write operation with json.load/json.dump"""
+    def __init__(self, path) -> None:
+        self.__connection = Path(path)
+        self.source = "file:json"
+
     @property
     def source_description(self) -> dict:
-        return dict()
+        return {"connection": self.__connection,
+                "source": self.source}
 
     def read_data(self) -> Any:
-        pass
+        with self.__connection.open("r") as fin:
+            try:
+                obj = load(fin)
+                return obj
+            except Exception as err:
+                return err
 
     def update_data(self, data: Any) -> bool:
         return True
