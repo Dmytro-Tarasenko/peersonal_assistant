@@ -4,6 +4,7 @@ Personal_assistant is a personal information manager for everyday tasks:
     remaindering of upcoming birthdays;
     keeping personal notes
 """
+import pickle
 from textual.app import App, ComposeResult
 from textual.binding import Binding
 from textual.widgets import (Header,
@@ -15,7 +16,7 @@ from cls.NoteBook import Notebook
 from cls.AddressBook import AddressBook
 from cls.PimpEnvironment import PimpEnvironment
 from tui import contacts, sorter, notes, settings, dashboard
-import pickle
+
 
 
 class PersonalAssistant(App):
