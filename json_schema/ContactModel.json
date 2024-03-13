@@ -1,0 +1,139 @@
+{
+   "$defs": {
+      "AddressModel": {
+         "properties": {
+            "addr_string": {
+               "anyOf": [
+                  {
+                     "type": "string"
+                  },
+                  {
+                     "type": "null"
+                  }
+               ],
+               "default": null,
+               "title": "Addr String"
+            },
+            "city": {
+               "anyOf": [
+                  {
+                     "type": "string"
+                  },
+                  {
+                     "type": "null"
+                  }
+               ],
+               "default": null,
+               "title": "City"
+            },
+            "country": {
+               "anyOf": [
+                  {
+                     "type": "string"
+                  },
+                  {
+                     "type": "null"
+                  }
+               ],
+               "default": null,
+               "title": "Country"
+            },
+            "zip": {
+               "anyOf": [
+                  {
+                     "maxLength": 6,
+                     "minLength": 4,
+                     "type": "string"
+                  },
+                  {
+                     "type": "null"
+                  }
+               ],
+               "default": null,
+               "title": "Zip"
+            }
+         },
+         "title": "AddressModel",
+         "type": "object"
+      },
+      "PhoneModel": {
+         "properties": {
+            "phone": {
+               "maxLength": 12,
+               "minLength": 6,
+               "pattern": "^\\d{6,12}$",
+               "title": "Phone",
+               "type": "string"
+            }
+         },
+         "required": [
+            "phone"
+         ],
+         "title": "PhoneModel",
+         "type": "object"
+      }
+   },
+   "properties": {
+      "name": {
+         "title": "Name",
+         "type": "string"
+      },
+      "email": {
+         "anyOf": [
+            {
+               "format": "email",
+               "type": "string"
+            },
+            {
+               "type": "null"
+            }
+         ],
+         "default": null,
+         "title": "Email"
+      },
+      "birthdate": {
+         "anyOf": [
+            {
+               "format": "date",
+               "type": "string"
+            },
+            {
+               "type": "null"
+            }
+         ],
+         "default": null,
+         "title": "Birthdate"
+      },
+      "phones": {
+         "anyOf": [
+            {
+               "items": {
+                  "$ref": "#/$defs/PhoneModel"
+               },
+               "type": "array"
+            },
+            {
+               "type": "null"
+            }
+         ],
+         "default": [],
+         "title": "Phones"
+      },
+      "address": {
+         "anyOf": [
+            {
+               "$ref": "#/$defs/AddressModel"
+            },
+            {
+               "type": "null"
+            }
+         ],
+         "default": null
+      }
+   },
+   "required": [
+      "name"
+   ],
+   "title": "ContactModel",
+   "type": "object"
+}

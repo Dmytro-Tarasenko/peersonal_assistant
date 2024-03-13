@@ -2,8 +2,8 @@ from typing import Dict
 from pathlib import Path
 from cls.AddressBook import AddressBook
 from cls.NoteBook import Notebook
-from interfaces.DataProviderABC import DataProvider
-from data_providers import PickleDataProvider, JsonDataProvider
+from interfaces.StorageABC import Storage
+from data_providers import PickleStorage, JsonStorage
 import yaml
 
 
@@ -21,12 +21,12 @@ class PimpEnvironment(metaclass=Environmenton):
     address_book: AddressBook = None
     note_book: Notebook = None
 
-    __address_book_dp: DataProvider = None
-    __note_book_dp: DataProvider = None
+    __address_book_dp: Storage = None
+    __note_book_dp: Storage = None
 
-    __data_providers: Dict[str, DataProvider] = \
-        {"file:pickle": PickleDataProvider.PickleDataProvider,
-         "file:json": JsonDataProvider.JsonDataProvider}
+    __data_providers: Dict[str, Storage] = \
+        {"file:pickle": PickleDataProvider.PickleStorage,
+         "file:json": JsonDataProvider.JsonStorage}
 
     def read_config(self, path):
         if Path(path).exists():

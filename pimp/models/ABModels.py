@@ -5,7 +5,6 @@ from pydantic import (
     PastDate,
 )
 from typing import Optional, List
-from fastapi.encoders import jsonable_encoder
 
 
 class AddressModel(BaseModel):
@@ -74,3 +73,5 @@ if __name__ == "__main__":
     print(old_address)
     old_address = update_model(old_address, new_addr)
     print(old_address)
+
+    print(contact.model_json_schema())

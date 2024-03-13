@@ -1,10 +1,10 @@
-from interfaces.DataProviderABC import DataProvider
+from interfaces.StorageABC import Storage
 from pathlib import Path
 from typing import Any
 from pickle import load, dump
 
 
-class PickleDataProvider(DataProvider):
+class PickleStorage(Storage):
     """Provides read/write operation with pickle.load/pickle.dump"""
     def __init__(self, path) -> None:
         self.__connection = Path(path)

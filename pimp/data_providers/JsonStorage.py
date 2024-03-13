@@ -2,10 +2,10 @@ from typing import Any
 from pathlib import Path
 from json import load, dump
 
-from interfaces.DataProviderABC import DataProvider
+from interfaces.StorageABC import Storage
 
 
-class JsonDataProvider(DataProvider):
+class JsonStorage(Storage):
     """Provides read/write operation with json.load/json.dump"""
     def __init__(self, path) -> None:
         self.__connection = Path(path)

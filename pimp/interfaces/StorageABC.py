@@ -2,7 +2,7 @@ from abc import ABC, abstractmethod
 from typing import Any
 
 
-class DataProvider(ABC):
+class Storage(ABC):
     @property
     @abstractmethod
     def source_description(self) -> dict:
