@@ -2,7 +2,7 @@ from pydantic import (
     BaseModel,
     Field,
     EmailStr,
-    PastDate,
+    PastDate, PastDatetime,
 )
 from typing import Optional, List
 
@@ -30,7 +30,7 @@ class PhoneModel(BaseModel):
 class ContactModel(BaseModel):
     name: str
     email: Optional[EmailStr] | None = None
-    birthdate: Optional[PastDate] | None = None
+    birthdate: Optional[PastDatetime] | None = None
     phones: Optional[List[PhoneModel]] = []
     address: Optional[AddressModel] | None = None
 
@@ -68,10 +68,10 @@ if __name__ == "__main__":
     new_addr = AddressModel(addr_string="New street 34",
                             city="Chicago")
     contact = update_model(new_model, ContactModel(name=new_model.name, address=new_addr))
-    print(contact)
-
-    print(old_address)
-    old_address = update_model(old_address, new_addr)
-    print(old_address)
-
-    print(contact.model_json_schema())
+    # print(contact)
+    #
+    # print(old_address)
+    # old_address = update_model(old_address, new_addr)
+    # print(old_address)
+    #
+    # print(contact.model_json_schema())

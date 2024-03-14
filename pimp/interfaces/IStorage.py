@@ -5,12 +5,21 @@ from pydantic import BaseModel
 
 
 class IStorage(ABC):
-    container: Any
-    unique: Any
+    container: Optional[Any] = None
+    unique: str
+    model: BaseModel
+    connection: Any
 
     @abstractmethod
     def initialize(self,
-                   connection: Any):
+                   connection: Any,
+                   model: BaseModel,
+                   unique_field: str):
+        ...
+
+    @abstractmethod
+    def create(self,
+               entity: BaseModel) -> (str, Any):
         ...
 
     @abstractmethod
@@ -20,13 +29,18 @@ class IStorage(ABC):
         ...
 
     @abstractmethod
-    def iterator(self):
+    def update(self,
+               entity: BaseModel,
+               id_: int | str):
         ...
 
     @abstractmethod
-    def write(self,
-              entity: Any | BaseModel,
-              id_: Optional[int | str] = None):
+    def delete(self,
+               id_: int | str):
+        ...
+
+    @abstractmethod
+    def iterator(self):
         ...
 
     @abstractmethod
