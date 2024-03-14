@@ -19,7 +19,7 @@ class IStorage(ABC):
 
     @abstractmethod
     def create(self,
-               entity: BaseModel) -> (str, Any):
+               entity: BaseModel) -> str | int:
         ...
 
     @abstractmethod

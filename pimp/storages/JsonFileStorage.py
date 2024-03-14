@@ -5,7 +5,7 @@ from collections import UserDict
 from pydantic import BaseModel
 
 from interfaces.IStorage import IStorage
-from models.ABModels import ContactModel
+
 
 class JsonFileStorage(IStorage):
     """Class that provides file storage"""
@@ -29,15 +29,20 @@ class JsonFileStorage(IStorage):
         with open(connection, "r") as fin:
             data = json.load(fin)
             for item in data:
-                self.container[item[uniqe_filed]] = model(**item)
+                entity = self.model(**item)
+                key_ = hash(entity.__getattribute__(self.unique))
+                self.container[key_] = entity
 
     def create(self,
-               entity: BaseModel) -> (str, Any):
+               entity: BaseModel) -> str:
         """Writes entity to storage and returns id."""
         unique = entity.__getattribute__(self.unique)
-        if not self.container.get(unique):
+        if not self.container.get(hash(unique)):
             self.container[hash(unique)] = entity
-            return hash(unique), entity
+            return str(hash(unique))
+        else:
+            raise ValueError(f"Entity with {self.unique}"
+                             + f" {unique} already exists")
 
     def read(self,
              offset: int = -1,
@@ -58,9 +63,9 @@ class JsonFileStorage(IStorage):
         """Save changes to storage."""
         json_data = []
         for id_, entry in self.container.items():
-            json_data.append({id_: entry.model_dump(warnings=False)})
-        with open(self.connection, "w") as fout:
-            json.dump(json_data, fout)
+            json_data.append(entry.model_dump(warnings=False))
+        with open(self.connection, "w", encoding='utf-8') as fout:
+            json.dump(json_data, fout, ensure_ascii=False, default=str)
 
     def iterator(self):
         pass
@@ -79,5 +84,18 @@ if __name__ == "__main__":
                                     "country": "USA",
                                     "zip": "12345",
                                     "addr_string": "Some street 123"})
-    id_, _ = storage.create(contact)
+    id_ = storage.create(contact)
     print(id_)
+    contact = ContactModel(name="Doe John",
+                           email="some@where.com",
+                           birthdate="1980-01-01",
+                           phones=[{"phone": "1234567890"},
+                                   {"phone": "   123456 "}],
+                           address={"city": "New York",
+                                    "country": "USA",
+                                    "zip": "12345",
+                                    "addr_string": "Some street 123"})
+    id_ = storage.create(contact)
+    print(id_)
+    storage.commit()
+    print(len(storage.container), len(storage.container.data))
