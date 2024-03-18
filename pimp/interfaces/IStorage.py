@@ -31,7 +31,8 @@ class IStorage(ABC):
     @abstractmethod
     def update(self,
                entity: BaseModel,
-               id_: int | str):
+               id_: int | str,
+               strict: bool = False):
         ...
 
     @abstractmethod
