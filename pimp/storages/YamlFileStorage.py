@@ -106,34 +106,37 @@ if __name__ == "__main__":
     from pimp.models.ABModels import ContactModel
     storage = YamlFileStorage()
     storage.initialize(Path("data.yaml"), ContactModel, "name")
-    contact = ContactModel(name="John Doe",
-                           email="some@where.com",
-                           birthdate="1980-01-01",
-                           phones=[{"phone": "1234567890"},
-                                   {"phone": "   123456 "}],
-                           address={"city": "New York",
-                                    "country": "USA",
-                                    "zip": "12345",
-                                    "addr_string": "Some street 123"})
-    id_1 = storage.create(contact)
-    print(id_1)
-    contact = ContactModel(name="Doe John",
-                           email="some@where.com",
-                           birthdate="1980-01-01",
-                           phones=[{"phone": "1234567890"},
-                                   {"phone": "   123456 "}],
-                           address={"city": "New York",
-                                    "country": "USA",
-                                    "zip": "12345",
-                                    "addr_string": "Some street 123"})
-    id_2 = storage.create(contact)
-    print(id_2)
-    storage.commit()
-    update_contact = ContactModel(name="Marie Jane")
-    storage.update(update_contact, id_1, strict=True)
-    storage.delete("id_2")
-    storage.commit()
-    print(storage.container)
-    # for _ in storage.read():
-    #     print(_)
+    # contact = ContactModel(name="John Doe",
+    #                        email="some@where.com",
+    #                        birthdate="1980-01-01",
+    #                        phones=[{"phone": "1234567890"},
+    #                                {"phone": "   123456 "}],
+    #                        address={"city": "New York",
+    #                                 "country": "USA",
+    #                                 "zip": "12345",
+    #                                 "addr_string": "Some street 123"})
+    # id_1 = storage.create(contact)
+    # print(id_1)
+    # contact = ContactModel(name="Doe John",
+    #                        email="some@where.com",
+    #                        birthdate="1980-01-01",
+    #                        phones=[{"phone": "1234567890"},
+    #                                {"phone": "   123456 "}],
+    #                        address={"city": "New York",
+    #                                 "country": "USA",
+    #                                 "zip": "12345",
+    #                                 "addr_string": "Some street 123"})
+    # id_2 = storage.create(contact)
+    # print(id_2)
+    # storage.commit()
+    # update_contact = ContactModel(name="Marie Jane")
+    # storage.update(update_contact, id_1, strict=True)
+    # storage.delete("id_2")
+    # storage.commit()
+    # print(storage.container)
+    for _ in storage.read():
+        print(_)
+
+    print(storage.capacity)
+    print(storage.read(1, 2))
 
