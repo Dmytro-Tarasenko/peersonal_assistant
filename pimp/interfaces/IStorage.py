@@ -10,6 +10,11 @@ class IStorage(ABC):
     model: BaseModel
     connection: Any
 
+    @property
+    @abstractmethod
+    def capacity(self) -> int:
+        ...
+
     @abstractmethod
     def initialize(self,
                    connection: Any,

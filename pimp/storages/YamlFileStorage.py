@@ -1,12 +1,12 @@
 from pathlib import Path
-import json
+import yaml
 from collections import UserDict
 from pydantic import BaseModel
 
 from interfaces.IStorage import IStorage
 
 
-class JsonFileStorage(IStorage):
+class YamlFileStorage(IStorage):
     """Class that provides file storage"""
     def __init__(self):
         super().__init__()
@@ -27,10 +27,10 @@ class JsonFileStorage(IStorage):
 
         if not connection.exists():
             with open(connection, "w", encoding="utf-8") as fout:
-                json.dump([], fout)
+                yaml.dump([], fout)
                 return
         with open(connection, "r") as fin:
-            data = json.load(fin)
+            data = yaml.safe_load(fin)
             for item in data:
                 entity = self.model(**item)
                 key_ = hash(entity.__getattribute__(self.unique))
@@ -92,11 +92,11 @@ class JsonFileStorage(IStorage):
 
     def commit(self):
         """Save changes to storage."""
-        json_data = []
+        yaml_data = []
         for id_, entry in self.container.items():
-            json_data.append(entry.model_dump(warnings=False))
+            yaml_data.append(entry.model_dump(warnings=False))
         with open(self.connection, "w", encoding="utf-8") as fout:
-            json.dump(json_data, fout, ensure_ascii=False, default=str)
+            yaml.dump(yaml_data, fout, allow_unicode=True)
 
     def iterator(self):
         pass
@@ -104,8 +104,8 @@ class JsonFileStorage(IStorage):
 
 if __name__ == "__main__":
     from pimp.models.ABModels import ContactModel
-    storage = JsonFileStorage()
-    storage.initialize(Path("data.json"), ContactModel, "name")
+    storage = YamlFileStorage()
+    storage.initialize(Path("data.yaml"), ContactModel, "name")
     contact = ContactModel(name="John Doe",
                            email="some@where.com",
                            birthdate="1980-01-01",
@@ -134,4 +134,6 @@ if __name__ == "__main__":
     storage.delete("id_2")
     storage.commit()
     print(storage.container)
+    # for _ in storage.read():
+    #     print(_)
 
