@@ -8,6 +8,20 @@ from pydantic import BaseModel
 
 from models.ABModels import ContactModel, PhoneModel, AddressModel
 
+# ('StringField', 'URLField', 'EmailField', 'IntField', 'LongField',
+# 'FloatField','DecimalField', 'BooleanField', 'DateTimeField', 'DateField',
+# 'ComplexDateTimeField', 'EmbeddedDocumentField', 'ObjectIdField',
+# 'GenericEmbeddedDocumentField', 'DynamicField', 'ListField',
+# 'SortedListField', 'EmbeddedDocumentListField', 'DictField', 'MapField',
+# 'ReferenceField', 'CachedReferenceField', 'LazyReferenceField',
+# 'GenericLazyReferenceField', 'GenericReferenceField', 'BinaryField',
+# 'GridFSError', 'GridFSProxy', 'FileField', 'ImageGridFsProxy',
+# 'ImproperlyConfigured', 'ImageField', 'GeoPointField', 'PointField',
+# 'LineStringField', 'PolygonField', 'SequenceField', 'UUIDField',
+# 'EnumField', 'MultiPointField', 'MultiLineStringField',
+# 'MultiPolygonField', 'GeoJsonBaseField', 'Decimal128Field')
+
+
 PYTYPES_MDBFIELDS = {
     str: mongoengine.StringField,
     'str': mongoengine.StringField,
