@@ -7,7 +7,7 @@ from interfaces.IStorage import IStorage
 
 
 class JsonFileStorage(IStorage):
-    """Class that provides file storage"""
+    """Class that provides file storage (json file)"""
     def __init__(self):
         super().__init__()
         self.container = UserDict()

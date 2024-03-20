@@ -1,13 +1,13 @@
 from pathlib import Path
-import yaml
+import pickle
 from collections import UserDict
 from pydantic import BaseModel
 
 from interfaces.IStorage import IStorage
 
 
-class YamlFileStorage(IStorage):
-    """Class that provides file storage (yaml file)"""
+class PickleFileStorage(IStorage):
+    """Class that provides file storage (pickle binary)"""
     def __init__(self):
         super().__init__()
         self.container = UserDict()
@@ -26,11 +26,11 @@ class YamlFileStorage(IStorage):
         self.connection = connection
 
         if not connection.exists():
-            with open(connection, "w", encoding="utf-8") as fout:
-                yaml.dump([], fout)
+            with open(connection, "wb") as fout:
+                pickle.dump([], fout)
                 return
-        with open(connection, "r") as fin:
-            data = yaml.safe_load(fin)
+        with open(connection, "rb") as fin:
+            data = pickle.load(fin)
             for item in data:
                 entity = self.model(**item)
                 key_ = hash(entity.__getattribute__(self.unique))
@@ -92,11 +92,11 @@ class YamlFileStorage(IStorage):
 
     def commit(self):
         """Save changes to storage."""
-        yaml_data = []
+        pickle_data = []
         for id_, entry in self.container.items():
-            yaml_data.append(entry.model_dump(warnings=False))
-        with open(self.connection, "w", encoding="utf-8") as fout:
-            yaml.dump(yaml_data, fout, allow_unicode=True)
+            pickle_data.append(entry)
+        with open(self.connection, "wb") as fout:
+            pickle.dump(pickle_data, fout)
 
     def iterator(self):
         pass
@@ -104,39 +104,34 @@ class YamlFileStorage(IStorage):
 
 if __name__ == "__main__":
     from pimp.models.ABModels import ContactModel
-    storage = YamlFileStorage()
-    storage.initialize(Path("data.yaml"), ContactModel, "name")
-    # contact = ContactModel(name="John Doe",
-    #                        email="some@where.com",
-    #                        birthdate="1980-01-01",
-    #                        phones=[{"phone": "1234567890"},
-    #                                {"phone": "   123456 "}],
-    #                        address={"city": "New York",
-    #                                 "country": "USA",
-    #                                 "zip": "12345",
-    #                                 "addr_string": "Some street 123"})
-    # id_1 = storage.create(contact)
-    # print(id_1)
-    # contact = ContactModel(name="Doe John",
-    #                        email="some@where.com",
-    #                        birthdate="1980-01-01",
-    #                        phones=[{"phone": "1234567890"},
-    #                                {"phone": "   123456 "}],
-    #                        address={"city": "New York",
-    #                                 "country": "USA",
-    #                                 "zip": "12345",
-    #                                 "addr_string": "Some street 123"})
-    # id_2 = storage.create(contact)
-    # print(id_2)
-    # storage.commit()
-    # update_contact = ContactModel(name="Marie Jane")
-    # storage.update(update_contact, id_1, strict=True)
-    # storage.delete("id_2")
-    # storage.commit()
-    # print(storage.container)
-    for _ in storage.read():
-        print(_)
-
-    print(storage.capacity)
-    print(storage.read(1, 2))
+    storage = PickleFileStorage()
+    storage.initialize(Path("data.bin"), ContactModel, "name")
+    contact = ContactModel(name="John Doe",
+                           email="some@where.com",
+                           birthdate="1980-01-01",
+                           phones=[{"phone": "1234567890"},
+                                   {"phone": "   123456 "}],
+                           address={"city": "New York",
+                                    "country": "USA",
+                                    "zip": "12345",
+                                    "addr_string": "Some street 123"})
+    id_1 = storage.create(contact)
+    print(id_1)
+    contact = ContactModel(name="Doe John",
+                           email="some@where.com",
+                           birthdate="1980-01-01",
+                           phones=[{"phone": "1234567890"},
+                                   {"phone": "   123456 "}],
+                           address={"city": "New York",
+                                    "country": "USA",
+                                    "zip": "12345",
+                                    "addr_string": "Some street 123"})
+    id_2 = storage.create(contact)
+    print(id_2)
+    storage.commit()
+    update_contact = ContactModel(name="Marie Jane")
+    storage.update(update_contact, id_1, strict=True)
+    storage.delete(id_2)
+    storage.commit()
+    print(storage.container)
 
